@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Click Doc - Dashboard</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 0 auto; padding: 20px; background: #f4f4f4; }
+        .sidebar { width: 200px; float: left; background: white; padding: 10px; margin-right: 20px; }
+        .main { overflow: hidden; background: white; padding: 10px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Click Doc: Dashboard</h1>
+    <div class="sidebar">
+        <h3>Uploaded Files</h3>
+        {% if file %}
+            <p>{{ file.keys() | first }}</p>
+        {% else %}
+            <p>No files uploaded</p>
+        {% endif %}
+    </div>
+    <div class="main">
+        <h3>Select Documentation Type</h3>
+        <form action="/function_documentation" method="GET">
+            <button type="submit">Function Documentation</button>
+        </form>
+        <form action="/validation_documentation" method="GET">
+            <button type="submit">Validation</button>
+        </form>
+        <form action="/relationship_documentation" method="GET">
+            <button type="submit">Relationship</button>
+        </form>
+    </div>
+</body>
+</html>
