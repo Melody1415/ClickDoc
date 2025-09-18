@@ -1,12 +1,15 @@
 from flask import Flask, request, render_template, redirect, url_for, session
 from dashboard import bp_dashboard
 from generate import generate
+from validation import validation  # New import
+from relationship import relationship 
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Replace with a secure random key later
 app.register_blueprint(bp_dashboard)
 app.register_blueprint(generate)
-
+app.register_blueprint(validation)
+app.register_blueprint(relationship)
 
 @app.route('/', methods=['GET', 'POST'])
 def upload():
