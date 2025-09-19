@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
-import Upload from './pages/Upload';
+import Home from './pages/Home.jsx';
+import Upload from './pages/Upload.jsx';
 
 function App() {
   return (

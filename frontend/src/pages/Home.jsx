@@ -55,7 +55,7 @@ function Home() {
     }
   ];
 
-  return (
+  return (   
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="flex justify-between items-center px-8 py-6 bg-white shadow-sm">
@@ -116,7 +116,7 @@ function Home() {
         </button>
       </section>
     </div>
-  );
+);
 }
 
 export default Home;
