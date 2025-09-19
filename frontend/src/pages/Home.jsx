@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Upload, Search, GitBranch, Settings, Shield, Zap, BarChart3, Workflow } from 'lucide-react';
+import { FileCode, Upload, SearchCode, Network, Layers, Wrench, WandSparkles, Workflow, ArrowDownUp, CircleCheckBig } from 'lucide-react';
 
 function Home() {
   const handleUploadClick = () => {
@@ -11,47 +11,47 @@ function Home() {
     {
       title: "Auto-Generate",
       description: "Generate documentation from your code automatically with AI assistance",
-      icon: <Zap className="w-8 h-8 text-blue-600 mb-3" />
+      icon: <WandSparkles className="w-8 h-8 text-blue-600 mb-3" />
     },
     {
       title: "Function Documentation", 
       description: "Extract and explain individual functions with ability to add custom comments",
-      icon: <FileText className="w-8 h-8 text-blue-600 mb-3" />
+      icon: <FileCode className="w-8 h-8 text-blue-600 mb-3" />
     },
     {
       title: "Module Relationship",
       description: "Understand and document how different code modules connect and interact",
-      icon: <GitBranch className="w-8 h-8 text-blue-600 mb-3" />
+      icon: <Network className="w-8 h-8 text-blue-600 mb-3" />
     },
     {
       title: "Tech Stack Documentation",
       description: "Automatically identify and document tools, languages, and dependencies used",
-      icon: <Settings className="w-8 h-8 text-blue-600 mb-3" />
+      icon: <Layers className="w-8 h-8 text-blue-600 mb-3" />
     },
     {
       title: "Setup & Installation Guide",
       description: "Generate comprehensive guidelines on how to install and run your code",
-      icon: <Shield className="w-8 h-8 text-blue-600 mb-3" />
+      icon: <Wrench className="w-8 h-8 text-blue-600 mb-3" />
     },
     {
       title: "Form Validation Analysis",
       description: "Extract and explain validation rules from form code automatically",
-      icon: <Shield className="w-8 h-8 text-blue-600 mb-3" />
+      icon: <CircleCheckBig className="w-8 h-8 text-blue-600 mb-3" />
     },
     {
       title: "Relationship Diagrams",
       description: "Visual maps showing how components and modules connect in your system",
-      icon: <BarChart3 className="w-8 h-8 text-blue-600 mb-3" />
+      icon: <Workflow className="w-8 h-8 text-blue-600 mb-3" />
     },
     {
       title: "Smart Search",
       description: "Ask questions about your uploaded code and get instant AI-powered answers",
-      icon: <Search className="w-8 h-8 text-blue-600 mb-3" />
+      icon: <SearchCode className="w-8 h-8 text-blue-600 mb-3" />
     },
     {
       title: "Flow Diagrams",
       description: "Generate process flow and execution path visualizations from your code",
-      icon: <Workflow className="w-8 h-8 text-blue-600 mb-3" />
+      icon: <ArrowDownUp className="w-8 h-8 text-blue-600 mb-3" />
     }
   ];
 
