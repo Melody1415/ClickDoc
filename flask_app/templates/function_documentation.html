@@ -1,291 +1,374 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClickDoc - Function Documentation</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClickDoc - Function Documentation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background-color: #f9fafb;
-            color: #111827;
-            line-height: 1.5;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f7f9fc;
+      color: #2d3748;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
 
-        .container {
-            min-height: 100vh;
-        }
+    /* ----- Header (same as dashboard) ----- */
+    .header {
+      background: linear-gradient(90deg, #2b6cb0, #2c5282);
+      padding: 20px 32px;
+      border-bottom: 1px solid #e2e8f0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
 
-        .header {
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        }
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
 
-        .header-content {
-            display: flex;
-            align-items: center;
-            padding: 1rem 1.5rem;
-        }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: #ffffff;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #2b6cb0;
+      font-size: 20px;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
 
-        .logo-icon {
-            width: 2.5rem;
-            height: 2.5rem;
-            background: #2563eb;
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-        }
+    .logo-text {
+      font-size: 26px;
+      font-weight: 700;
+      color: #ffffff;
+    }
 
-        .logo-text {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #111827;
-        }
+    .header-buttons {
+      display: flex;
+      gap: 12px;
+    }
 
-        .main-layout {
-            display: flex;
-        }
+    .dashboard-btn, .back-btn {
+      background: #ffffff;
+      color: #2b6cb0;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.2s;
+    }
 
-        .sidebar {
-            width: 16rem;
-            background: white;
-            min-height: calc(100vh - 73px);
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        }
+    .dashboard-btn:hover, .back-btn:hover {
+      background: #edf2f7;
+      transform: translateY(-1px);
+    }
 
-        .sidebar-content {
-            padding: 1rem;
-        }
+    /* ----- Layout ----- */
+    .main-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      min-height: calc(100vh - 80px);
+    }
 
-        .section {
-            margin-bottom: 1.5rem;
-        }
+    .sidebar {
+      width: 300px;
+      background: #ffffff;
+      border-right: 1px solid #e2e8f0;
+      padding: 32px;
+    }
 
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-        }
+    .sidebar-section {
+      margin-bottom: 32px;
+    }
 
-        .section-title {
-            font-weight: 500;
-            color: #111827;
-        }
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #4a5568;
+    }
 
-        .file-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
+    .status-icon {
+      width: 18px;
+      height: 18px;
+      background: #48bb78;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #ffffff;
+    }
 
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            border-radius: 0.375rem;
-            transition: background-color 0.2s;
-        }
+    .file-list {
+      list-style: none;
+    }
 
-        .file-item:hover {
-            background-color: #f9fafb;
-        }
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      font-size: 15px;
+      color: #2d3748;
+      transition: background-color 0.2s;
+    }
 
-        .file-name {
-            font-size: 0.875rem;
-            color: #374151;
-        }
+    .file-item:hover {
+      background: #edf2f7;
+      border-radius: 6px;
+      padding-left: 8px;
+    }
 
-        .content {
-            flex: 1;
-            padding: 2rem;
-        }
+    .file-icon {
+      width: 24px;
+      height: 24px;
+      background: #718096;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: bold;
+    }
 
-        .content-wrapper {
-            max-width: 64rem;
-        }
+    .content-area {
+      flex: 1;
+      padding: 40px 48px;
+      background: #f7f9fc;
+    }
 
-        .page-title {
-            font-size: 1.875rem;
-            font-weight: 600;
-            color: #111827;
-            margin-bottom: 0.5rem;
-        }
+    .main-title {
+      font-size: 32px;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 12px;
+    }
 
-        .page-subtitle {
-            color: #6b7280;
-            margin-bottom: 1.5rem;
-        }
+    .subtitle {
+      font-size: 18px;
+      color: #718096;
+      margin-bottom: 48px;
+    }
 
-        .doc-card {
-            background: white;
-            border-radius: 0.5rem;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-        }
+    /* ----- Documentation Card ----- */
+    .doc-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 32px;
+    }
 
-        .doc-header {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            padding: 1rem 1.5rem;
-        }
+    .doc-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px 30px;
+      color: white;
+      font-size: 20px;
+      font-weight: 600;
+    }
 
-        .doc-header-title {
-            color: white;
-            font-weight: 600;
-            font-size: 1.125rem;
-        }
+    .doc-content {
+      padding: 30px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
 
-        .doc-content {
-            padding: 1.5rem;
-        }
+    .doc-content pre {
+      background: #f0fdf4;
+      padding: 16px;
+      border-radius: 8px;
+      border-left: 4px solid #22c55e;
+      white-space: pre-wrap;
+      font-size: 14px;
+      color: #374151;
+    }
 
-        .doc-content pre {
-            background: #f8f9fa;
-            padding: 15px;
-            border: 1px solid #ddd;
-            white-space: pre-wrap;
-            font-size: 0.875rem;
-            color: #374151;
-            border-radius: 0.375rem;
-        }
+    .actions {
+      padding: 0 30px 30px;
+      display: flex;
+      justify-content: center;
+    }
 
-        .actions {
-            padding: 0 1.5rem 1.5rem;
-        }
+    .button-group {
+      display: flex;
+      gap: 16px;
+    }
 
-        .button-group {
-            display: flex;
-            gap: 0.75rem;
-        }
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
 
-        .btn {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: #2563eb;
-            color: white;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 0.5rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
+    .regenerate-btn, .edit-btn, .download-btn {
+      background: #4285f4;
+      color: white;
+    }
 
-        .btn:hover {
-            background: #1d4ed8;
-        }
+    .regenerate-btn:hover, .edit-btn:hover, .download-btn:hover {
+      background: #3367d6;
+      transform: translateY(-1px);
+    }
 
-        .icon-sm {
-            width: 1rem;
-            height: 1rem;
-        }
+    @media (max-width: 768px) {
+      .main-container {
+        flex-direction: column;
+      }
 
-        .text-orange {
-            color: #ea580c;
-        }
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 24px;
+      }
 
-        .text-purple {
-            color: #9333ea;
-        }
-    </style>
+      .content-area {
+        padding: 32px 20px;
+      }
+
+      .main-title {
+        font-size: 28px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+      }
+
+      .doc-card {
+        margin-bottom: 24px;
+      }
+
+      .doc-header {
+        padding: 16px 20px;
+        font-size: 18px;
+      }
+
+      .doc-content {
+        padding: 20px;
+      }
+
+      .actions {
+        padding: 0 20px 20px;
+      }
+
+      .button-group {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .header-buttons {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <div class="header-content">
-                <div class="logo">
-                    <div class="logo-icon">
-                        <i data-lucide="file-text" class="icon-sm"></i>
-                    </div>
-                    <h1 class="logo-text">ClickDoc</h1>
-                </div>
-            </div>
-        </header>
-
-        <div class="main-layout">
-            <aside class="sidebar">
-                <div class="sidebar-content">
-                    <div class="section">
-                        <div class="section-header">
-                            <i data-lucide="upload" class="icon-sm text-orange"></i>
-                            <h3 class="section-title">File Uploaded</h3>
-                        </div>
-                        <div class="file-list">
-                            {% if filename %}
-                                <div class="file-item">
-                                    <i data-lucide="file-text" class="icon-sm text-purple"></i>
-                                    <span class="file-name">{{ filename }}</span>
-                                </div>
-                            {% else %}
-                                <div class="file-item">
-                                    <i data-lucide="file-text" class="icon-sm text-purple"></i>
-                                    <span class="file-name">No files uploaded</span>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </aside>
-
-            <main class="content">
-                <div class="content-wrapper">
-                    <h2 class="page-title">Function Documentation</h2>
-                    <p class="page-subtitle">Generated for: {{ filename }}</p>
-
-                    <div class="doc-card">
-                        <div class="doc-header">
-                            <h3 class="doc-header-title">Generated Documentation</h3>
-                        </div>
-                        <div class="doc-content">
-                            <pre>{{ result }}</pre>
-                        </div>
-                        <div class="actions">
-                            <div class="button-group">
-                                <button class="btn" onclick="regenerate()">
-                                    <i data-lucide="refresh-cw" class="icon-sm"></i>
-                                    <span>Regenerate</span>
-                                </button>
-                                <button class="btn" onclick="edit()">
-                                    <i data-lucide="edit" class="icon-sm"></i>
-                                    <span>Edit</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <div class="logo-icon">📄</div>
+        <span class="logo-text">ClickDoc</span>
+      </div>
+      <div class="header-buttons">
+        <button class="dashboard-btn">Dashboard</button>
+        <button class="back-btn">Back</button>
+      </div>
     </div>
+  </header>
 
-    <script>
-        lucide.createIcons();
+  <div class="main-container">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="section-title">
+          <div class="status-icon">↑</div>
+          File Uploaded
+        </div>
+        <ul class="file-list">
+          {% if filename %}
+            <li class="file-item">
+              <div class="file-icon">📄</div>
+              <span class="file-name">{{ filename }}</span>
+            </li>
+          {% else %}
+            <li class="file-item">
+              <div class="file-icon">📄</div>
+              <span class="file-name">No files uploaded</span>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </aside>
 
-        function regenerate() {
-            window.location.href = "{{ url_for('generate.function_documentation') }}";
-        }
+    <main class="content-area">
+      <h1 class="main-title">Function Documentation</h1>
+      <p class="subtitle">Generated for: {{ filename }}</p>
 
-        function edit() {
-            console.log('Edit clicked - functionality to be implemented');
-        }
-    </script>
+      <div class="doc-card">
+        <div class="doc-header">
+          <h3>Generated Documentation</h3>
+        </div>
+        <div class="doc-content">
+          <pre>{{ result }}</pre>
+        </div>
+        <div class="actions">
+          <div class="button-group">
+            <button class="action-btn regenerate-btn" onclick="regenerate()">
+              🔄 Regenerate
+            </button>
+            <button class="action-btn edit-btn" onclick="edit()">
+              ✏️ Edit
+            </button>
+            <button class="action-btn download-btn">
+              ⬇️ Download
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function regenerate() {
+      window.location.href = "{{ url_for('generate.function_documentation') }}";
+    }
+
+    function edit() {
+      console.log('Edit clicked - functionality to be implemented');
+    }
+  </script>
 </body>
 </html>

@@ -13,20 +13,21 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
+            background-color: #f7f9fc;
+            color: #2d3748;
         }
 
         .header {
-            background: white;
-            padding: 16px 24px;
-            border-bottom: 1px solid #e0e0e0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: linear-gradient(90deg, #2b6cb0, #2c5282);
+            padding: 20px 32px;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .header-content {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             max-width: 1400px;
             margin: 0 auto;
         }
@@ -38,22 +39,45 @@
         }
 
         .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: #4285f4;
-            border-radius: 8px;
+            width: 48px;
+            height: 48px;
+            background: #ffffff;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
+            color: #2b6cb0;
+            font-size: 20px;
+            font-weight: 700;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
         .logo-text {
-            font-size: 24px;
-            font-weight: 600;
-            color: #333;
+            font-size: 26px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .home-btn, .dashboard-btn {
+            background: #ffffff;
+            color: #2b6cb0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .home-btn:hover, .dashboard-btn:hover {
+            background: #edf2f7;
+            transform: translateY(-1px);
         }
 
         .main-container {
@@ -64,35 +88,36 @@
         }
 
         .sidebar {
-            width: 280px;
-            background: white;
-            border-right: 1px solid #e0e0e0;
-            padding: 24px;
+            width: 300px;
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            padding: 32px;
         }
 
         .sidebar-section {
-            margin-bottom: 24px;
+            margin-bottom: 32px;
         }
 
         .section-title {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            color: #666;
+            gap: 10px;
+            color: #4a5568;
         }
 
         .status-icon {
-            width: 16px;
-            height: 16px;
-            background: #28a745;
-            border-radius: 4px;
+            width: 18px;
+            height: 18px;
+            background: #48bb78;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            font-size: 12px;
+            color: #ffffff;
         }
 
         .file-list {
@@ -102,70 +127,78 @@
         .file-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 0;
-            font-size: 14px;
-            color: #333;
+            gap: 12px;
+            padding: 10px 0;
+            font-size: 15px;
+            color: #2d3748;
+            transition: background-color 0.2s;
+        }
+
+        .file-item:hover {
+            background: #edf2f7;
+            border-radius: 6px;
+            padding-left: 8px;
         }
 
         .file-icon {
-            width: 20px;
-            height: 20px;
-            background: #6c757d;
-            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            background: #718096;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 10px;
+            color: #ffffff;
+            font-size: 12px;
             font-weight: bold;
         }
 
         .content-area {
             flex: 1;
-            padding: 32px 40px;
-            background: #f5f5f5;
+            padding: 40px 48px;
+            background: #f7f9fc;
         }
 
         .content-header {
-            margin-bottom: 40px;
+            margin-bottom: 48px;
         }
 
         .main-title {
-            font-size: 28px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
+            font-size: 32px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 12px;
         }
 
         .subtitle {
-            font-size: 16px;
-            color: #666;
+            font-size: 18px;
+            color: #718096;
         }
 
         .cards-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 24px;
+            gap: 32px;
         }
 
         .top-row {
             display: flex;
-            gap: 24px;
+            gap: 32px;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .doc-card {
-            width: 200px;
-            height: 200px;
-            background: white;
+            width: 220px;
+            height: 240px;
+            background: #ffffff;
             border-radius: 12px;
             padding: 24px;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border: 1px solid #e0e0e0;
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
             display: flex;
             flex-direction: column;
@@ -173,8 +206,8 @@
         }
 
         .doc-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
 
         .card-content {
@@ -185,54 +218,65 @@
         }
 
         .card-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            margin-bottom: 16px;
+            font-size: 24px;
+            margin-bottom: 20px;
         }
 
         .function-icon {
-            background: #e3f2fd;
-            color: #1976d2;
+            background: #e6f3ff;
+            color: #2b6cb0;
         }
 
         .validation-icon {
-            background: #e8f5e8;
-            color: #388e3c;
+            background: #e6ffed;
+            color: #38a169;
         }
 
         .relationship-icon {
-            background: #f3e5f5;
-            color: #7b1fa2;
+            background: #f9e6ff;
+            color: #9f7aea;
+        }
+
+        .setup-icon {
+            background: #fff7e6;
+            color: #d69e2e;
+        }
+
+        .tech-icon {
+            background: #e6e6ff;
+            color: #4c51bf;
         }
 
         .card-title {
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
             text-align: center;
         }
 
         .generate-btn {
-            background: #4285f4;
-            color: white;
+            background: #2b6cb0;
+            color: #ffffff;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-size: 13px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
             font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, transform 0.2s;
             width: 100%;
         }
 
         .generate-btn:hover {
-            background: #3367d6;
+            background: #2c5282;
+            transform: translateY(-1px);
         }
 
         @media (max-width: 768px) {
@@ -243,22 +287,46 @@
             .sidebar {
                 width: 100%;
                 border-right: none;
-                border-bottom: 1px solid #e0e0e0;
+                border-bottom: 1px solid #e2e8f0;
+                padding: 24px;
             }
 
             .content-area {
-                padding: 24px 16px;
+                padding: 32px 20px;
             }
 
             .top-row {
                 flex-wrap: wrap;
-                gap: 16px;
+                gap: 20px;
             }
 
             .doc-card {
-                width: 160px;
-                height: 160px;
-                padding: 16px;
+                width: 180px;
+                height: 200px;
+                padding: 20px;
+            }
+
+            .card-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+
+            .card-title {
+                font-size: 14px;
+            }
+
+            .main-title {
+                font-size: 28px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+            }
+
+            .header-buttons {
+                flex-direction: column;
+                gap: 8px;
             }
         }
     </style>
@@ -269,6 +337,10 @@
             <div class="logo">
                 <div class="logo-icon">📄</div>
                 <span class="logo-text">ClickDoc</span>
+            </div>
+            <div class="header-buttons">
+                <button class="home-btn">Home</button>
+                <button class="dashboard-btn">Dashboard</button>
             </div>
         </div>
     </header>
@@ -310,7 +382,7 @@
                         <form action="/function_documentation" method="GET">
                             <div class="card-content">
                                 <div class="card-icon function-icon">📋</div>
-                                <h3 class="card-title">Function Documentation</h3>
+                                <h3 class="card-title">Function</h3>
                             </div>
                             <button type="submit" class="generate-btn">Generate</button>
                         </form>
@@ -331,6 +403,26 @@
                             <div class="card-content">
                                 <div class="card-icon relationship-icon">⚙️</div>
                                 <h3 class="card-title">Relationship</h3>
+                            </div>
+                            <button type="submit" class="generate-btn">Generate</button>
+                        </form>
+                    </div>
+
+                    <div class="doc-card">
+                        <form action="/setup_documentation" method="GET">
+                            <div class="card-content">
+                                <div class="card-icon setup-icon">🛠️</div>
+                                <h3 class="card-title">Setup Guide</h3>
+                            </div>
+                            <button type="submit" class="generate-btn">Generate</button>
+                        </form>
+                    </div>
+
+                    <div class="doc-card">
+                        <form action="/tech_stack_documentation" method="GET">
+                            <div class="card-content">
+                                <div class="card-icon tech-icon">💻</div>
+                                <h3 class="card-title">Tech Stack</h3>
                             </div>
                             <button type="submit" class="generate-btn">Generate</button>
                         </form>
