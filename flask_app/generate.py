@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, session, redirect, url_for
 from groq import Groq
 
+
 generate = Blueprint('generate', __name__)
 
 GROQ_API_KEY = "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"
@@ -37,5 +38,6 @@ def function_documentation():
         max_tokens=1000
     )
     ai_response = chat_completion.choices[0].message.content
+    
     
     return render_template('function_documentation.html', result=ai_response, filename=filename)
