@@ -358,7 +358,7 @@
       transform: translateY(-1px);
     }
 
-     /* Spinner */
+      /* Spinner */
     .spinner {
       border: 4px solid #f3f3f3;
       border-top: 4px solid #4285f4;
@@ -499,7 +499,7 @@
       const parsedHtml = marked.parse(markdownContent);
       document.getElementById('markdown-content').innerHTML = parsedHtml;
     });
-    
+
     async function regenerate() {
       const contentDiv = document.getElementById('markdown-content');
       contentDiv.innerHTML = '<div class="spinner"></div><p style="text-align:center">Regenerating documentation...</p>';
@@ -515,7 +515,7 @@
       } catch (err) {
         contentDiv.innerHTML = "<p style='color:red;'>Request failed. Please try again.</p>";
       }
-    }
+    }    
 
     function edit() {
       console.log('Edit clicked - functionality to be implemented');
