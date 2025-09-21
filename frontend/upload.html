@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload - ClickDoc</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="min-h-screen bg-white">
+    <!-- Header -->
+    <header class="flex justify-between items-center px-8 py-6 bg-white shadow-sm">
+        <div class="text-2xl font-bold text-blue-600">
+            ClickDoc
+        </div>
+        <button id="home-btn" class="text-blue-600 hover:text-blue-800 transition-colors">
+            Home
+        </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex items-center justify-center min-h-screen px-8 py-12">
+        <div class="max-w-md w-full text-center">
+            <h1 class="text-3xl font-bold text-gray-800 mb-12">Upload Your Code</h1>
+            
+            <!-- Drag & Drop Area -->
+            <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-lg p-16 mb-8 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 cursor-pointer">
+                <div id="drop-content">
+                    <i data-lucide="upload" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+                    <p class="text-gray-600 text-lg mb-2">Drag & Drop Files Here</p>
+                    <p class="text-gray-500 mb-6">Or click to browse files</p>
+                </div>
+                <input type="file" id="file-input" multiple accept=".js,.jsx,.ts,.tsx,.py,.html,.css,.json,.md,.pdf" class="hidden">
+            </div>
+
+            <!-- Language Tags -->
+            <div class="flex justify-center gap-3 mb-8">
+                <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">Java</span>
+                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Python</span>
+                <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">JavaScript</span>
+            </div>
+
+            <!-- File List -->
+            <div id="file-list" class="mb-8 hidden">
+                <div id="files-container" class="space-y-2">
+                    <!-- Files will be added here dynamically -->
+                </div>
+            </div>
+
+            <!-- Process Button -->
+            <button id="process-btn" class="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                Process File
+            </button>
+        </div>
+    </main>
+
+    <script>
+        let selectedFiles = [];
+
+        // DOM Elements
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const fileList = document.getElementById('file-list');
+        const filesContainer = document.getElementById('files-container');
+        const processBtn = document.getElementById('process-btn');
+        const homeBtn = document.getElementById('home-btn');
+
+        // Home button functionality
+        homeBtn.addEventListener('click', function() {
+            window.location.href = 'home.html';
+        });
+
+        // Drop zone click
+        dropZone.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        // File input change
+        fileInput.addEventListener('change', function(e) {
+            handleFiles(e.target.files);
+        });
+
+        // Drag and drop functionality
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dropZone.classList.add('border-blue-500', 'bg-blue-100');
+        });
+
+        dropZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            dropZone.classList.remove('border-blue-500', 'bg-blue-100');
+        });
+
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dropZone.classList.remove('border-blue-500', 'bg-blue-100');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        // Handle selected files
+        function handleFiles(files) {
+            selectedFiles = Array.from(files);
+            displayFiles();
+            updateProcessButton();
+        }
+
+        // Display selected files
+        function displayFiles() {
+            if (selectedFiles.length === 0) {
+                fileList.classList.add('hidden');
+                return;
+            }
+
+            fileList.classList.remove('hidden');
+            filesContainer.innerHTML = '';
+
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'flex items-center justify-between bg-gray-100 p-3 rounded-lg';
+                
+                fileItem.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="file" class="w-4 h-4 text-gray-500"></i>
+                        <span class="text-sm font-medium text-gray-700">${file.name}</span>
+                    </div>
+                    <button onclick="removeFile(${index})" class="text-red-500 hover:text-red-700 transition-colors">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                `;
+                
+                filesContainer.appendChild(fileItem);
+            });
+
+            // Re-initialize Lucide icons
+            lucide.createIcons();
+        }
+
+        // Remove file
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            displayFiles();
+            updateProcessButton();
+        }
+
+        // Update process button state
+        function updateProcessButton() {
+            processBtn.disabled = selectedFiles.length === 0;
+        }
+
+        // Process functionality
+        processBtn.addEventListener('click', function() {
+            if (selectedFiles.length === 0) return;
+            
+            // For now, just show alert - later this will navigate to next page
+            alert(`Processing ${selectedFiles.length} file(s)!\n\nFiles: ${selectedFiles.map(f => f.name).join(', ')}`);
+            
+            // TODO: Navigate to results/processing page
+            // window.location.href = 'results.html';
+            
+            // TODO: Replace with actual backend call
+            // const formData = new FormData();
+            // selectedFiles.forEach(file => {
+            //     formData.append('files', file);
+            // });
+            // 
+            // fetch('/api/process', {
+            //     method: 'POST',
+            //     body: formData
+            // })...
+        });
+
+        // Initialize Lucide icons on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
