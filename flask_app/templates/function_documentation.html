@@ -358,6 +358,17 @@
       transform: translateY(-1px);
     }
 
+     /* Spinner */
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #4285f4;
+      border-radius: 50%;
+      width: 30px; height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
     @media (max-width: 768px) {
       .main-container {
         flex-direction: column;
@@ -488,9 +499,22 @@
       const parsedHtml = marked.parse(markdownContent);
       document.getElementById('markdown-content').innerHTML = parsedHtml;
     });
+    
+    async function regenerate() {
+      const contentDiv = document.getElementById('markdown-content');
+      contentDiv.innerHTML = '<div class="spinner"></div><p style="text-align:center">Regenerating documentation...</p>';
 
-    function regenerate() {
-      window.location.href = "{{ url_for('generate.function_documentation') }}";
+      try {
+        const response = await fetch("/api/regenerate_doc", { method: "POST" });
+        const data = await response.json();
+        if (data.result) {
+          contentDiv.innerHTML = marked.parse(data.result);
+        } else {
+          contentDiv.innerHTML = "<p style='color:red;'>Error: could not regenerate.</p>";
+        }
+      } catch (err) {
+        contentDiv.innerHTML = "<p style='color:red;'>Request failed. Please try again.</p>";
+      }
     }
 
     function edit() {

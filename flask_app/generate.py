@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, redirect, url_for
+from flask import Blueprint, render_template, session, redirect, url_for,jsonify
 from groq import Groq
 
 
@@ -41,3 +41,34 @@ def function_documentation():
     
     
     return render_template('function_documentation.html', result=ai_response, filename=filename)
+
+
+
+# 🔄 New API route for AJAX regeneration
+@generate.route('/api/regenerate_doc', methods=['POST'])
+def regenerate_doc():
+    file_data = session.get('file', {})
+    if not file_data:
+        return jsonify({"error": "No file found in session"}), 400
+
+    filename = next(iter(file_data.keys()))
+    content = next(iter(file_data.values()))
+
+    prompt = f"""Analyze this code and generate structured documentation in markdown format with:
+    - **Code Structure**
+    - **Code Overview**
+    - **List of Functions**
+    - **Explanation of Functions**
+    Here is the code:\n\n{content}"""
+
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {"role": "system", "content": "You are a helpful code documentation assistant."},
+            {"role": "user", "content": prompt},
+        ],
+        model="llama-3.3-70b-versatile",
+        max_tokens=1000
+    )
+    ai_response = chat_completion.choices[0].message.content
+
+    return jsonify({"result": ai_response, "filename": filename})
