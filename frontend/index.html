@@ -1,13 +1,154 @@
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+    <title>ClickDoc - Documentation in One Click</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="min-h-screen bg-white">
+    <!-- Header -->
+    <header class="flex justify-between items-center px-8 py-6 bg-white shadow-sm">
+        <div class="text-2xl font-bold text-blue-600">
+            ClickDoc
+        </div>
+        <button 
+            id="upload-btn-header"
+            class="bg-white text-blue-600 px-6 py-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-2"
+        >
+            <i data-lucide="upload" class="w-5 h-5"></i>
+            Upload
+        </button>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-blue-500 to-blue-700 text-white text-center py-16 px-8">
+        <h1 class="text-5xl font-bold mb-6">
+            ClickDoc
+        </h1>
+        <h2 class="text-2xl mb-8 max-w-3xl mx-auto opacity-90">
+            Documentation in One Click — Smarter, Faster, Ready to Use
+        </h2>
+        <button 
+            id="get-started-btn"
+            class="bg-white text-blue-600 px-8 py-3 rounded-lg text-lg hover:bg-gray-100 transition-colors font-semibold"
+        >
+            Get Started
+        </button>
+    </section>
+
+    <!-- Features Grid -->
+    <section class="px-8 py-12">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-8" id="features-grid">
+            <!-- Features will be populated by JavaScript -->
+        </div>
+    </section>
+
+    <!-- Bottom CTA -->
+    <section class="text-center py-16 px-8 bg-gray-50">
+        <button 
+            id="bottom-cta-btn"
+            class="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg hover:bg-blue-700 transition-colors"
+        >
+            Get Started -- It's free
+        </button>
+    </section>
+
+    <script>
+        // Features data
+        const features = [
+            {
+                title: "Auto-Generate",
+                description: "Generate documentation from your code automatically with AI assistance",
+                icon: "wand-sparkles"
+            },
+            {
+                title: "Function Documentation", 
+                description: "Extract and explain individual functions with ability to add custom comments",
+                icon: "file-code"
+            },
+            {
+                title: "Module Relationship",
+                description: "Understand and document how different code modules connect and interact",
+                icon: "network"
+            },
+            {
+                title: "Tech Stack Documentation",
+                description: "Automatically identify and document tools, languages, and dependencies used",
+                icon: "layers"
+            },
+            {
+                title: "Setup & Installation Guide",
+                description: "Generate comprehensive guidelines on how to install and run your code",
+                icon: "wrench"
+            },
+            {
+                title: "Form Validation Analysis",
+                description: "Extract and explain validation rules from form code automatically",
+                icon: "circle-check-big"
+            },
+            {
+                title: "Relationship Diagrams",
+                description: "Visual maps showing how components and modules connect in your system",
+                icon: "workflow"
+            },
+            {
+                title: "Smart Search",
+                description: "Ask questions about your uploaded code and get instant AI-powered answers",
+                icon: "search-code"
+            },
+            {
+                title: "Flow Diagrams",
+                description: "Generate process flow and execution path visualizations from your code",
+                icon: "arrow-down-up"
+            }
+        ];
+
+        // Function to handle upload navigation
+        function handleUploadClick() {
+            // Direct to upload page
+            window.location.href = 'upload.html';
+        }
+
+        // Function to render features
+        function renderFeatures() {
+            const featuresGrid = document.getElementById('features-grid');
+            
+            features.forEach(feature => {
+                const featureDiv = document.createElement('div');
+                featureDiv.className = 'bg-white p-6 rounded-lg hover:shadow-lg transition-all duration-300 border border-gray-100';
+                
+                featureDiv.innerHTML = `
+                    <div class="flex flex-col items-start">
+                        <i data-lucide="${feature.icon}" class="w-8 h-8 text-blue-600 mb-3"></i>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">
+                            ${feature.title}
+                        </h3>
+                        <p class="text-gray-600 leading-relaxed">
+                            ${feature.description}
+                        </p>
+                    </div>
+                `;
+                
+                featuresGrid.appendChild(featureDiv);
+            });
+            
+            // Initialize Lucide icons after adding them to DOM
+            lucide.createIcons();
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Render features
+            renderFeatures();
+            
+            // Add click event listeners to buttons
+            document.getElementById('upload-btn-header').addEventListener('click', handleUploadClick);
+            document.getElementById('get-started-btn').addEventListener('click', handleUploadClick);
+            document.getElementById('bottom-cta-btn').addEventListener('click', handleUploadClick);
+        });
+    </script>
+</body>
 </html>
