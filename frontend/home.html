@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ClickDoc - Documentation in One Click</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,8 +10,16 @@
 <body class="min-h-screen bg-white">
     <!-- Header -->
     <header class="flex justify-between items-center px-8 py-6 bg-white shadow-sm">
+        <div class="flex items-center gap-3">
+            <img 
+                src="./assets/logo.png" 
+                alt="ClickDoc Logo" 
+                class="w-8 h-8"
+                onerror="this.style.display='none'"
+            />
         <div class="text-2xl font-bold text-blue-600">
             ClickDoc
+        </div>
         </div>
         <button 
             id="upload-btn-header"

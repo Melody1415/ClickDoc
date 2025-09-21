@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - ClickDoc</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="flex justify-between items-center px-8 py-6 bg-white shadow-sm">
+        <div class="flex items-center gap-3">
+            <img 
+                src="./assets/logo.png" 
+                alt="ClickDoc Logo" 
+                class="w-8 h-8"
+                onerror="this.style.display='none'"
+            />
+            <div class="text-2xl font-bold text-blue-600">
+                ClickDoc
+            </div>
+        </div>
+        <button id="home-btn" class="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2">
+            <i data-lucide="home" class="w-5 h-5"></i>
+            Home
+        </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-8 py-8">
+        <div class="flex gap-8">
+            <!-- Left Sidebar - File Uploaded -->
+            <div class="w-80 flex-shrink-0">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="folder" class="w-5 h-5 text-blue-600"></i>
+                        File Uploaded
+                    </h3>
+                    
+                    <div id="uploaded-files" class="space-y-2 max-h-96 overflow-y-auto">
+                        <!-- Files will be populated from uploaded data -->
+                    </div>
+
+                    <!-- Hidden file input -->
+                    <input type="file" id="file-input" multiple accept=".js,.jsx,.ts,.tsx,.py,.html,.css,.json,.md,.pdf" class="hidden">
+                    
+                    <!-- Upload More Files -->
+                    <button class="w-full mt-4 bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm" id="upload-more-btn">
+                        <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+                        Upload More Files
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Main Content -->
+            <div class="flex-1">
+                <h1 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
+                
+                <!-- Analysis Options -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6">Choose an analysis option</h2>
+                    
+                    <!-- Analysis Functions in 3 Rows -->
+                    <div class="space-y-4">
+                        <!-- Row 1: Generate Documentation -->
+                        <div class="bg-gray-50 rounded-lg p-6 hover:bg-blue-50 transition-colors cursor-pointer border border-gray-200" id="generate-docs-card">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <i data-lucide="file-text" class="w-12 h-12 text-blue-600"></i>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-800 mb-1">Generate Documentation</h3>
+                                        <p class="text-sm text-gray-600">Auto-create project documentation directly from code</p>
+                                    </div>
+                                </div>
+                                <button id="start-documentation-btn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                    Start Documentation
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Ask AI Questions -->
+                        <div class="bg-gray-50 rounded-lg p-6 hover:bg-green-50 transition-colors cursor-pointer border border-gray-200" id="ask-ai-card">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <i data-lucide="message-circle" class="w-12 h-12 text-green-600"></i>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-800 mb-1">Ask AI Questions</h3>
+                                        <p class="text-sm text-gray-600">Ask AI About Your Code</p>
+                                    </div>
+                                </div>
+                                <button id="start-chat-btn" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                                    Start Chat
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Row 3: Visualize Diagram -->
+                        <div class="bg-gray-50 rounded-lg p-6 hover:bg-purple-50 transition-colors cursor-pointer border border-gray-200" id="visualize-card">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <i data-lucide="network" class="w-12 h-12 text-purple-600"></i>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-800 mb-1">Visualize Diagram</h3>
+                                        <p class="text-sm text-gray-600">Visualize dependencies, modules, and code flows.</p>
+                                    </div>
+                                </div>
+                                <button id="create-diagram-btn" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                                    Create Diagram
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Upload Progress Modal -->
+    <div id="upload-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-96 max-w-90vw">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Uploading Files...</h3>
+            <div class="space-y-3">
+                <div id="upload-progress" class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div id="upload-status" class="text-sm text-gray-600">Preparing files...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedFiles = [];
+
+        // DOM Elements
+        const homeBtn = document.getElementById('home-btn');
+        const startDocumentationBtn = document.getElementById('start-documentation-btn');
+        const startChatBtn = document.getElementById('start-chat-btn');
+        const createDiagramBtn = document.getElementById('create-diagram-btn');
+        const uploadMoreBtn = document.getElementById('upload-more-btn');
+        const fileInput = document.getElementById('file-input');
+        const uploadedFilesContainer = document.getElementById('uploaded-files');
+        const uploadModal = document.getElementById('upload-modal');
+        const progressBar = document.getElementById('progress-bar');
+        const uploadStatus = document.getElementById('upload-status');
+
+        // Load uploaded files from sessionStorage
+        function loadUploadedFiles() {
+            const storedFiles = sessionStorage.getItem('uploadedFiles');
+            
+            if (storedFiles) {
+                uploadedFiles = JSON.parse(storedFiles);
+                displayUploadedFiles();
+            } else {
+                // Fallback - show message if no files found
+                uploadedFilesContainer.innerHTML = `
+                    <div class="text-center py-6">
+                        <i data-lucide="folder-x" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i>
+                        <p class="text-gray-500 text-sm">No files uploaded</p>
+                        <button onclick="document.getElementById('file-input').click()" class="text-blue-600 hover:text-blue-800 text-sm mt-2">
+                            Upload Files
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+        }
+
+        // Display uploaded files (no selection functionality needed)
+        function displayUploadedFiles() {
+            uploadedFilesContainer.innerHTML = '';
+            
+            uploadedFiles.forEach((file, index) => {
+                const fileDiv = document.createElement('div');
+                fileDiv.className = 'flex items-center gap-3 p-3 bg-gray-50 rounded-lg group';
+                
+                fileDiv.innerHTML = `
+                    <i data-lucide="${getFileIcon(file.name)}" class="w-5 h-5 ${getFileIconColor(file.name)}"></i>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-800 truncate">${file.name}</p>
+                        <p class="text-xs text-gray-500">${formatFileSize(file.size)}</p>
+                    </div>
+                    <button onclick="removeFile(${index})" class="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 transition-opacity">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                `;
+                
+                uploadedFilesContainer.appendChild(fileDiv);
+            });
+            
+            lucide.createIcons();
+        }
+
+        // Remove file function
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            sessionStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+            displayUploadedFiles();
+        }
+
+        // Handle file upload
+        async function handleFileUpload(files) {
+            if (files.length === 0) return;
+
+            uploadModal.classList.remove('hidden');
+            
+            const totalFiles = files.length;
+            let processedFiles = 0;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                // Update progress
+                uploadStatus.textContent = `Processing ${file.name}... (${processedFiles + 1}/${totalFiles})`;
+                
+                try {
+                    // Check if file already exists
+                    const existingFileIndex = uploadedFiles.findIndex(f => f.name === file.name);
+                    
+                    // Read file content
+                    const content = await readFileContent(file);
+                    
+                    const fileData = {
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        content: content,
+                        lastModified: file.lastModified,
+                        uploadedAt: new Date().toISOString()
+                    };
+
+                    if (existingFileIndex !== -1) {
+                        // Replace existing file
+                        uploadedFiles[existingFileIndex] = fileData;
+                    } else {
+                        // Add new file
+                        uploadedFiles.push(fileData);
+                    }
+
+                } catch (error) {
+                    console.error(`Error processing file ${file.name}:`, error);
+                    // Still add file without content for tracking
+                    const fileData = {
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        content: null,
+                        error: error.message,
+                        lastModified: file.lastModified,
+                        uploadedAt: new Date().toISOString()
+                    };
+                    
+                    const existingFileIndex = uploadedFiles.findIndex(f => f.name === file.name);
+                    if (existingFileIndex !== -1) {
+                        uploadedFiles[existingFileIndex] = fileData;
+                    } else {
+                        uploadedFiles.push(fileData);
+                    }
+                    
+                    uploadStatus.textContent = `Error processing ${file.name}`;
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+                
+                processedFiles++;
+                const progress = (processedFiles / totalFiles) * 100;
+                progressBar.style.width = `${progress}%`;
+            }
+
+            // Save to sessionStorage
+            sessionStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+            
+            // Update UI
+            uploadStatus.textContent = 'Upload completed!';
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            uploadModal.classList.add('hidden');
+            displayUploadedFiles();
+            
+            // Reset progress
+            progressBar.style.width = '0%';
+            uploadStatus.textContent = 'Preparing files...';
+        }
+
+        // Read file content
+        async function readFileContent(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                
+                reader.onerror = function() {
+                    reject(new Error(`Failed to read file: ${file.name}`));
+                };
+
+                // Handle different file types
+                if (file.type === 'application/pdf') {
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    reader.readAsText(file);
+                }
+            });
+        }
+
+        // Get appropriate icon for file type
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const iconMap = {
+                'js': 'file-code',
+                'jsx': 'file-code',
+                'ts': 'file-code', 
+                'tsx': 'file-code',
+                'py': 'file-code',
+                'html': 'file-text',
+                'css': 'file-text',
+                'json': 'file-text',
+                'md': 'file-text',
+                'pdf': 'file-text'
+            };
+            return iconMap[ext] || 'file';
+        }
+
+        // Get appropriate color for file type
+        function getFileIconColor(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const colorMap = {
+                'js': 'text-yellow-600',
+                'jsx': 'text-yellow-600',
+                'ts': 'text-blue-600',
+                'tsx': 'text-blue-600',
+                'py': 'text-green-600',
+                'html': 'text-red-600',
+                'css': 'text-purple-600',
+                'json': 'text-gray-600',
+                'md': 'text-blue-500',
+                'pdf': 'text-red-500'
+            };
+            return colorMap[ext] || 'text-gray-500';
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Event Listeners
+        uploadMoreBtn.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                handleFileUpload(Array.from(e.target.files));
+                // Reset file input
+                e.target.value = '';
+            }
+        });
+
+        // Drag and drop functionality
+        const sidebar = document.querySelector('.w-80');
+        
+        sidebar.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            sidebar.classList.add('bg-blue-50', 'border-blue-300');
+        });
+
+        sidebar.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            sidebar.classList.remove('bg-blue-50', 'border-blue-300');
+        });
+
+        sidebar.addEventListener('drop', function(e) {
+            e.preventDefault();
+            sidebar.classList.remove('bg-blue-50', 'border-blue-300');
+            
+            const files = Array.from(e.dataTransfer.files);
+            if (files.length > 0) {
+                handleFileUpload(files);
+            }
+        });
+
+        // Navigation Functions
+        homeBtn.addEventListener('click', function() {
+            window.location.href = 'home.html';
+        });
+
+        startDocumentationBtn.addEventListener('click', function() {
+            // Pass all uploaded files to documentation page
+            sessionStorage.setItem('selectedFiles', JSON.stringify(uploadedFiles));
+            window.location.href = 'generate-docs.html';
+        });
+
+        startChatBtn.addEventListener('click', function() {
+            // Pass all uploaded files to chat page
+            sessionStorage.setItem('selectedFiles', JSON.stringify(uploadedFiles));
+            window.location.href = 'ai-chat.html';
+        });
+
+        createDiagramBtn.addEventListener('click', function() {
+            // Pass all uploaded files to diagram page
+            sessionStorage.setItem('selectedFiles', JSON.stringify(uploadedFiles));
+            window.location.href = 'visualize-diagram.html';
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            loadUploadedFiles();
+        });
+    </script>
+</body>
+</html>

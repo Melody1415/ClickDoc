@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Upload - ClickDoc</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,10 +10,19 @@
 <body class="min-h-screen bg-white">
     <!-- Header -->
     <header class="flex justify-between items-center px-8 py-6 bg-white shadow-sm">
-        <div class="text-2xl font-bold text-blue-600">
-            ClickDoc
+        <div class="flex items-center gap-3">
+            <img 
+                src="./assets/logo.png" 
+                alt="ClickDoc Logo" 
+                class="w-8 h-8"
+                onerror="this.style.display='none'"
+            />
+            <div class="text-2xl font-bold text-blue-600">
+                ClickDoc
+            </div>
         </div>
-        <button id="home-btn" class="text-blue-600 hover:text-blue-800 transition-colors">
+        <button id="home-btn" class="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2">
+            <i data-lucide="home" class="w-5 h-5"></i>
             Home
         </button>
     </header>
@@ -50,10 +58,24 @@
 
             <!-- Process Button -->
             <button id="process-btn" class="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
-                Process File
+                <span id="process-text">Process Files</span>
+                <i data-lucide="loader-2" id="process-loader" class="w-5 h-5 animate-spin ml-2 hidden"></i>
             </button>
         </div>
     </main>
+
+    <!-- Processing Modal -->
+    <div id="processing-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-96 max-w-90vw">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Processing Files...</h3>
+            <div class="space-y-3">
+                <div id="process-progress" class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div id="process-status" class="text-sm text-gray-600">Reading files...</div>
+            </div>
+        </div>
+    </div>
 
     <script>
         let selectedFiles = [];
@@ -64,7 +86,12 @@
         const fileList = document.getElementById('file-list');
         const filesContainer = document.getElementById('files-container');
         const processBtn = document.getElementById('process-btn');
+        const processText = document.getElementById('process-text');
+        const processLoader = document.getElementById('process-loader');
         const homeBtn = document.getElementById('home-btn');
+        const processingModal = document.getElementById('processing-modal');
+        const progressBar = document.getElementById('progress-bar');
+        const processStatus = document.getElementById('process-status');
 
         // Home button functionality
         homeBtn.addEventListener('click', function() {
@@ -121,8 +148,11 @@
                 
                 fileItem.innerHTML = `
                     <div class="flex items-center gap-3">
-                        <i data-lucide="file" class="w-4 h-4 text-gray-500"></i>
-                        <span class="text-sm font-medium text-gray-700">${file.name}</span>
+                        <i data-lucide="${getFileIcon(file.name)}" class="w-4 h-4 ${getFileIconColor(file.name)}"></i>
+                        <div>
+                            <span class="text-sm font-medium text-gray-700">${file.name}</span>
+                            <div class="text-xs text-gray-500">${formatFileSize(file.size)}</div>
+                        </div>
                     </div>
                     <button onclick="removeFile(${index})" class="text-red-500 hover:text-red-700 transition-colors">
                         <i data-lucide="x" class="w-4 h-4"></i>
@@ -148,27 +178,148 @@
             processBtn.disabled = selectedFiles.length === 0;
         }
 
-        // Process functionality
-        processBtn.addEventListener('click', function() {
+        // Read file content
+        async function readFileContent(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                
+                reader.onerror = function() {
+                    reject(new Error(`Failed to read file: ${file.name}`));
+                };
+
+                // Handle different file types
+                if (file.type === 'application/pdf') {
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    reader.readAsText(file);
+                }
+            });
+        }
+
+        // Process files with content reading
+        async function processFiles() {
             if (selectedFiles.length === 0) return;
-            
-            // For now, just show alert - later this will navigate to next page
-            alert(`Processing ${selectedFiles.length} file(s)!\n\nFiles: ${selectedFiles.map(f => f.name).join(', ')}`);
-            
-            // TODO: Navigate to results/processing page
-            // window.location.href = 'results.html';
-            
-            // TODO: Replace with actual backend call
-            // const formData = new FormData();
-            // selectedFiles.forEach(file => {
-            //     formData.append('files', file);
-            // });
-            // 
-            // fetch('/api/process', {
-            //     method: 'POST',
-            //     body: formData
-            // })...
-        });
+
+            // Show processing modal
+            processingModal.classList.remove('hidden');
+            processBtn.disabled = true;
+            processText.textContent = 'Processing...';
+            processLoader.classList.remove('hidden');
+
+            const processedFiles = [];
+            const totalFiles = selectedFiles.length;
+
+            try {
+                for (let i = 0; i < selectedFiles.length; i++) {
+                    const file = selectedFiles[i];
+                    processStatus.textContent = `Reading ${file.name}... (${i + 1}/${totalFiles})`;
+                    
+                    try {
+                        const content = await readFileContent(file);
+                        
+                        const fileData = {
+                            name: file.name,
+                            size: file.size,
+                            type: file.type,
+                            content: content,
+                            lastModified: file.lastModified,
+                            uploadedAt: new Date().toISOString()
+                        };
+                        
+                        processedFiles.push(fileData);
+                    } catch (error) {
+                        console.error(`Error reading file ${file.name}:`, error);
+                        // Still add file without content for tracking
+                        processedFiles.push({
+                            name: file.name,
+                            size: file.size,
+                            type: file.type,
+                            content: null,
+                            error: error.message,
+                            lastModified: file.lastModified,
+                            uploadedAt: new Date().toISOString()
+                        });
+                    }
+                    
+                    // Update progress
+                    const progress = ((i + 1) / totalFiles) * 100;
+                    progressBar.style.width = `${progress}%`;
+                }
+
+                // Store processed files in sessionStorage
+                sessionStorage.setItem('uploadedFiles', JSON.stringify(processedFiles));
+                
+                // Update status
+                processStatus.textContent = 'Files processed successfully!';
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Navigate to dashboard
+                window.location.href = 'dashboard.html';
+                
+            } catch (error) {
+                console.error('Error processing files:', error);
+                processStatus.textContent = 'Error processing files';
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Hide modal and reset button
+                processingModal.classList.add('hidden');
+                processBtn.disabled = false;
+                processText.textContent = 'Process Files';
+                processLoader.classList.add('hidden');
+            }
+        }
+
+        // Get file icon
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const iconMap = {
+                'js': 'file-code',
+                'jsx': 'file-code',
+                'ts': 'file-code', 
+                'tsx': 'file-code',
+                'py': 'file-code',
+                'html': 'file-text',
+                'css': 'file-text',
+                'json': 'file-text',
+                'md': 'file-text',
+                'pdf': 'file-text'
+            };
+            return iconMap[ext] || 'file';
+        }
+
+        // Get file icon color
+        function getFileIconColor(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const colorMap = {
+                'js': 'text-yellow-600',
+                'jsx': 'text-yellow-600',
+                'ts': 'text-blue-600',
+                'tsx': 'text-blue-600',
+                'py': 'text-green-600',
+                'html': 'text-red-600',
+                'css': 'text-purple-600',
+                'json': 'text-gray-600',
+                'md': 'text-blue-500',
+                'pdf': 'text-red-500'
+            };
+            return colorMap[ext] || 'text-gray-500';
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Process functionality
+        processBtn.addEventListener('click', processFiles);
 
         // Initialize Lucide icons on page load
         document.addEventListener('DOMContentLoaded', function() {
