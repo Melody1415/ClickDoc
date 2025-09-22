@@ -16,18 +16,20 @@ def validation_documentation():
     content = next(iter(file_data.values()))
     
     # Prompt for validation documentation
-    prompt = f"""Analyze this code and determine if it contains significant relationships (e.g., inheritance between classes, data dependencies like a + b = c, or function dependencies where one function requires another to run). If significant relationships are detected, generate a structured documentation in markdown format with the following sections:
-    - **Code Structure**: Provide a high-level overview of how the code is organized (e.g., classes, modules, or functions and their relationships).
-    - **Code Overview**: Describe the general purpose of the program and how its components interact.
-    - **List of Relationships**: Provide a numbered list of detected relationships (e.g., 1. Inheritance: ClassA extends ClassB, 2. Data Flow: VariableX updates VariableY).
-    - **Explanation of Relationships**: For each relationship, include:
-    - **Type**: Specify the type of relationship (e.g., inheritance, data flow, function dependency).
-    - **Involved Components**: Identify the entities involved (e.g., classes, functions, variables).
-    - **Impact**: Describe how the relationship affects the code's behavior or data.
-    - **Example**: Provide a code example illustrating the relationship with expected outcomes.
-    Ensure the output is well-organized and focuses on identifying and explaining relationships.
+    prompt = f"""Analyze this code and determine if it contains a form (e.g., HTML form elements or form-related validation logic). If it is a form, generate a structured documentation in markdown format with the following sections:
+    - **Form Overview**: Describe the purpose of the form and its general validation approach.
+    - **Field Validations**: List each field with:
+    - **Field Name**: The name or identifier of the field.
+    - **Validation Rules**: Specify required rules (e.g., required, min/max length, pattern, data type).
+    - **Error Handling**: Describe how errors are handled or displayed.
+    - **Example**: Provide an example of valid and invalid input with expected outcomes.
+    Ensure the output is well-organized and focuses on form validation details.
 
-
+    If the code is not a form, check for any general validation logic (e.g., data type checks, range validation). If no validation is detected, return the message: "Since this is not a form file, no validation detected." If validation logic is present, generate a structured documentation with:
+    - **Validation Overview**: Summarize the purpose and scope of the validation.
+    - **Validation Rules**: List detected validation checks (e.g., type, range, conditions) with descriptions.
+    - **Example**: Provide an example of the validation in action with expected outcomes.
+    Ensure the output is well-organized and focuses on form validation details.
     Here is the code to analyze:\n\n{content}"""    
 
     
@@ -57,17 +59,20 @@ def regenerate_validation():
     filename = next(iter(file_data.keys()))
     content = next(iter(file_data.values()))
 
-    prompt = f"""Analyze this code and determine if it contains significant relationships (e.g., inheritance between classes, data dependencies like a + b = c, or function dependencies where one function requires another to run). If significant relationships are detected, generate a structured documentation in markdown format with the following sections:
-    - **Code Structure**: Provide a high-level overview of how the code is organized (e.g., classes, modules, or functions and their relationships).
-    - **Code Overview**: Describe the general purpose of the program and how its components interact.
-    - **List of Relationships**: Provide a numbered list of detected relationships (e.g., 1. Inheritance: ClassA extends ClassB, 2. Data Flow: VariableX updates VariableY).
-    - **Explanation of Relationships**: For each relationship, include:
-    - **Type**: Specify the type of relationship (e.g., inheritance, data flow, function dependency).
-    - **Involved Components**: Identify the entities involved (e.g., classes, functions, variables).
-    - **Impact**: Describe how the relationship affects the code's behavior or data.
-    - **Example**: Provide a code example illustrating the relationship with expected outcomes.
-    Ensure the output is well-organized and focuses on identifying and explaining relationships.
+    prompt = f"""Analyze this code and determine if it contains a form (e.g., HTML form elements or form-related validation logic). If it is a form, generate a structured documentation in markdown format with the following sections:
+    - **Form Overview**: Describe the purpose of the form and its general validation approach.
+    - **Field Validations**: List each field with:
+    - **Field Name**: The name or identifier of the field.
+    - **Validation Rules**: Specify required rules (e.g., required, min/max length, pattern, data type).
+    - **Error Handling**: Describe how errors are handled or displayed.
+    - **Example**: Provide an example of valid and invalid input with expected outcomes.
+    Ensure the output is well-organized and focuses on form validation details.
 
+    If the code is not a form, check for any general validation logic (e.g., data type checks, range validation). If no validation is detected, return the message: "Since this is not a form file, no validation detected." If validation logic is present, generate a structured documentation with:
+    - **Validation Overview**: Summarize the purpose and scope of the validation.
+    - **Validation Rules**: List detected validation checks (e.g., type, range, conditions) with descriptions.
+    - **Example**: Provide an example of the validation in action with expected outcomes.
+    Ensure the output is well-organized and focuses on form validation details.
     Here is the code to analyze:\n\n{content}"""
 
     chat_completion = client.chat.completions.create(
