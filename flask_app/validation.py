@@ -16,16 +16,19 @@ def validation_documentation():
     content = next(iter(file_data.values()))
     
     # Prompt for validation documentation
-    prompt = f"""Analyze this code and generate a structured documentation in markdown format with the following sections:
-    - **Code Structure**: Provide a high-level overview of how the code is organized (e.g., functions and their relationships).
-    - **Code Overview**: Describe the general purpose of the program and how to use it.
-    - **List of Functions**: Provide a numbered list of all functions (e.g., 1. process_data, 2. validate_input).
-    - **Explanation of Functions**: For each function, include:
-      - Purpose: What the function does.
-      - Parameters: List and describe all parameters.
-      - Return Values: Describe what the function returns.
-      - Example: Provide a code example with expected output.
-    Ensure the output is well-organized and follows this exact structure. Here is the code to analyze:\n\n{content}"""    
+    prompt = f"""Analyze this code and determine if it contains significant relationships (e.g., inheritance between classes, data dependencies like a + b = c, or function dependencies where one function requires another to run). If significant relationships are detected, generate a structured documentation in markdown format with the following sections:
+    - **Code Structure**: Provide a high-level overview of how the code is organized (e.g., classes, modules, or functions and their relationships).
+    - **Code Overview**: Describe the general purpose of the program and how its components interact.
+    - **List of Relationships**: Provide a numbered list of detected relationships (e.g., 1. Inheritance: ClassA extends ClassB, 2. Data Flow: VariableX updates VariableY).
+    - **Explanation of Relationships**: For each relationship, include:
+    - **Type**: Specify the type of relationship (e.g., inheritance, data flow, function dependency).
+    - **Involved Components**: Identify the entities involved (e.g., classes, functions, variables).
+    - **Impact**: Describe how the relationship affects the code's behavior or data.
+    - **Example**: Provide a code example illustrating the relationship with expected outcomes.
+    Ensure the output is well-organized and focuses on identifying and explaining relationships.
+
+
+    Here is the code to analyze:\n\n{content}"""    
 
     
     # Call Groq
@@ -45,8 +48,8 @@ def validation_documentation():
 
 
 # 🔄 New API route for AJAX regeneration
-@validation.route('/api/regenerate_doc', methods=['POST'])
-def regenerate_doc():
+@validation.route('/api/regenerate_validation', methods=['POST'])
+def regenerate_validation():
     file_data = session.get('file', {})
     if not file_data:
         return jsonify({"error": "No file found in session"}), 400
@@ -54,12 +57,18 @@ def regenerate_doc():
     filename = next(iter(file_data.keys()))
     content = next(iter(file_data.values()))
 
-    prompt = f"""Analyze this code and generate structured documentation in markdown format with:
-    - **Code Structure**
-    - **Code Overview**
-    - **List of Functions**
-    - **Explanation of Functions**
-    Here is the code:\n\n{content}"""
+    prompt = f"""Analyze this code and determine if it contains significant relationships (e.g., inheritance between classes, data dependencies like a + b = c, or function dependencies where one function requires another to run). If significant relationships are detected, generate a structured documentation in markdown format with the following sections:
+    - **Code Structure**: Provide a high-level overview of how the code is organized (e.g., classes, modules, or functions and their relationships).
+    - **Code Overview**: Describe the general purpose of the program and how its components interact.
+    - **List of Relationships**: Provide a numbered list of detected relationships (e.g., 1. Inheritance: ClassA extends ClassB, 2. Data Flow: VariableX updates VariableY).
+    - **Explanation of Relationships**: For each relationship, include:
+    - **Type**: Specify the type of relationship (e.g., inheritance, data flow, function dependency).
+    - **Involved Components**: Identify the entities involved (e.g., classes, functions, variables).
+    - **Impact**: Describe how the relationship affects the code's behavior or data.
+    - **Example**: Provide a code example illustrating the relationship with expected outcomes.
+    Ensure the output is well-organized and focuses on identifying and explaining relationships.
+
+    Here is the code to analyze:\n\n{content}"""
 
     chat_completion = client.chat.completions.create(
         messages=[

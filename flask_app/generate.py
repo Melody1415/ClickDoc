@@ -54,12 +54,16 @@ def regenerate_doc():
     filename = next(iter(file_data.keys()))
     content = next(iter(file_data.values()))
 
-    prompt = f"""Analyze this code and generate structured documentation in markdown format with:
-    - **Code Structure**
-    - **Code Overview**
-    - **List of Functions**
-    - **Explanation of Functions**
-    Here is the code:\n\n{content}"""
+    prompt = f"""Analyze this code and generate a structured documentation in markdown format with the following sections:
+    - **Code Structure**: Provide a high-level overview of how the code is organized (e.g., functions and their relationships).
+    - **Code Overview**: Describe the general purpose of the program and how to use it.
+    - **List of Functions**: Provide a numbered list of all functions (e.g., 1. process_data, 2. validate_input).
+    - **Explanation of Functions**: For each function, include:
+      - Purpose: What the function does.
+      - Parameters: List and describe all parameters.
+      - Return Values: Describe what the function returns.
+      - Example: Provide a code example with expected output.
+    Ensure the output is well-organized and follows this exact structure. Here is the code to analyze:\n\n{content}"""
 
     chat_completion = client.chat.completions.create(
         messages=[

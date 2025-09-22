@@ -599,7 +599,7 @@
       contentDiv.innerHTML = '<div class="spinner"></div><p style="text-align:center">Regenerating documentation...</p>';
 
       try {
-        const response = await fetch("/api/regenerate_doc", { method: "POST" });
+        const response = await fetch("/api/regenerate_setup", { method: "POST" });
         const data = await response.json();
         if (data.result) {
           contentDiv.innerHTML = marked.parse(data.result);
