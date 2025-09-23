@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload - ClickDoc</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="flex justify-between items-center px-8 py-6 bg-white shadow-sm">
+        <div class="flex items-center gap-3">
+            <img 
+                src="./assets/logo.png" 
+                alt="ClickDoc Logo" 
+                class="w-8 h-8"
+                onerror="this.style.display='none'"
+            />
+            <div class="text-2xl font-bold text-blue-600">
+                ClickDoc
+            </div>
+        </div>
+        <button id="home-btn" class="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2">
+            <i data-lucide="home" class="w-5 h-5"></i>
+            Home
+        </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex items-center justify-center min-h-screen px-8 py-12">
+        <div class="max-w-md w-full text-center">
+            <h1 class="text-3xl font-bold text-gray-800 mb-12">Upload Your Code</h1>
+            
+            <!-- Drag & Drop Area -->
+            <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-lg p-16 mb-8 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 cursor-pointer bg-white">
+                <div id="drop-content">
+                    <i data-lucide="upload" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+                    <p class="text-gray-600 text-lg mb-2">Drag & Drop Files Here</p>
+                    <p class="text-gray-500 mb-6">Or click to browse files</p>
+                </div>
+                <input type="file" id="file-input" multiple accept=".js,.jsx,.ts,.tsx,.py,.java,.c,.cpp,.h,.cs,.php,.rb,.go,.rs,.swift,.kt,.html,.css,.json,.md,.xml,.yml,.yaml,.properties,.sh,.bash,.sql,.r,.scala,.dart" class="hidden">
+            </div>
+
+            <!-- Language Tags -->
+            <div class="flex justify-center gap-3 mb-8">
+                <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">Java</span>
+                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Python</span>
+                <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">JavaScript</span>
+            </div>
+
+            <!-- File List -->
+            <div id="file-list" class="mb-8 hidden">
+                <div id="files-container" class="space-y-2">
+                    <!-- Files will be added here dynamically -->
+                </div>
+            </div>
+
+            <!-- Process Button -->
+            <button id="process-btn" class="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                <span id="process-text">Process Files</span>
+                <i data-lucide="loader-2" id="process-loader" class="w-5 h-5 animate-spin ml-2 hidden"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- Processing Modal -->
+    <div id="processing-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-96 max-w-90vw">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Processing Files...</h3>
+            <div class="space-y-3">
+                <div id="process-progress" class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div id="process-status" class="text-sm text-gray-600">Reading files...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+
+        // DOM Elements
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const fileList = document.getElementById('file-list');
+        const filesContainer = document.getElementById('files-container');
+        const processBtn = document.getElementById('process-btn');
+        const processText = document.getElementById('process-text');
+        const processLoader = document.getElementById('process-loader');
+        const homeBtn = document.getElementById('home-btn');
+        const processingModal = document.getElementById('processing-modal');
+        const progressBar = document.getElementById('progress-bar');
+        const processStatus = document.getElementById('process-status');
+
+        // Home button functionality
+        homeBtn.addEventListener('click', function() {
+            window.location.href = 'home.html';
+        });
+
+        // Drop zone click
+        dropZone.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        // File input change
+        fileInput.addEventListener('change', function(e) {
+            handleFiles(e.target.files);
+        });
+
+        // Drag and drop functionality
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dropZone.classList.add('border-blue-500', 'bg-blue-100');
+        });
+
+        dropZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            dropZone.classList.remove('border-blue-500', 'bg-blue-100');
+        });
+
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dropZone.classList.remove('border-blue-500', 'bg-blue-100');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        // Validate file type - ALL POPULAR CODE FILES ALLOWED
+        function isValidFileType(file) {
+            const allowedExtensions = [
+                // Web Technologies
+                '.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.json', '.md',
+                // Backend Languages  
+                '.py', '.java', '.c', '.cpp', '.h', '.cs', '.php', '.rb', '.go', '.rs', '.swift', '.kt',
+                // Config & Scripts
+                '.xml', '.yml', '.yaml', '.properties', '.sh', '.bash', '.sql',
+                // Other Popular Languages
+                '.r', '.scala', '.dart'
+            ];
+            const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+            return allowedExtensions.includes(fileExt);
+        }
+
+        // Check if file is analyzable code file
+        function isCodeFile(file) {
+            return isValidFileType(file); // All allowed files are now code files
+        }
+
+        // Handle selected files
+        function handleFiles(files) {
+            const allFiles = Array.from(files);
+            const validFiles = [];
+            const invalidFiles = [];
+
+            // Separate valid and invalid files
+            allFiles.forEach(file => {
+                if (isValidFileType(file)) {
+                    validFiles.push(file);
+                } else {
+                    invalidFiles.push(file.name);
+                }
+            });
+
+            // Show warning for invalid files
+            if (invalidFiles.length > 0) {
+                alert(`❌ The following files are not supported and will be ignored:\n\n${invalidFiles.join('\n')}\n\n✅ Supported code file types:\nJavaScript/TypeScript: .js, .jsx, .ts, .tsx\nPython: .py\nJava: .java\nC/C++: .c, .cpp, .h\nC#: .cs\nPHP: .php\nRuby: .rb\nGo: .go\nRust: .rs\nSwift: .swift\nKotlin: .kt\nWeb: .html, .css\nConfig: .json, .xml, .yml, .yaml, .properties\nScripts: .sh, .bash, .sql\nOther: .r, .scala, .dart, .md`);
+            }
+
+            // Only keep valid files
+            selectedFiles = validFiles;
+            displayFiles();
+            updateProcessButton();
+        }
+
+        // Display selected files
+        function displayFiles() {
+            if (selectedFiles.length === 0) {
+                fileList.classList.add('hidden');
+                return;
+            }
+
+            fileList.classList.remove('hidden');
+            filesContainer.innerHTML = '';
+
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'flex items-center justify-between bg-gray-100 p-3 rounded-lg';
+                
+                fileItem.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="${getFileIcon(file.name)}" class="w-4 h-4 ${getFileIconColor(file.name)}"></i>
+                        <div>
+                            <span class="text-sm font-medium text-gray-700">${file.name}</span>
+                            <div class="text-xs text-gray-500">${formatFileSize(file.size)}</div>
+                        </div>
+                    </div>
+                    <button onclick="removeFile(${index})" class="text-red-500 hover:text-red-700 transition-colors">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                `;
+                
+                filesContainer.appendChild(fileItem);
+            });
+
+            // Re-initialize Lucide icons
+            lucide.createIcons();
+        }
+
+        // Remove file
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            displayFiles();
+            updateProcessButton();
+        }
+
+        // Update process button state
+        function updateProcessButton() {
+            processBtn.disabled = selectedFiles.length === 0;
+        }
+
+        // Read file content
+        async function readFileContent(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                
+                reader.onerror = function() {
+                    reject(new Error(`Failed to read file: ${file.name}`));
+                };
+
+                // Handle different file types
+                if (file.type === 'application/pdf') {
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    reader.readAsText(file);
+                }
+            });
+        }
+
+        // Process files with content reading
+        async function processFiles() {
+            if (selectedFiles.length === 0) return;
+
+            // Double-check: Only allow code files to be processed
+            const codeFiles = selectedFiles.filter(file => isCodeFile(file));
+            const nonCodeFiles = selectedFiles.filter(file => !isCodeFile(file));
+
+            if (nonCodeFiles.length > 0) {
+                alert(`❌ Cannot process non-code files:\n\n${nonCodeFiles.map(f => f.name).join('\n')}\n\n✅ Only code files can be analyzed!\nPlease remove these files and try again.`);
+                return;
+            }
+
+            if (codeFiles.length === 0) {
+                alert('❌ No code files to process!\n\n✅ Please upload supported code files to continue.\n\nSupported: .js, .jsx, .ts, .tsx, .py, .java, .c, .cpp, .cs, .php, .rb, .go, .rs, .swift, .kt, .html, .css, .json, .xml, .yml, .sh, .sql, .r, .scala, .dart, .md');
+                return;
+            }
+
+            // Show processing modal
+            processingModal.classList.remove('hidden');
+            processBtn.disabled = true;
+            processText.textContent = 'Processing...';
+            processLoader.classList.remove('hidden');
+
+            const processedFiles = [];
+            const totalFiles = codeFiles.length;
+
+            try {
+                for (let i = 0; i < codeFiles.length; i++) {
+                    const file = codeFiles[i];
+                    processStatus.textContent = `Reading ${file.name}... (${i + 1}/${totalFiles})`;
+                    
+                    try {
+                        const content = await readFileContent(file);
+                        
+                        const fileData = {
+                            name: file.name,
+                            size: file.size,
+                            type: file.type,
+                            content: content,
+                            lastModified: file.lastModified,
+                            uploadedAt: new Date().toISOString()
+                        };
+                        
+                        processedFiles.push(fileData);
+                    } catch (error) {
+                        console.error(`Error reading file ${file.name}:`, error);
+                        // Still add file without content for tracking
+                        processedFiles.push({
+                            name: file.name,
+                            size: file.size,
+                            type: file.type,
+                            content: null,
+                            error: error.message,
+                            lastModified: file.lastModified,
+                            uploadedAt: new Date().toISOString()
+                        });
+                    }
+                    
+                    // Update progress
+                    const progress = ((i + 1) / totalFiles) * 100;
+                    progressBar.style.width = `${progress}%`;
+                }
+
+                // Store processed files in sessionStorage
+                sessionStorage.setItem('uploadedFiles', JSON.stringify(processedFiles));
+                
+                // Update status
+                processStatus.textContent = 'Files processed successfully!';
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Navigate to dashboard
+                window.location.href = 'dashboard.html';
+                
+            } catch (error) {
+                console.error('Error processing files:', error);
+                processStatus.textContent = 'Error processing files';
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Hide modal and reset button
+                processingModal.classList.add('hidden');
+                processBtn.disabled = false;
+                processText.textContent = 'Process Files';
+                processLoader.classList.add('hidden');
+            }
+        }
+
+        // Get file icon
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const iconMap = {
+                // Web Technologies
+                'js': 'file-code', 'jsx': 'file-code', 'ts': 'file-code', 'tsx': 'file-code',
+                'html': 'file-text', 'css': 'file-text', 'json': 'file-text',
+                // Backend Languages
+                'py': 'file-code', 'java': 'file-code', 'c': 'file-code', 'cpp': 'file-code', 'h': 'file-code',
+                'cs': 'file-code', 'php': 'file-code', 'rb': 'file-code', 'go': 'file-code', 'rs': 'file-code',
+                'swift': 'file-code', 'kt': 'file-code',
+                // Config & Scripts
+                'xml': 'file-text', 'yml': 'file-text', 'yaml': 'file-text', 'properties': 'file-text',
+                'sh': 'terminal', 'bash': 'terminal', 'sql': 'database',
+                // Other
+                'md': 'file-text', 'r': 'file-code', 'scala': 'file-code', 'dart': 'file-code'
+            };
+            return iconMap[ext] || 'file';
+        }
+
+        // Get file icon color
+        function getFileIconColor(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const colorMap = {
+                // Web Technologies
+                'js': 'text-yellow-600', 'jsx': 'text-yellow-600', 'ts': 'text-blue-600', 'tsx': 'text-blue-600',
+                'html': 'text-red-600', 'css': 'text-purple-600', 'json': 'text-gray-600',
+                // Backend Languages
+                'py': 'text-green-600', 'java': 'text-orange-600', 'c': 'text-blue-500', 'cpp': 'text-blue-500', 'h': 'text-blue-500',
+                'cs': 'text-purple-500', 'php': 'text-indigo-600', 'rb': 'text-red-500', 'go': 'text-cyan-600', 'rs': 'text-orange-500',
+                'swift': 'text-orange-400', 'kt': 'text-purple-400',
+                // Config & Scripts
+                'xml': 'text-green-500', 'yml': 'text-purple-500', 'yaml': 'text-purple-500', 'properties': 'text-gray-500',
+                'sh': 'text-green-700', 'bash': 'text-green-700', 'sql': 'text-blue-700',
+                // Other
+                'md': 'text-blue-500', 'r': 'text-blue-400', 'scala': 'text-red-400', 'dart': 'text-blue-400'
+            };
+            return colorMap[ext] || 'text-gray-500';
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Process functionality
+        processBtn.addEventListener('click', processFiles);
+
+        // Initialize Lucide icons on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
