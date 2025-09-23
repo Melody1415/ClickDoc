@@ -43,7 +43,7 @@
                     </div>
 
                     <!-- Hidden file input -->
-                    <input type="file" id="file-input" multiple accept=".js,.jsx,.ts,.tsx,.py,.html,.css,.json,.md,.pdf" class="hidden">
+                    <input type="file" id="file-input" multiple accept=".js,.jsx,.ts,.tsx,.py,.java,.c,.cpp,.h,.cs,.php,.rb,.go,.rs,.swift,.kt,.html,.css,.json,.md,.xml,.yml,.yaml,.properties,.sh,.bash,.sql,.r,.scala,.dart" class="hidden">
                     
                     <!-- Upload More Files -->
                     <button class="w-full mt-4 bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm" id="upload-more-btn">
@@ -198,17 +198,54 @@
             displayUploadedFiles();
         }
 
+        // Validate file type - ALL POPULAR CODE FILES ALLOWED
+        function isValidFileType(file) {
+            const allowedExtensions = [
+                // Web Technologies
+                '.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.json', '.md',
+                // Backend Languages  
+                '.py', '.java', '.c', '.cpp', '.h', '.cs', '.php', '.rb', '.go', '.rs', '.swift', '.kt',
+                // Config & Scripts
+                '.xml', '.yml', '.yaml', '.properties', '.sh', '.bash', '.sql',
+                // Other Popular Languages
+                '.r', '.scala', '.dart'
+            ];
+            const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+            return allowedExtensions.includes(fileExt);
+        }
+
         // Handle file upload
         async function handleFileUpload(files) {
             if (files.length === 0) return;
 
+            // Filter valid files first
+            const allFiles = Array.from(files);
+            const validFiles = [];
+            const invalidFiles = [];
+
+            allFiles.forEach(file => {
+                if (isValidFileType(file)) {
+                    validFiles.push(file);
+                } else {
+                    invalidFiles.push(file.name);
+                }
+            });
+
+            // Show warning for invalid files
+            if (invalidFiles.length > 0) {
+                alert(`❌ The following files are not supported and will be ignored:\n\n${invalidFiles.join('\n')}\n\n✅ Supported code file types:\nJavaScript/TypeScript: .js, .jsx, .ts, .tsx\nPython: .py\nJava: .java\nC/C++: .c, .cpp, .h\nC#: .cs\nPHP: .php\nRuby: .rb\nGo: .go\nRust: .rs\nSwift: .swift\nKotlin: .kt\nWeb: .html, .css\nConfig: .json, .xml, .yml, .yaml, .properties\nScripts: .sh, .bash, .sql\nOther: .r, .scala, .dart, .md`);
+            }
+
+            // Only process valid files
+            if (validFiles.length === 0) return;
+
             uploadModal.classList.remove('hidden');
             
-            const totalFiles = files.length;
+            const totalFiles = validFiles.length;
             let processedFiles = 0;
 
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
+            for (let i = 0; i < validFiles.length; i++) {
+                const file = validFiles[i];
                 
                 // Update progress
                 uploadStatus.textContent = `Processing ${file.name}... (${processedFiles + 1}/${totalFiles})`;
@@ -307,16 +344,18 @@
         function getFileIcon(filename) {
             const ext = filename.split('.').pop().toLowerCase();
             const iconMap = {
-                'js': 'file-code',
-                'jsx': 'file-code',
-                'ts': 'file-code', 
-                'tsx': 'file-code',
-                'py': 'file-code',
-                'html': 'file-text',
-                'css': 'file-text',
-                'json': 'file-text',
-                'md': 'file-text',
-                'pdf': 'file-text'
+                // Web Technologies
+                'js': 'file-code', 'jsx': 'file-code', 'ts': 'file-code', 'tsx': 'file-code',
+                'html': 'file-text', 'css': 'file-text', 'json': 'file-text',
+                // Backend Languages
+                'py': 'file-code', 'java': 'file-code', 'c': 'file-code', 'cpp': 'file-code', 'h': 'file-code',
+                'cs': 'file-code', 'php': 'file-code', 'rb': 'file-code', 'go': 'file-code', 'rs': 'file-code',
+                'swift': 'file-code', 'kt': 'file-code',
+                // Config & Scripts
+                'xml': 'file-text', 'yml': 'file-text', 'yaml': 'file-text', 'properties': 'file-text',
+                'sh': 'terminal', 'bash': 'terminal', 'sql': 'database',
+                // Other
+                'md': 'file-text', 'r': 'file-code', 'scala': 'file-code', 'dart': 'file-code'
             };
             return iconMap[ext] || 'file';
         }
@@ -325,16 +364,18 @@
         function getFileIconColor(filename) {
             const ext = filename.split('.').pop().toLowerCase();
             const colorMap = {
-                'js': 'text-yellow-600',
-                'jsx': 'text-yellow-600',
-                'ts': 'text-blue-600',
-                'tsx': 'text-blue-600',
-                'py': 'text-green-600',
-                'html': 'text-red-600',
-                'css': 'text-purple-600',
-                'json': 'text-gray-600',
-                'md': 'text-blue-500',
-                'pdf': 'text-red-500'
+                // Web Technologies
+                'js': 'text-yellow-600', 'jsx': 'text-yellow-600', 'ts': 'text-blue-600', 'tsx': 'text-blue-600',
+                'html': 'text-red-600', 'css': 'text-purple-600', 'json': 'text-gray-600',
+                // Backend Languages
+                'py': 'text-green-600', 'java': 'text-orange-600', 'c': 'text-blue-500', 'cpp': 'text-blue-500', 'h': 'text-blue-500',
+                'cs': 'text-purple-500', 'php': 'text-indigo-600', 'rb': 'text-red-500', 'go': 'text-cyan-600', 'rs': 'text-orange-500',
+                'swift': 'text-orange-400', 'kt': 'text-purple-400',
+                // Config & Scripts
+                'xml': 'text-green-500', 'yml': 'text-purple-500', 'yaml': 'text-purple-500', 'properties': 'text-gray-500',
+                'sh': 'text-green-700', 'bash': 'text-green-700', 'sql': 'text-blue-700',
+                // Other
+                'md': 'text-blue-500', 'r': 'text-blue-400', 'scala': 'text-red-400', 'dart': 'text-blue-400'
             };
             return colorMap[ext] || 'text-gray-500';
         }
