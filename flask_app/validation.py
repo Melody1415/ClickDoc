@@ -45,6 +45,7 @@ def validation_documentation():
     ai_response = chat_completion.choices[0].message.content
     
     
+    
     return render_template('validation_documentation.html', result=ai_response, filename=filename)
 
 
