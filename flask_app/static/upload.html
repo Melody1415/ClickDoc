@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload - ClickDoc</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <header class="flex justify-between items-center px-8 py-6 bg-white shadow-sm">
+        <div class="flex items-center gap-3">
+            <img src="/static/assets/logo.png" alt="ClickDoc Logo" class="w-8 h-8" onerror="this.style.display='none'" />
+            <div class="text-2xl font-bold text-blue-600">ClickDoc</div>
+        </div>
+        <button id="home-btn" class="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2">
+            <i data-lucide="home" class="w-5 h-5"></i>
+            Home
+        </button>
+    </header>
+    <main class="flex items-center justify-center min-h-screen px-8 py-12">
+        <div class="max-w-md w-full text-center">
+            <h1 class="text-3xl font-bold text-gray-800 mb-12">Upload Your Code</h1>
+            <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-lg p-16 mb-8 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 cursor-pointer bg-white">
+                <div id="drop-content">
+                    <i data-lucide="upload" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+                    <p class="text-gray-600 text-lg mb-2">Drag & Drop Files Here</p>
+                    <p class="text-gray-500 mb-6">Or click to browse files</p>
+                </div>
+                <input type="file" id="file-input" multiple accept=".js,.jsx,.ts,.tsx,.py,.java,.c,.cpp,.h,.cs,.php,.rb,.go,.rs,.swift,.kt,.html,.css,.json,.md,.xml,.yml,.yaml,.properties,.sh,.bash,.sql,.r,.scala,.dart" class="hidden">
+            </div>
+            <div class="flex justify-center gap-3 mb-8">
+                <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">Java</span>
+                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Python</span>
+                <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">JavaScript</span>
+            </div>
+            <div id="file-list" class="mb-8 hidden">
+                <div id="files-container" class="space-y-2"></div>
+            </div>
+            <button id="process-btn" class="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                <span id="process-text">Process Files</span>
+                <i data-lucide="loader-2" id="process-loader" class="w-5 h-5 animate-spin ml-2 hidden"></i>
+            </button>
+        </div>
+    </main>
+    <div id="processing-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-96 max-w-90vw">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Processing Files...</h3>
+            <div class="space-y-3">
+                <div id="process-progress" class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div id="process-status" class="text-sm text-gray-600">Reading files...</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let selectedFiles = [];
+
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const fileList = document.getElementById('file-list');
+        const filesContainer = document.getElementById('files-container');
+        const processBtn = document.getElementById('process-btn');
+        const processText = document.getElementById('process-text');
+        const processLoader = document.getElementById('process-loader');
+        const homeBtn = document.getElementById('home-btn');
+        const processingModal = document.getElementById('processing-modal');
+        const progressBar = document.getElementById('progress-bar');
+        const processStatus = document.getElementById('process-status');
+
+        // Load files from sessionStorage on page load
+        function loadFilesFromStorage() {
+            const storedFiles = sessionStorage.getItem('uploadedFiles');
+            if (storedFiles) {
+                selectedFiles = JSON.parse(storedFiles).map(file => ({
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    lastModified: file.lastModified,
+                    content: file.content,
+                    uploadedAt: file.uploadedAt,
+                    error: file.error
+                }));
+                displayFiles();
+                updateProcessButton();
+            }
+        }
+
+        homeBtn.addEventListener('click', function() {
+            window.location.href = '/';
+        });
+
+        dropZone.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function(e) {
+            handleFiles(e.target.files);
+            fileInput.value = ''; // Reset file input
+        });
+
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dropZone.classList.add('border-blue-500', 'bg-blue-100');
+        });
+
+        dropZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            dropZone.classList.remove('border-blue-500', 'bg-blue-100');
+        });
+
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dropZone.classList.remove('border-blue-500', 'bg-blue-100');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        function isValidFileType(file) {
+            const allowedExtensions = [
+                '.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.json', '.md',
+                '.py', '.java', '.c', '.cpp', '.h', '.cs', '.php', '.rb', '.go', '.rs',
+                '.swift', '.kt', '.xml', '.yml', '.yaml', '.properties', '.sh', '.bash',
+                '.sql', '.r', '.scala', '.dart'
+            ];
+            const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+            return allowedExtensions.includes(fileExt);
+        }
+
+        function isCodeFile(file) {
+            return isValidFileType(file);
+        }
+
+        function handleFiles(files) {
+            const allFiles = Array.from(files);
+            const validFiles = [];
+            const invalidFiles = [];
+
+            allFiles.forEach(file => {
+                if (isValidFileType(file)) {
+                    validFiles.push(file);
+                } else {
+                    invalidFiles.push(file.name);
+                }
+            });
+
+            if (invalidFiles.length > 0) {
+                alert(`❌ The following files are not supported and will be ignored:\n\n${invalidFiles.join('\n')}\n\n✅ Supported code file types:\nJavaScript/TypeScript: .js, .jsx, .ts, .tsx\nPython: .py\nJava: .java\nC/C++: .c, .cpp, .h\nC#: .cs\nPHP: .php\nRuby: .rb\nGo: .go\nRust: .rs\nSwift: .swift\nKotlin: .kt\nWeb: .html, .css\nConfig: .json, .xml, .yml, .yaml, .properties\nScripts: .sh, .bash, .sql\nOther: .r, .scala, .dart, .md`);
+            }
+
+            // Append new valid files to existing selectedFiles
+            validFiles.forEach(file => {
+                const existingIndex = selectedFiles.findIndex(f => f.name === file.name);
+                if (existingIndex === -1) {
+                    selectedFiles.push(file);
+                } else {
+                    selectedFiles[existingIndex] = file; // Replace existing file
+                }
+            });
+
+            displayFiles();
+            updateProcessButton();
+        }
+
+        function displayFiles() {
+            if (selectedFiles.length === 0) {
+                fileList.classList.add('hidden');
+                return;
+            }
+
+            fileList.classList.remove('hidden');
+            filesContainer.innerHTML = '';
+
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'flex items-center justify-between bg-gray-100 p-3 rounded-lg';
+                fileItem.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="${getFileIcon(file.name)}" class="w-4 h-4 ${getFileIconColor(file.name)}"></i>
+                        <div>
+                            <span class="text-sm font-medium text-gray-700">${file.name}</span>
+                            <div class="text-xs text-gray-500">${formatFileSize(file.size)}</div>
+                        </div>
+                    </div>
+                    <button onclick="removeFile(${index})" class="text-red-500 hover:text-red-700 transition-colors">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                `;
+                filesContainer.appendChild(fileItem);
+            });
+
+            lucide.createIcons();
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            sessionStorage.setItem('uploadedFiles', JSON.stringify(selectedFiles));
+            displayFiles();
+            updateProcessButton();
+        }
+
+        function updateProcessButton() {
+            processBtn.disabled = selectedFiles.length === 0;
+        }
+
+        async function readFileContent(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                reader.onerror = function() {
+                    reject(new Error(`Failed to read file: ${file.name}`));
+                };
+                reader.readAsText(file); // Only text files
+            });
+        }
+
+        async function processFiles() {
+            if (selectedFiles.length === 0) return;
+
+            const codeFiles = selectedFiles.filter(file => isCodeFile(file));
+            if (codeFiles.length === 0) {
+                alert('❌ No code files to process!\n\n✅ Please upload supported code files to continue.\n\nSupported: .js, .jsx, .ts, .tsx, .py, .java, .c, .cpp, .cs, .php, .rb, .go, .rs, .swift, .kt, .html, .css, .json, .xml, .yml, .sh, .sql, .r, .scala, .dart, .md');
+                return;
+            }
+
+            processingModal.classList.remove('hidden');
+            processBtn.disabled = true;
+            processText.textContent = 'Processing...';
+            processLoader.classList.remove('hidden');
+
+            const processedFiles = [];
+            const totalFiles = codeFiles.length;
+
+            try {
+                for (let i = 0; i < codeFiles.length; i++) {
+                    const file = codeFiles[i];
+                    processStatus.textContent = `Reading ${file.name}... (${i + 1}/${totalFiles})`;
+                    try {
+                        const content = await readFileContent(file);
+                        processedFiles.push({
+                            name: file.name,
+                            size: file.size,
+                            type: file.type,
+                            content: content,
+                            lastModified: file.lastModified,
+                            uploadedAt: new Date().toISOString()
+                        });
+                    } catch (error) {
+                        console.error(`Error reading file ${file.name}:`, error);
+                        processedFiles.push({
+                            name: file.name,
+                            size: file.size,
+                            type: file.type,
+                            content: null,
+                            error: error.message,
+                            lastModified: file.lastModified,
+                            uploadedAt: new Date().toISOString()
+                        });
+                    }
+                    const progress = ((i + 1) / totalFiles) * 100;
+                    progressBar.style.width = `${progress}%`;
+                }
+
+                // POST files to API
+                const response = await fetch('/api/set_files', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ files: processedFiles })
+                });
+
+                if (response.ok) {
+                    sessionStorage.setItem('uploadedFiles', JSON.stringify(processedFiles));
+                    processStatus.textContent = 'Files processed successfully!';
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    window.location.href = '/dashboard';
+                } else {
+                    const errorData = await response.json();
+                    processStatus.textContent = `Error: ${errorData.error || 'Unknown error'}`;
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+            } catch (error) {
+                console.error('Error processing files:', error);
+                processStatus.textContent = 'Error processing files';
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+
+            processingModal.classList.add('hidden');
+            processBtn.disabled = false;
+            processText.textContent = 'Process Files';
+            processLoader.classList.add('hidden');
+        }
+
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const iconMap = {
+                'js': 'file-code', 'jsx': 'file-code', 'ts': 'file-code', 'tsx': 'file-code',
+                'html': 'file-text', 'css': 'file-text', 'json': 'file-text',
+                'py': 'file-code', 'java': 'file-code', 'c': 'file-code', 'cpp': 'file-code', 'h': 'file-code',
+                'cs': 'file-code', 'php': 'file-code', 'rb': 'file-code', 'go': 'file-code', 'rs': 'file-code',
+                'swift': 'file-code', 'kt': 'file-code',
+                'xml': 'file-text', 'yml': 'file-text', 'yaml': 'file-text', 'properties': 'file-text',
+                'sh': 'terminal', 'bash': 'terminal', 'sql': 'database',
+                'md': 'file-text', 'r': 'file-code', 'scala': 'file-code', 'dart': 'file-code'
+            };
+            return iconMap[ext] || 'file';
+        }
+
+        function getFileIconColor(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const colorMap = {
+                'js': 'text-yellow-600', 'jsx': 'text-yellow-600', 'ts': 'text-blue-600', 'tsx': 'text-blue-600',
+                'html': 'text-red-600', 'css': 'text-purple-600', 'json': 'text-gray-600',
+                'py': 'text-green-600', 'java': 'text-orange-600', 'c': 'text-blue-500', 'cpp': 'text-blue-500', 'h': 'text-blue-500',
+                'cs': 'text-purple-500', 'php': 'text-indigo-600', 'rb': 'text-red-500', 'go': 'text-cyan-600', 'rs': 'text-orange-500',
+                'swift': 'text-orange-400', 'kt': 'text-purple-400',
+                'xml': 'text-green-500', 'yml': 'text-purple-500', 'yaml': 'text-purple-500', 'properties': 'text-gray-500',
+                'sh': 'text-green-700', 'bash': 'text-green-700', 'sql': 'text-blue-700',
+                'md': 'text-blue-500', 'r': 'text-blue-400', 'scala': 'text-red-400', 'dart': 'text-blue-400'
+            };
+            return colorMap[ext] || 'text-gray-500';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        processBtn.addEventListener('click', processFiles);
+
+        // Handle browser back/forward navigation
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                // Page was restored from cache
+                loadFilesFromStorage();
+                // Reinitialize event listeners
+                fileInput.value = '';
+                dropZone.addEventListener('click', function() {
+                    fileInput.click();
+                });
+                fileInput.addEventListener('change', function(e) {
+                    handleFiles(e.target.files);
+                    fileInput.value = '';
+                });
+                lucide.createIcons();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFilesFromStorage();
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
+
+
