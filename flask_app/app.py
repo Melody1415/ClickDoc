@@ -1,52 +1,48 @@
-from flask import Flask, request, render_template
-from groq import Groq
+from flask import Flask, send_from_directory,request,session,jsonify
+from functiondashboard import bp_dashboard
+from generate import generate
+from validation import validation  # New import
+from relationship import relationship 
+from setup import setup 
+from tech_stack import tech_stack 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', template_folder='templates')
+app.secret_key = 'your_secret_key_here'  # Replace with a secure random key later
 
-# Your Groq API key here
-GROQ_API_KEY = "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"
-client = Groq(api_key=GROQ_API_KEY)
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    if request.method == 'POST':
-        # Handle file upload
-        if 'file' not in request.files:
-            return "No file uploaded!", 400
-        file = request.files['file']
-        if file.filename == '':
-            return "No file selected!", 400
-        
-        # Read file content
-        try:
-            content = file.read().decode('utf-8')
-        except UnicodeDecodeError:
-            return "Error: File must be text (e.g., .py, .txt)!", 400
-        
-        # Get prompt type from radio buttons
-        output_type = request.form.get('output_type', 'guide')  # Match form name
-        
-        # Choose prompt based on type
-        if output_type == 'diagram':
-           prompt = f"Generate a valid Mermaid flowchart (graph TD syntax) showing the function call structure of this code. Include only function nodes (e.g., main, validate_input) in brackets like A[main]. Use edges like A -->|calls| B[validate_input] with simple labels (e.g., 'calls') without quotes, '>', conditionals (e.g., true, false), or loops. Avoid non-function nodes like 'if __name__'. Example for a code with functions foo and bar: graph TD\n    A[foo] -->|calls| B[bar]\nOutput only the Mermaid code, no explanations:\n\n{content}"
-        else:
-            prompt = f"Analyze this code and generate a simple setup guide:\n\n{content}"
-        
-        # Prompt Groq
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": "You are a helpful code documentation assistant."},
-                {"role": "user", "content": prompt},
-            ],
-            model="llama-3.3-70b-versatile",
-            max_tokens=500
-        )
-        ai_response = chat_completion.choices[0].message.content
-        
-        return render_template('index.html', result=ai_response, filename=file.filename, output_type=output_type)
-    
-    # Show form on GET
-    return render_template('index.html', output_type='guide')  # Default for GET
+app.register_blueprint(bp_dashboard)
+app.register_blueprint(generate)
+app.register_blueprint(validation)
+app.register_blueprint(relationship)
+app.register_blueprint(setup)
+app.register_blueprint(tech_stack)
+
+# Route for home page (static home.html)
+@app.route('/')
+def home():
+    return send_from_directory('static', 'home.html')
+
+# Route for upload page (static upload.html)
+@app.route('/upload')
+def serve_upload():
+    return send_from_directory('static', 'upload.html')
+
+
+# Route for team member's dashboard (static team_dashboard.html)
+@app.route('/dashboard')
+def serve_dashboard():
+    return send_from_directory('static', 'dashboard.html')
+
+
+@app.route('/api/set_files', methods=['POST'])
+def set_files():
+    try:
+        data = request.get_json()
+        session['files'] = data.get('files', [])
+        return jsonify({'status': 'success'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)

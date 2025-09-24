@@ -4,7 +4,7 @@ from groq import Groq
 
 generate = Blueprint('generate', __name__)
 
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 
 @generate.route('/function_documentation')

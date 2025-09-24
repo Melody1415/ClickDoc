@@ -39,7 +39,7 @@ def upload():
         return redirect(url_for('dashboard.dashboard'))  # Use blueprint name + endpoint
     
     # Show upload form on GET
-    return render_template('upload.html')
+    return render_template('upload2.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

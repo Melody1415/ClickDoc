@@ -12,7 +12,7 @@
     <header class="flex justify-between items-center px-8 py-6 bg-white shadow-sm">
         <div class="flex items-center gap-3">
             <img 
-                src="./assets/logo.png" 
+                src="/static/assets/logo.png" 
                 alt="ClickDoc Logo" 
                 class="w-8 h-8"
                 onerror="this.style.display='none'"
@@ -64,6 +64,9 @@
     </section>
 
     <script>
+        // Clear sessionStorage on home page load
+        sessionStorage.removeItem('uploadedFiles');
+
         // Features data
         const features = [
             {
@@ -116,7 +119,7 @@
         // Function to handle upload navigation
         function handleUploadClick() {
             // Direct to upload page
-            window.location.href = 'upload.html';
+            window.location.href = '/upload';
         }
 
         // Function to render features
