@@ -11,7 +11,7 @@ client = Groq(api_key=GROQ_API_KEY)
 def relationship_documentation():
     file_data = session.get('file', {})
     if not file_data:
-        return redirect(url_for('dashboard.dashboard'))  # Back to dashboard if no file
+        return redirect(url_for('functiondashboard.dashboard'))  # Back to dashboard if no file
     filename = next(iter(file_data.keys()))
     content = next(iter(file_data.values()))
     
