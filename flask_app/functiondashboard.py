@@ -18,6 +18,5 @@ def set_files():
 
 @bp_dashboard.route('/functiondashboard')
 def dashboard():
-    file_data = session.get('file', {})
-    filename = file_data.get('name', 'No file uploaded')
-    return render_template('functiondashboard.html', file=file_data, filename=filename)
+    files = session.get('files', [])  # Use 'files' key, default to empty list
+    return render_template('functiondashboard.html', files=files)  # Pass files list to template

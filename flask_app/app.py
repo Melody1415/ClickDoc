@@ -8,7 +8,7 @@ from tech_stack import tech_stack
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = 'your_secret_key_here'  # Replace with a secure random key later
-
+app.config['SESSION_TYPE'] = 'filesystem'  # Ensure session persistence
 
 app.register_blueprint(bp_dashboard)
 app.register_blueprint(generate)
@@ -34,14 +34,6 @@ def serve_dashboard():
     return send_from_directory('static', 'dashboard.html')
 
 
-@app.route('/api/set_files', methods=['POST'])
-def set_files():
-    try:
-        data = request.get_json()
-        session['files'] = data.get('files', [])
-        return jsonify({'status': 'success'}), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':
