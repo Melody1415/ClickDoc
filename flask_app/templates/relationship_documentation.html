@@ -519,7 +519,7 @@
     </div>
   </header>
 
-  <div class="main-container">
+ <div class="main-container">
     <aside class="sidebar">
       <div class="sidebar-section">
         <div class="section-title">
@@ -527,11 +527,13 @@
           File Uploaded
         </div>
         <ul class="file-list">
-          {% if filename %}
-            <li class="file-item">
-              <div class="file-icon">📄</div>
-              <span class="file-name">{{ filename }}</span>
-            </li>
+          {% if files %}
+            {% for file in files %}
+              <li class="file-item">
+                <div class="file-icon">📄</div>
+                <span class="file-name">{{ file.name }}</span>
+              </li>
+            {% endfor %}
           {% else %}
             <li class="file-item">
               <div class="file-icon">📄</div>

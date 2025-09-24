@@ -73,9 +73,11 @@
                                         <p class="text-sm text-gray-600">Auto-create project documentation directly from code</p>
                                     </div>
                                 </div>
-                                  <button id="start-documentation-btn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors" onclick="window.location.href='/dashboard'">
-                                    Start Documentation
-                                </button>
+    <button id="start-documentation-btn" 
+    class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+    Start Documentation
+</button>
+
                             </div>
                         </div>
 
@@ -430,30 +432,34 @@
             window.location.href = '/';
         });
 
-         startDocumentationBtn.addEventListener('click', async function() {
-            if (uploadedFiles.length === 0) {
-                alert('Please upload at least one file before generating documentation.');
-                return;
-            }
-            try {
-                const response = await fetch('/api/set_files', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ files: uploadedFiles })
-                });
-                const responseData = await response.json();
-                if (response.ok) {
-                    console.log('Files sent successfully:', responseData);
-                    window.location.href = '/functiondashboard';
-                } else {
-                    console.error('Error from server:', responseData);
-                    alert(`Failed to send files to the server: ${responseData.error || 'Unknown error'}`);
-                }
-            } catch (error) {
-                console.error('Error sending files:', error);
-                alert('An error occurred while communicating with the server.');
-            }
+        startDocumentationBtn.addEventListener('click', async function () {
+    if (uploadedFiles.length === 0) {
+        alert('Please upload at least one file before generating documentation.');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/set_files', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ files: uploadedFiles })
         });
+
+        const responseData = await response.json();
+
+        if (response.ok) {
+            console.log('Files sent successfully:', responseData);
+            window.location.href = '/functiondashboard';  // redirect after success
+        } else {
+            console.error('Error from server:', responseData);
+            alert(`Failed to send files to the server: ${responseData.error || 'Unknown error'}`);
+        }
+    } catch (error) {
+        console.error('Error sending files:', error);
+        alert('An error occurred while communicating with the server.');
+    }
+});
+
 
 
         startChatBtn.addEventListener('click', function() {
