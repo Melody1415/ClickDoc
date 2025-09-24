@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClickDoc - Interactive Visualization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            background: white;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: auto;
+        }
+
+        .top-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 32px;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            width: 100%;
+        }
+
+        .content-wrapper {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 24px;
+            border-right: 1px solid #e2e8f0;
+            min-height: auto;
+        }
+
+        .sidebar-header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .file-info {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 14px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-icon {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #51cf66, #40c057);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .sidebar-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            color: #94a3b8;
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            background: #4285f4;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .nav-icons {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .nav-icon {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: #475569;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+            background: #f1f5f9;
+        }
+
+        .nav-icon:hover {
+            background: rgba(66, 133, 244, 0.1);
+            color: #4285f4;
+            border-color: #4285f4;
+            transform: translateY(-2px);
+        }
+
+        .nav-icon.active {
+            background: #4285f4;
+            color: white;
+        }
+
+        .nav-icon-symbol {
+            width: 20px;
+            height: 20px;
+            background: #4285f4;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .nav-icon.active .nav-icon-symbol {
+            background: white;
+            color: #4285f4;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 32px;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+        }
+
+        .content-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #4285f4, #1a73e8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 18px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .diagram-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .diagram-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .diagram-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.05), rgba(124, 58, 237, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .diagram-card:hover::before {
+            opacity: 1;
+        }
+
+        .diagram-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            border-color: #4f46e5;
+        }
+
+        .diagram-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .diagram-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .diagram-card:hover .diagram-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .flow-bg {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+        }
+
+        .sequence-bg {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+        }
+
+        .component-bg {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .class-bg {
+            background: linear-gradient(135deg, #ec4899, #db2777);
+        }
+
+        .diagram-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .diagram-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .diagram-description {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #4285f4, #1a73e8);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3);
+            position: relative;
+            overflow: hidden;
+            width: 140px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.4);
+            background: linear-gradient(135deg, #1a73e8, #1557b0);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .generate-btn.generating {
+            background: linear-gradient(135deg, #10b981, #059669);
+            cursor: wait;
+        }
+
+        .generate-btn.completed {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 0 0 8px 8px;
+            transform-origin: left;
+            transform: scaleX(0);
+            transition: transform 2s ease;
+        }
+
+        .generating .progress-bar {
+            transform: scaleX(1);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .generating {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+            40%, 43% { transform: translate3d(0,-8px,0); }
+            70% { transform: translate3d(0,-4px,0); }
+            90% { transform: translate3d(0,-2px,0); }
+        }
+
+        .completed {
+            animation: bounce 0.8s ease;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(30, 41, 59, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .diagram-card:hover .tooltip {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+            }
+            
+            .content-wrapper {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                min-height: 200px;
+            }
+            
+            .diagram-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .top-header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .nav-icons {
+                margin-left: 0;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Top Header spanning full width -->
+        <div class="top-header">
+            <div class="logo">
+                <svg viewBox="0 0 24 24">
+                    <path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/>
+                </svg>
+            </div>
+            <div class="logo-text">ClickDoc</div>
+            <div class="nav-icons">
+                <a href="/" class="nav-icon" onclick="setActiveNav(this)">
+                    <div class="nav-icon-symbol">📊</div>
+                    Dashboard
+                </a>
+                <a href="#" class="nav-icon active" onclick="setActiveNav(this)">
+                    <div class="nav-icon-symbol">⌂</div>
+                    Home
+                </a>
+            </div>
+        </div>
+
+        <!-- Content wrapper with sidebar and main content -->
+        <div class="content-wrapper">
+            <div class="sidebar">
+                <div class="sidebar-content">
+                    <div class="sidebar-header">
+                        <div class="sidebar-title">Uploaded File</div>
+                    </div>
+                    {% if filename %}
+                        <div class="file-info">
+                            <div class="file-name">
+                                <div class="file-icon">📄</div>
+                                {{ filename }}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div style="color: #94a3b8; font-style: italic; text-align: center; margin-top: 40px;">
+                            No file uploaded yet
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="main-content">
+                {% if error %}
+                    <div class="error-message">{{ error }}</div>
+                {% endif %}
+                
+                <div class="content-header">
+                    <h1 class="page-title">Visualize Diagram</h1>
+                    <p class="page-subtitle">Choose Diagram Type</p>
+                </div>
+                
+                <div class="diagram-grid">
+                    <div class="diagram-card" onclick="generateDiagram('flow')" data-type="flow">
+                        <div class="tooltip">Click to generate flow diagram</div>
+                        <div class="diagram-header">
+                            <div class="diagram-icon flow-bg">📊</div>
+                            <div class="diagram-content">
+                                <h3 class="diagram-title">Flow Diagram</h3>
+                                <p class="diagram-description">Visualize process flow and logic sequence</p>
+                            </div>
+                        </div>
+                        <button class="generate-btn" id="flow-btn" form="diagramForm" type="submit">
+                            Generate Now
+                            <div class="progress-bar"></div>
+                        </button>
+                    </div>
+                    
+                    <div class="diagram-card" onclick="generateDiagram('sequence')" data-type="sequence">
+                        <div class="tooltip">Click to generate sequence diagram</div>
+                        <div class="diagram-header">
+                            <div class="diagram-icon sequence-bg">🔗</div>
+                            <div class="diagram-content">
+                                <h3 class="diagram-title">Sequence Diagram</h3>
+                                <p class="diagram-description">Show interactions between functions and classes</p>
+                            </div>
+                        </div>
+                        <button class="generate-btn" id="sequence-btn" form="diagramForm" type="submit">
+                            Generate Now
+                            <div class="progress-bar"></div>
+                        </button>
+                    </div>
+                    
+                    <div class="diagram-card" onclick="generateDiagram('component')" data-type="component">
+                        <div class="tooltip">Click to generate component diagram</div>
+                        <div class="diagram-header">
+                            <div class="diagram-icon component-bg">🏗️</div>
+                            <div class="diagram-content">
+                                <h3 class="diagram-title">Component Diagram</h3>
+                                <p class="diagram-description">Display top-level components and their relationships</p>
+                            </div>
+                        </div>
+                        <button class="generate-btn" id="component-btn" form="diagramForm" type="submit">
+                            Generate Now
+                            <div class="progress-bar"></div>
+                        </button>
+                    </div>
+                    
+                    <div class="diagram-card" onclick="generateDiagram('class')" data-type="class">
+                        <div class="tooltip">Click to generate class diagram</div>
+                        <div class="diagram-header">
+                            <div class="diagram-icon class-bg">🗄️</div>
+                            <div class="diagram-content">
+                                <h3 class="diagram-title">Class Diagram</h3>
+                                <p class="diagram-description">Illustrate class structure and relationships</p>
+                            </div>
+                        </div>
+                        <button class="generate-btn" id="class-btn" form="diagramForm" type="submit">
+                            Generate Now
+                            <div class="progress-bar"></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form id="diagramForm" method="POST" action="/diagram" enctype="multipart/form-data" style="display: none;">
+        <input type="radio" name="output_type" value="flow" checked>
+        <input type="radio" name="output_type" value="sequence">
+        <input type="radio" name="output_type" value="component">
+        <input type="radio" name="output_type" value="class">
+    </form>
+
+    <script>
+        // Navigation functionality
+        function setActiveNav(element) {
+            document.querySelectorAll('.nav-icon').forEach(nav => {
+                nav.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+
+        // Generate diagram function
+        function generateDiagram(type) {
+            const btn = document.getElementById(`${type}-btn`);
+            const form = document.getElementById('diagramForm');
+
+            if (btn.classList.contains('generating') || btn.classList.contains('completed')) {
+                return;
+            }
+
+            // Check if file is uploaded
+            {% if not filename %}
+                alert('Please upload a file first!');
+                return;
+            {% endif %}
+
+            // Set the selected diagram type
+            form.querySelector(`input[name="output_type"][value="${type}"]`).checked = true;
+
+            // Start generation animation
+            btn.classList.add('generating');
+            btn.innerHTML = 'Generating... <div class="progress-bar"></div>';
+
+            // Submit the form
+            form.submit();
+        }
+
+        // Welcome animation
+        window.addEventListener('load', () => {
+            const cards = document.querySelectorAll('.diagram-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>
