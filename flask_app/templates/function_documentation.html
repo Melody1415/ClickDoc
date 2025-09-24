@@ -445,6 +445,23 @@
       animation: spin 1s linear infinite;
       margin: 20px auto;
     }
+
+    .file-list-subtitle {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 48px;
+}
+.file-list-subtitle li {
+  display: inline;
+  font-size: 18px;
+  color: #718096;
+}
+.file-list-subtitle li:not(:last-child):after {
+  content: ", ";
+}
+
+
+
     @keyframes spin { 100% { transform: rotate(360deg); } }
 
     @media (max-width: 768px) {
@@ -513,8 +530,8 @@
         <span class="logo-text">ClickDoc</span>
       </div>
       <div class="header-buttons">
-        <button class="dashboard-btn">Dashboard</button>
-        <button class="back-btn" onclick="window.location.href='/dashboard'">Back</button>
+        <button class="dashboard-btn" onclick="window.location.href='/dashboard'">Dashboard</button>
+        <button class="back-btn" onclick="window.location.href='/functiondashboard'">Back</button>
       </div>
     </div>
   </header>
@@ -544,9 +561,18 @@
       </div>
     </aside>
 
-    <main class="content-area">
+   <main class="content-area">
       <h1 class="main-title">Function Documentation</h1>
-      <p class="subtitle">Generated for: {{ filename }}</p>
+      {% if files %}
+        <ul class="file-list-subtitle">
+          <li>Generated for:</li>
+          {% for file in files %}
+            <li>{{ file.name }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="subtitle">No files uploaded</p>
+      {% endif %}
 
       <div class="doc-card">
         <div class="doc-header">
