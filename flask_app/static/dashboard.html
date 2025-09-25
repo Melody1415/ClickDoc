@@ -433,45 +433,66 @@
         });
 
         startDocumentationBtn.addEventListener('click', async function () {
-    if (uploadedFiles.length === 0) {
-        alert('Please upload at least one file before generating documentation.');
-        return;
-    }
+            if (uploadedFiles.length === 0) {
+                alert('Please upload at least one file before generating documentation.');
+                return;
+            }
 
-    try {
-        const response = await fetch('/api/set_files', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ files: uploadedFiles })
+            try {
+                const response = await fetch('/api/set_files', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ files: uploadedFiles })
+                });
+
+                    const responseData = await response.json();
+
+                    if (response.ok) {
+                        console.log('Files sent successfully:', responseData);
+                        window.location.href = '/functiondashboard';  // redirect after success
+                    } else {
+                        console.error('Error from server:', responseData);
+                        alert(`Failed to send files to the server: ${responseData.error || 'Unknown error'}`);
+                    }
+                } catch (error) {
+                    console.error('Error sending files:', error);
+                    alert('An error occurred while communicating with the server.');
+                }
         });
 
-        const responseData = await response.json();
+         createDiagramBtn.addEventListener('click', async function () {
+            if (uploadedFiles.length === 0) {
+                alert('Please upload at least one file before generating documentation.');
+                return;
+            }
 
-        if (response.ok) {
-            console.log('Files sent successfully:', responseData);
-            window.location.href = '/functiondashboard';  // redirect after success
-        } else {
-            console.error('Error from server:', responseData);
-            alert(`Failed to send files to the server: ${responseData.error || 'Unknown error'}`);
-        }
-    } catch (error) {
-        console.error('Error sending files:', error);
-        alert('An error occurred while communicating with the server.');
-    }
-});
+            try {
+                const response = await fetch('/api/set_files', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ files: uploadedFiles })
+                });
 
+                    const responseData = await response.json();
+
+                    if (response.ok) {
+                        console.log('Files sent successfully:', responseData);
+                        window.location.href = '/diagram_page';  // redirect after success
+                    } else {
+                        console.error('Error from server:', responseData);
+                        alert(`Failed to send files to the server: ${responseData.error || 'Unknown error'}`);
+                    }
+                } catch (error) {
+                    console.error('Error sending files:', error);
+                    alert('An error occurred while communicating with the server.');
+                }
+        });
 
 
         startChatBtn.addEventListener('click', function() {
             // Pass all uploaded files to chat page
             sessionStorage.setItem('selectedFiles', JSON.stringify(uploadedFiles));
             window.location.href = 'ai-chat.html';
-        });
-
-        createDiagramBtn.addEventListener('click', function() {
-            // Pass all uploaded files to diagram page
-            sessionStorage.setItem('selectedFiles', JSON.stringify(uploadedFiles));
-            window.location.href = 'visualize-diagram.html';
         });
 
         // Initialize on page load

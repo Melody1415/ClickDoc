@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClickDoc - Generated Diagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            background: white;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: auto;
+        }
+        .top-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 32px;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            width: 100%;
+        }
+        .content-wrapper {
+            display: flex;
+            flex: 1;
+        }
+        .logo {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #4285f4;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+        .logo:hover {
+            transform: scale(1.1);
+        }
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            fill: white;
+        }
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .nav-icons {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+        .nav-icon {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: #475569;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+            background: #f1f5f9;
+        }
+        .nav-icon:hover {
+            background: rgba(66, 133, 244, 0.1);
+            color: #4285f4;
+            border-color: #4285f4;
+            transform: translateY(-2px);
+        }
+        .nav-icon.active {
+            background: #4285f4;
+            color: white;
+        }
+        .nav-icon-symbol {
+            width: 20px;
+            height: 20px;
+            background: #4285f4;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        .nav-icon.active .nav-icon-symbol {
+            background: white;
+            color: #4285f4;
+        }
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 24px;
+            border-right: 1px solid #e2e8f0;
+            min-height: auto;
+        }
+        .sidebar-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        .file-info {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .file-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 14px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .file-icon {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #51cf66, #40c057);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .main-content {
+            flex: 1;
+            padding: 32px;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+        }
+        .content-header {
+            margin-bottom: 32px;
+        }
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            font-size: 18px;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .toggle-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+        .toggle-btn {
+            padding: 10px 20px;
+            border: none;
+            background: #f1f5f9;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            color: #475569;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        .toggle-btn.active {
+            background: #4285f4;
+            color: white;
+            box-shadow: 0 2px 4px rgba(66, 133, 244, 0.2);
+        }
+        .toggle-btn:hover {
+            background: #e6f0fa;
+            color: #1a73e8;
+        }
+        .code-view, .visual-view {
+            display: none;
+        }
+        .code-view.active, .visual-view.active {
+            display: block;
+        }
+        .code-display {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 32px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .mermaid {
+            max-width: 100%;
+            overflow: auto;
+            text-align: center;
+            transform-origin: center;
+            transition: transform 0.3s ease;
+        }
+        .error-message, .success-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            text-align: center;
+            max-width: 400px;
+            font-size: 16px;
+            font-weight: 600;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+        .success-message {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border: 1px solid #6ee7b7;
+            color: #047857;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+        }
+        .success-message::before {
+            content: '✔';
+            font-size: 24px;
+            color: #047857;
+        }
+        .error-message.active, .success-message.active {
+            display: flex;
+        }
+        .error-message .close-btn, .success-message .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            line-height: 1;
+            color: inherit;
+        }
+        .error-message .close-btn {
+            color: #dc2626;
+        }
+        .success-message .close-btn {
+            color: #047857;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border: none;
+        }
+        .primary-btn {
+            background: linear-gradient(135deg, #4285f4, #1a73e8);
+            color: white;
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+        }
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(66, 133, 244, 0.4);
+        }
+        .secondary-btn {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+        .secondary-btn:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+        }
+        .btn-icon {
+            font-size: 16px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+            }
+            .content-wrapper {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                min-height: 200px;
+            }
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .top-header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+            .nav-icons {
+                margin-left: 0;
+            }
+            .main-content {
+                padding: 20px;
+            }
+            .toggle-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .toggle-btn {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-header">
+            <div class="logo">
+                <svg viewBox="0 0 24 24">
+                    <path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/>
+                </svg>
+            </div>
+            <div class="logo-text">ClickDoc</div>
+            <div class="nav-icons">
+                <a href="/" class="nav-icon" onclick="setActiveNav(this)">
+                    <div class="nav-icon-symbol">📊</div>
+                    Dashboard
+                </a>
+                <a href="/diagram_page?output_type={{ output_type }}&file_index={{ file_index }}" class="nav-icon" onclick="setActiveNav(this)">
+                    <div class="nav-icon-symbol">←</div>
+                    Back
+                </a>
+            </div>
+        </div>
+        <div class="content-wrapper">
+           <div class="sidebar">
+                <div class="sidebar-content">
+                    <div class="sidebar-header">
+                        <div class="sidebar-title">Uploaded Files</div>
+                    </div>
+                    {% if indexed_files %}
+                        <div class="file-info">
+                            <ul class="file-list">
+                                {% for file in indexed_files %}
+                                    <li class="file-item {% if file.index == file_index %}active{% endif %}" onclick="updateFile({{ file.index }})">
+                                        <div class="file-icon">📄</div>
+                                        <span class="file-name">{{ file.name }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% else %}
+                        <div style="color: #94a3b8; font-style: italic; text-align: center; margin-top: 40px;">
+                            No files uploaded yet
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="main-content">
+                <div class="content-header">
+                    <h1 class="page-title">{{ output_type|capitalize }} Diagram</h1>
+                    <p class="page-subtitle">Generated from your uploaded code</p>
+                </div>
+                <div class="toggle-buttons">
+                    <button class="toggle-btn" id="toggleCode" onclick="toggleView('code')">View Code</button>
+                    <button class="toggle-btn active" id="toggleVisual" onclick="toggleView('visual')">Visualize Diagram</button>
+                </div>
+                <div id="codeViewContainer" class="code-view">
+                    <div id="codeView" class="code-display">{{ result }}</div>
+                </div>
+                <div id="visualViewContainer" class="visual-view active">
+                    <div id="visualView" class="code-display">
+                        <div class="mermaid">{{ result | safe }}</div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <form id="regenerateForm" method="POST" action="/diagram_page">
+                        <input type="hidden" name="output_type" value="{{ output_type }}">
+                        <input type="hidden" name="file_index" value="{{ file_index }}">
+                        <input type="hidden" name="regenerate" value="1">
+                        <button type="submit" class="action-btn primary-btn" id="regenerateBtn">
+                            <span class="btn-icon">🔄</span>
+                            Not Accurate? Generate Again
+                        </button>
+                    </form>
+                    <button class="action-btn secondary-btn" id="downloadBtn">
+                        <span class="btn-icon">📥</span>
+                        Export
+                    </button>
+                    <button class="action-btn secondary-btn" onclick="zoomIn()">
+                        <span class="btn-icon">🔍+</span>
+                        Zoom In
+                    </button>
+                    <button class="action-btn secondary-btn" onclick="zoomOut()">
+                        <span class="btn-icon">🔍-</span>
+                        Zoom Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="errorPopup" class="error-message{% if error %} active{% endif %}">
+        <button class="close-btn" onclick="closePopup('errorPopup')">×</button>
+        <p id="errorText">{{ error if error else '' }}</p>
+    </div>
+    <div id="successPopup" class="success-message{% if success %} active{% endif %}">
+        <button class="close-btn" onclick="closePopup('successPopup')">×</button>
+        <p id="successText">{{ success if success else '' }}</p>
+    </div>
+
+    <script src="https://unpkg.com/mermaid@latest/dist/mermaid.min.js"></script>
+    <script>window.mermaid || document.write('<script src="/static/mermaid.min.js"><\/script>')</script>
+    <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script>
+        function initializeMermaid(retryCount = 0, maxRetries = 10) {
+            if (typeof mermaid !== 'undefined') {
+                mermaid.initialize({
+                    startOnLoad: true,
+                    logLevel: 'debug',
+                    theme: 'default',
+                    securityLevel: 'loose'
+                });
+                console.log('Mermaid initialized');
+                renderMermaid();
+            } else if (retryCount < maxRetries) {
+                console.warn(`Mermaid not loaded. Retrying (${retryCount + 1}/${maxRetries}) in 500ms...`);
+                setTimeout(() => initializeMermaid(retryCount + 1, maxRetries), 500);
+            } else {
+                showError('Failed to load Mermaid library. Please try again later.');
+            }
+        }
+
+        function renderMermaid() {
+            const mermaidDiv = document.querySelector('.mermaid');
+            if (mermaidDiv && document.querySelector('#visualViewContainer').classList.contains('active')) {
+                try {
+                    mermaid.run({ querySelector: '.mermaid' }).catch(err => {
+                        showError('Failed to render diagram: ' + err.message + '. Try regenerating.');
+                    });
+                } catch (err) {
+                    showError('Error rendering diagram. Please try regenerating.');
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeMermaid();
+            toggleView('visual');
+        });
+
+       function updateFile(index) {
+            window.location.href = `/diagram_page?file_index=${index}&output_type={{ output_type }}`;
+        }
+
+        function setActiveNav(element) {
+            document.querySelectorAll('.nav-icon').forEach(nav => {
+                nav.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+
+        let zoomLevel = 1;
+        const zoomSteps = [1, 1.2, 1.5, 2];
+
+        function zoomIn() {
+            const mermaidDiv = document.querySelector('.mermaid');
+            if (mermaidDiv) {
+                const currentIndex = zoomSteps.indexOf(zoomLevel);
+                const nextIndex = (currentIndex + 1) % zoomSteps.length;
+                zoomLevel = zoomSteps[nextIndex];
+                mermaidDiv.style.transform = `scale(${zoomLevel})`;
+            }
+        }
+
+        function zoomOut() {
+            const mermaidDiv = document.querySelector('.mermaid');
+            if (mermaidDiv) {
+                const currentIndex = zoomSteps.indexOf(zoomLevel);
+                const prevIndex = (currentIndex - 1 + zoomSteps.length) % zoomSteps.length;
+                zoomLevel = zoomSteps[prevIndex];
+                mermaidDiv.style.transform = `scale(${zoomLevel})`;
+            }
+        }
+
+        const downloadBtn = document.getElementById('downloadBtn');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', () => {
+                const mermaidDiv = document.querySelector('#visualView');
+                if (typeof mermaid !== 'undefined') {
+                    mermaid.run({ querySelector: '.mermaid' }).then(() => {
+                        html2canvas(mermaidDiv, { scale: 2 }).then(canvas => {
+                            const link = document.createElement('a');
+                            link.download = 'diagram.png';
+                            link.href = canvas.toDataURL('image/png');
+                            link.click();
+                        }).catch(error => {
+                            showError('Failed to export diagram. Please try again.');
+                        });
+                    }).catch(err => {
+                        showError('Failed to render diagram for export: ' + err.message);
+                    });
+                } else {
+                    showError('Cannot export: Mermaid library failed to load.');
+                }
+            });
+        }
+
+        function toggleView(view) {
+            const codeContainer = document.getElementById('codeViewContainer');
+            const visualContainer = document.getElementById('visualViewContainer');
+            const codeBtn = document.getElementById('toggleCode');
+            const visualBtn = document.getElementById('toggleVisual');
+
+            if (view === 'code') {
+                codeContainer.classList.add('active');
+                visualContainer.classList.remove('active');
+                codeBtn.classList.add('active');
+                visualBtn.classList.remove('active');
+            } else {
+                codeContainer.classList.remove('active');
+                visualContainer.classList.add('active');
+                codeBtn.classList.remove('active');
+                visualBtn.classList.add('active');
+                setTimeout(renderMermaid, 0);
+            }
+        }
+
+        function showError(message) {
+            const popup = document.getElementById('errorPopup');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message || 'An error occurred.';
+            popup.classList.add('active');
+            setTimeout(() => closePopup('errorPopup'), 5000);
+        }
+
+        function closePopup(popupId) {
+            const popup = document.getElementById(popupId);
+            if (popup) {
+                popup.classList.remove('active');
+                popup.style.display = 'none'; // Fallback to ensure it's hidden
+            }
+        }
+
+        window.addEventListener('load', () => {
+            console.log('Generated diagram page loaded');
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'r':
+                        e.preventDefault();
+                        document.getElementById('regenerateForm').submit();
+                        break;
+                    case 'e':
+                        e.preventDefault();
+                        downloadBtn.click();
+                        break;
+                    case '=':
+                    case '+':
+                        e.preventDefault();
+                        zoomIn();
+                        break;
+                    case '-':
+                        e.preventDefault();
+                        zoomOut();
+                        break;
+                }
+            }
+            
+            if (e.key === 'Escape') {
+                window.location.href = '/diagram?output_type={{ output_type }}';
+            }
+        });
+    </script>
+</body>
+</html>

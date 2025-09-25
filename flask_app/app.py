@@ -5,10 +5,12 @@ from validation import validation  # New import
 from relationship import relationship 
 from setup import setup 
 from tech_stack import tech_stack 
+from diagram import diagram
+
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = 'your_secret_key_here'  # Replace with a secure random key later
-app.config['SESSION_TYPE'] = 'filesystem'  # Ensure session persistence
+
 
 app.register_blueprint(bp_dashboard)
 app.register_blueprint(generate)
@@ -16,6 +18,8 @@ app.register_blueprint(validation)
 app.register_blueprint(relationship)
 app.register_blueprint(setup)
 app.register_blueprint(tech_stack)
+app.register_blueprint(diagram)
+
 
 # Route for home page (static home.html)
 @app.route('/')
@@ -33,7 +37,14 @@ def serve_upload():
 def serve_dashboard():
     return send_from_directory('static', 'dashboard.html')
 
-
+@app.route('/api/set_files', methods=['POST'])
+def set_files():
+    try:
+        data = request.get_json()
+        session['files'] = data.get('files', [])
+        return jsonify({'status': 'success'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':
