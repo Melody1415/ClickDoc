@@ -161,6 +161,6 @@ Code to analyze:\n\n{content}
         except Exception as e:
             return render_template('diagram_page.html', error=f"API error: {str(e)}", indexed_files=indexed_files, file_index=file_index, output_type=output_type, file_content=content)
 
-        return render_template('generate_page.html', error=None, result=ai_response, indexed_files=indexed_files, file_index=file_index, output_type=output_type, file_content=content, success="Regeneration successful!" if is_regenerate else None)
+        return render_template('generate_page.html', error=None, result=ai_response, indexed_files=indexed_files, file_index=file_index, output_type=output_type, file_content=content)
 
     return render_template('diagram_page.html', error=None, indexed_files=indexed_files, file_index=file_index, output_type=output_type, file_content=content)

@@ -462,10 +462,6 @@
         <button class="close-btn" onclick="closePopup('errorPopup')">×</button>
         <p id="errorText">{{ error if error else '' }}</p>
     </div>
-    <div id="successPopup" class="success-message{% if success %} active{% endif %}">
-        <button class="close-btn" onclick="closePopup('successPopup')">×</button>
-        <p id="successText">{{ success if success else '' }}</p>
-    </div>
 
     <script src="https://unpkg.com/mermaid@latest/dist/mermaid.min.js"></script>
     <script>window.mermaid || document.write('<script src="/static/mermaid.min.js"><\/script>')</script>

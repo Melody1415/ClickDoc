@@ -3,7 +3,7 @@ from groq import Groq
 
 tech_stack = Blueprint('tech_stack', __name__)
 
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 
 @tech_stack.route('/tech_stack_documentation')
