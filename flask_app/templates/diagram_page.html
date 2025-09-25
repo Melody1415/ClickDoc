@@ -506,11 +506,11 @@
             </div>
             <div class="logo-text">ClickDoc</div>
             <div class="nav-icons">
-                <a href="/" class="nav-icon" onclick="setActiveNav(this)">
+                 <a href="/dashboard" class="nav-icon">
                     <div class="nav-icon-symbol">📊</div>
                     Dashboard
                 </a>
-                <a href="#" class="nav-icon active" onclick="setActiveNav(this)">
+                <a href="/" class="nav-icon">
                     <div class="nav-icon-symbol">⌂</div>
                     Home
                 </a>
@@ -631,14 +631,6 @@
     </form>
 
     <script>
-        // Navigation functionality
-        function setActiveNav(element) {
-            document.querySelectorAll('.nav-icon').forEach(nav => {
-                nav.classList.remove('active');
-            });
-            element.classList.add('active');
-        }
-
         // Update file selection using GET request
         function updateFile(index) {
             const currentOutputType = document.querySelector('input[name="output_type"]:checked').value;
