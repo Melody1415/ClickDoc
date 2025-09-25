@@ -7,7 +7,7 @@ diagram = Blueprint('diagram', __name__)
 GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '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')
 client = Groq(api_key=GROQ_API_KEY)
 
-# Mermaid syntax validation (unchanged)
+# Mermaid syntax validation
 def is_valid_mermaid(code, diagram_type):
     if not code:
         return False
@@ -54,32 +54,30 @@ def diagram_page():
             session['files'] = files
             session.pop('file', None)  # Clean up session['file']
     
-    if not files:
-        return redirect(url_for('functiondashboard.dashboard'))
-
     # Create indexed_files for template
     indexed_files = [{'index': i, 'name': f.get('name', 'Unknown'), 'content': f.get('content', '')} for i, f in enumerate(files)]
 
-    file_index = request.args.get('file_index', 0, type=int)
-    if request.method == 'POST':
-        file_index = int(request.form.get('file_index', 0))
-
-    if file_index < 0 or file_index >= len(files):
-        return render_template('diagram_page.html', error="Invalid file selection!", indexed_files=indexed_files, file_index=0, output_type='flow')
-
-    selected_file = files[file_index]
-    try:
-        filename = selected_file.get('name', 'Unknown')
-        content = selected_file.get('content', '').strip()
-        if not content:
-            return render_template('diagram_page.html', error="Selected file is empty!", indexed_files=indexed_files, file_index=file_index, output_type='flow')
-    except Exception as e:
-        return render_template('diagram_page.html', error=f"Error reading file: {str(e)}", indexed_files=indexed_files, file_index=file_index, output_type='flow')
+    # Set default file_index to 0 if files exist, otherwise -1
+    if files:
+        file_index = request.args.get('file_index', 0, type=int)  # Default to 0 for GET
+        if request.method == 'POST':
+            file_index = int(request.form.get('file_index', 0))
+        # Validate file_index
+        if file_index < 0 or file_index >= len(files):
+            file_index = 0  # Default to first file
+        selected_file = files[file_index]
+    else:
+        file_index = -1  # No files available
+        selected_file = None
 
     output_type = request.args.get('output_type', 'flow')
     if request.method == 'POST':
         output_type = request.form.get('output_type', output_type)
         is_regenerate = request.form.get('regenerate') == '1'
+
+        # Only proceed with diagram generation if explicitly triggered
+        if not files or file_index == -1:
+            return render_template('diagram_page.html', error="No valid file selected!", indexed_files=indexed_files, file_index=file_index, output_type=output_type)
 
         if is_regenerate:
             session['regen_count'] = session.get('regen_count', 0) + 1
@@ -96,6 +94,12 @@ Previous Mermaid code (if available): {session.get('previous_mermaid', 'None')}
 """
             if session.get('regen_count', 0) > 2:
                 prompt_extra += "\nMultiple regenerations detected—simplify the diagram: reduce nodes, focus on high-level structure."
+
+        # Get file content for the selected file
+        selected_file = files[file_index]
+        content = selected_file.get('content', '').strip()
+        if not content:
+            return render_template('diagram_page.html', error="Selected file is empty!", indexed_files=indexed_files, file_index=file_index, output_type=output_type)
 
         prompt = f"""
 IMPORTANT: OUTPUT ONLY VALID MERMAID CODE FOR '{output_type}'. NO EXPLANATIONS, NO TEXT ANALYSIS, NO EXTRA WORDS, NO COMMENTS. OUTPUT ONLY THE CODE. The code MUST be parseable by Mermaid without errors.
@@ -145,7 +149,7 @@ Code to analyze:\n\n{content}
             )
             ai_response = chat_completion.choices[0].message.content.strip()
 
-            ai_response = re.sub(r'```mermaid', '', ai_response)
+            ai_response = re.sub(r'```mermaid\s*', '', ai_response, flags=re.DOTALL)
             ai_response = re.sub(r'```\s*', '', ai_response).strip()
 
             ai_response = re.sub(r'-->(?=\S)', '--> ', ai_response)
@@ -159,8 +163,22 @@ Code to analyze:\n\n{content}
             session['previous_mermaid'] = ai_response
 
         except Exception as e:
-            return render_template('diagram_page.html', error=f"API error: {str(e)}", indexed_files=indexed_files, file_index=file_index, output_type=output_type, file_content=content)
+            return render_template('diagram_page.html', error=f"API error: {str(e)}", indexed_files=indexed_files, file_index=file_index, output_type=output_type)
 
-        return render_template('generate_page.html', error=None, result=ai_response, indexed_files=indexed_files, file_index=file_index, output_type=output_type, file_content=content)
+        return render_template('generate_page.html', error=None, result=ai_response, indexed_files=indexed_files, file_index=file_index, output_type=output_type)
+
+    indexed_files = [{'index': i, 'name': f.get('name', 'Unknown'), 'content': f.get('content', '')} for i, f in enumerate(files)]
+
+    # Only try to read file content if files exist and file_index is valid
+    content = ''
+    if files and file_index >= 0:
+        selected_file = files[file_index]
+        try:
+            filename = selected_file.get('name', 'Unknown')
+            content = selected_file.get('content', '').strip()
+            if not content:
+                return render_template('diagram_page.html', error="Selected file is empty!", indexed_files=indexed_files, file_index=file_index, output_type=output_type)
+        except Exception as e:
+            return render_template('diagram_page.html', error=f"Error reading file: {str(e)}", indexed_files=indexed_files, file_index=file_index, output_type=output_type)
 
     return render_template('diagram_page.html', error=None, indexed_files=indexed_files, file_index=file_index, output_type=output_type, file_content=content)

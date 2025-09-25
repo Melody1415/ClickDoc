@@ -131,6 +131,12 @@
             color: #1e293b;
             margin-bottom: 8px;
         }
+        .sidebar-instruction {
+            font-size: 14px;
+            color: #64748b;
+            font-style: italic;
+            margin-bottom: 16px;
+        }
         .file-info {
             background: white;
             border: 1px solid #e2e8f0;
@@ -138,14 +144,51 @@
             padding: 16px;
             margin-bottom: 16px;
         }
-        .file-name {
-            font-weight: 600;
-            color: #1e293b;
-            font-size: 14px;
-            margin-bottom: 4px;
+        .file-list {
+            list-style: none;
+        }
+        .file-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            padding: 10px 0;
+            font-size: 14px;
+            color: #1e293b;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+        .file-item:hover {
+            background: #e6f0fa;
+            border-radius: 6px;
+            padding-left: 8px;
+        }
+        .file-item.active {
+            background: #e6f0fa;
+            border-radius: 6px;
+            padding-left: 8px;
+            font-weight: bold;
+            border: 1px solid #4285f4;
+        }
+        .file-item:hover .tooltip {
+            opacity: 1;
+        }
+        .tooltip {
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            transform: translateY(-50%);
+            background: rgba(30, 41, 59, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+            margin-left: 10px;
+            z-index: 1000;
         }
         .file-icon {
             width: 20px;
@@ -370,9 +413,12 @@
             }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
     <div class="container">
+        <!-- Top Header unchanged -->
         <div class="top-header">
             <div class="logo">
                 <svg viewBox="0 0 24 24">
@@ -385,17 +431,20 @@
                     <div class="nav-icon-symbol">📊</div>
                     Dashboard
                 </a>
-                <a href="/diagram_page?output_type={{ output_type }}&file_index={{ file_index }}" class="nav-icon" onclick="setActiveNav(this)">
-                    <div class="nav-icon-symbol">←</div>
-                    Back
+                <a href="#" class="nav-icon active" onclick="setActiveNav(this)">
+                    <div class="nav-icon-symbol">⌂</div>
+                    Home
                 </a>
             </div>
         </div>
+
+        <!-- Content wrapper with sidebar and main content -->
         <div class="content-wrapper">
-           <div class="sidebar">
+            <div class="sidebar">
                 <div class="sidebar-content">
                     <div class="sidebar-header">
                         <div class="sidebar-title">Uploaded Files</div>
+                        <p class="sidebar-instruction">Select a file to generate its diagram</p>
                     </div>
                     {% if indexed_files %}
                         <div class="file-info">
@@ -404,109 +453,106 @@
                                     <li class="file-item {% if file.index == file_index %}active{% endif %}" onclick="updateFile({{ file.index }})">
                                         <div class="file-icon">📄</div>
                                         <span class="file-name">{{ file.name }}</span>
+                                        <span class="tooltip">Click to select {{ file.name }}</span>
                                     </li>
                                 {% endfor %}
                             </ul>
                         </div>
                     {% else %}
-                        <div style="color: #94a3b8; font-style: italic; text-align: center; margin-top: 40px;">
-                            No files uploaded yet
-                        </div>
+                        <div class="error-message">No files uploaded. Please upload files from the dashboard.</div>
                     {% endif %}
                 </div>
             </div>
+            
             <div class="main-content">
+                {% if error %}
+                    <div class="error-message">{{ error }}</div>
+                {% elif not indexed_files %}
+                    <div class="error-message">No files uploaded. Please upload files from the dashboard.</div>
+                {% else %}
+                    <div class="info-message">Selected file: {{ indexed_files[file_index].name }}</div>
+                {% endif %}
+                
                 <div class="content-header">
-                    <h1 class="page-title">{{ output_type|capitalize }} Diagram</h1>
-                    <p class="page-subtitle">Generated from your uploaded code</p>
+                    <h1 class="page-title">Visualize Diagram</h1>
+                    <p class="page-subtitle">Choose Diagram Type</p>
                 </div>
-                <div class="toggle-buttons">
-                    <button class="toggle-btn" id="toggleCode" onclick="toggleView('code')">View Code</button>
-                    <button class="toggle-btn active" id="toggleVisual" onclick="toggleView('visual')">Visualize Diagram</button>
-                </div>
-                <div id="codeViewContainer" class="code-view">
-                    <div id="codeView" class="code-display">{{ result }}</div>
-                </div>
-                <div id="visualViewContainer" class="visual-view active">
-                    <div id="visualView" class="code-display">
-                        <div class="mermaid">{{ result | safe }}</div>
-                    </div>
-                </div>
-                <div class="action-buttons">
-                    <form id="regenerateForm" method="POST" action="/diagram_page">
-                        <input type="hidden" name="output_type" value="{{ output_type }}">
-                        <input type="hidden" name="file_index" value="{{ file_index }}">
-                        <input type="hidden" name="regenerate" value="1">
-                        <button type="submit" class="action-btn primary-btn" id="regenerateBtn">
-                            <span class="btn-icon">🔄</span>
-                            Not Accurate? Generate Again
+                
+                <div class="diagram-grid">
+                    <div class="diagram-card {% if not indexed_files %}disabled{% endif %}" onclick="generateDiagram('flow')" data-type="flow">
+                        <div class="tooltip">Click to generate flow diagram</div>
+                        <div class="diagram-header">
+                            <div class="diagram-icon flow-bg">📊</div>
+                            <div class="diagram-content">
+                                <h3 class="diagram-title">Flow Diagram</h3>
+                                <p class="diagram-description">Visualize process flow and logic sequence</p>
+                            </div>
+                        </div>
+                        <button class="generate-btn {% if not indexed_files %}disabled{% endif %}" id="flow-btn" form="diagramForm" type="submit">
+                            Generate Now
+                            <div class="progress-bar"></div>
                         </button>
-                    </form>
-                    <button class="action-btn secondary-btn" id="downloadBtn">
-                        <span class="btn-icon">📥</span>
-                        Export
-                    </button>
-                    <button class="action-btn secondary-btn" onclick="zoomIn()">
-                        <span class="btn-icon">🔍+</span>
-                        Zoom In
-                    </button>
-                    <button class="action-btn secondary-btn" onclick="zoomOut()">
-                        <span class="btn-icon">🔍-</span>
-                        Zoom Out
-                    </button>
+                    </div>
+                    
+                    <div class="diagram-card {% if not indexed_files %}disabled{% endif %}" onclick="generateDiagram('sequence')" data-type="sequence">
+                        <div class="tooltip">Click to generate sequence diagram</div>
+                        <div class="diagram-header">
+                            <div class="diagram-icon sequence-bg">🔗</div>
+                            <div class="diagram-content">
+                                <h3 class="diagram-title">Sequence Diagram</h3>
+                                <p class="diagram-description">Show interactions between functions and classes</p>
+                            </div>
+                        </div>
+                        <button class="generate-btn {% if not indexed_files %}disabled{% endif %}" id="sequence-btn" form="diagramForm" type="submit">
+                            Generate Now
+                            <div class="progress-bar"></div>
+                        </button>
+                    </div>
+                    
+                    <div class="diagram-card {% if not indexed_files %}disabled{% endif %}" onclick="generateDiagram('component')" data-type="component">
+                        <div class="tooltip">Click to generate component diagram</div>
+                        <div class="diagram-header">
+                            <div class="diagram-icon component-bg">🏗️</div>
+                            <div class="diagram-content">
+                                <h3 class="diagram-title">Component Diagram</h3>
+                                <p class="diagram-description">Display top-level components and their relationships</p>
+                            </div>
+                        </div>
+                        <button class="generate-btn {% if not indexed_files %}disabled{% endif %}" id="component-btn" form="diagramForm" type="submit">
+                            Generate Now
+                            <div class="progress-bar"></div>
+                        </button>
+                    </div>
+                    
+                    <div class="diagram-card {% if not indexed_files %}disabled{% endif %}" onclick="generateDiagram('class')" data-type="class">
+                        <div class="tooltip">Click to generate class diagram</div>
+                        <div class="diagram-header">
+                            <div class="diagram-icon class-bg">🗄️</div>
+                            <div class="diagram-content">
+                                <h3 class="diagram-title">Class Diagram</h3>
+                                <p class="diagram-description">Illustrate class structure and relationships</p>
+                            </div>
+                        </div>
+                        <button class="generate-btn {% if not indexed_files %}disabled{% endif %}" id="class-btn" form="diagramForm" type="submit">
+                            Generate Now
+                            <div class="progress-bar"></div>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div id="errorPopup" class="error-message{% if error %} active{% endif %}">
-        <button class="close-btn" onclick="closePopup('errorPopup')">×</button>
-        <p id="errorText">{{ error if error else '' }}</p>
-    </div>
 
-    <script src="https://unpkg.com/mermaid@latest/dist/mermaid.min.js"></script>
-    <script>window.mermaid || document.write('<script src="/static/mermaid.min.js"><\/script>')</script>
-    <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <form id="diagramForm" method="POST" action="/diagram_page" style="display: none;">
+        <input type="hidden" name="file_index" id="file_index" value="{{ file_index }}">
+        <input type="radio" name="output_type" value="flow" {% if output_type == 'flow' %}checked{% endif %}>
+        <input type="radio" name="output_type" value="sequence" {% if output_type == 'sequence' %}checked{% endif %}>
+        <input type="radio" name="output_type" value="component" {% if output_type == 'component' %}checked{% endif %}>
+        <input type="radio" name="output_type" value="class" {% if output_type == 'class' %}checked{% endif %}>
+    </form>
+
     <script>
-        function initializeMermaid(retryCount = 0, maxRetries = 10) {
-            if (typeof mermaid !== 'undefined') {
-                mermaid.initialize({
-                    startOnLoad: true,
-                    logLevel: 'debug',
-                    theme: 'default',
-                    securityLevel: 'loose'
-                });
-                console.log('Mermaid initialized');
-                renderMermaid();
-            } else if (retryCount < maxRetries) {
-                console.warn(`Mermaid not loaded. Retrying (${retryCount + 1}/${maxRetries}) in 500ms...`);
-                setTimeout(() => initializeMermaid(retryCount + 1, maxRetries), 500);
-            } else {
-                showError('Failed to load Mermaid library. Please try again later.');
-            }
-        }
-
-        function renderMermaid() {
-            const mermaidDiv = document.querySelector('.mermaid');
-            if (mermaidDiv && document.querySelector('#visualViewContainer').classList.contains('active')) {
-                try {
-                    mermaid.run({ querySelector: '.mermaid' }).catch(err => {
-                        showError('Failed to render diagram: ' + err.message + '. Try regenerating.');
-                    });
-                } catch (err) {
-                    showError('Error rendering diagram. Please try regenerating.');
-                }
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeMermaid();
-            toggleView('visual');
-        });
-
-       function updateFile(index) {
-            window.location.href = `/diagram_page?file_index=${index}&output_type={{ output_type }}`;
-        }
-
+        // Navigation functionality
         function setActiveNav(element) {
             document.querySelectorAll('.nav-icon').forEach(nav => {
                 nav.classList.remove('active');
@@ -514,118 +560,61 @@
             element.classList.add('active');
         }
 
-        let zoomLevel = 1;
-        const zoomSteps = [1, 1.2, 1.5, 2];
-
-        function zoomIn() {
-            const mermaidDiv = document.querySelector('.mermaid');
-            if (mermaidDiv) {
-                const currentIndex = zoomSteps.indexOf(zoomLevel);
-                const nextIndex = (currentIndex + 1) % zoomSteps.length;
-                zoomLevel = zoomSteps[nextIndex];
-                mermaidDiv.style.transform = `scale(${zoomLevel})`;
-            }
+        // Update file selection using GET request
+        function updateFile(index) {
+            const currentOutputType = document.querySelector('input[name="output_type"]:checked').value;
+            window.location.href = `/diagram_page?file_index=${index}&output_type=${currentOutputType}`;
         }
 
-        function zoomOut() {
-            const mermaidDiv = document.querySelector('.mermaid');
-            if (mermaidDiv) {
-                const currentIndex = zoomSteps.indexOf(zoomLevel);
-                const prevIndex = (currentIndex - 1 + zoomSteps.length) % zoomSteps.length;
-                zoomLevel = zoomSteps[prevIndex];
-                mermaidDiv.style.transform = `scale(${zoomLevel})`;
-            }
-        }
+        // Generate diagram function
+        function generateDiagram(type) {
+            const btn = document.getElementById(`${type}-btn`);
+            const form = document.getElementById('diagramForm');
 
-        const downloadBtn = document.getElementById('downloadBtn');
-        if (downloadBtn) {
-            downloadBtn.addEventListener('click', () => {
-                const mermaidDiv = document.querySelector('#visualView');
-                if (typeof mermaid !== 'undefined') {
-                    mermaid.run({ querySelector: '.mermaid' }).then(() => {
-                        html2canvas(mermaidDiv, { scale: 2 }).then(canvas => {
-                            const link = document.createElement('a');
-                            link.download = 'diagram.png';
-                            link.href = canvas.toDataURL('image/png');
-                            link.click();
-                        }).catch(error => {
-                            showError('Failed to export diagram. Please try again.');
-                        });
-                    }).catch(err => {
-                        showError('Failed to render diagram for export: ' + err.message);
-                    });
-                } else {
-                    showError('Cannot export: Mermaid library failed to load.');
+            if (btn.classList.contains('generating') || btn.classList.contains('completed') || btn.classList.contains('disabled')) {
+                if (btn.classList.contains('disabled')) {
+                    alert('Please upload a file first!');
                 }
-            });
-        }
-
-        function toggleView(view) {
-            const codeContainer = document.getElementById('codeViewContainer');
-            const visualContainer = document.getElementById('visualViewContainer');
-            const codeBtn = document.getElementById('toggleCode');
-            const visualBtn = document.getElementById('toggleVisual');
-
-            if (view === 'code') {
-                codeContainer.classList.add('active');
-                visualContainer.classList.remove('active');
-                codeBtn.classList.add('active');
-                visualBtn.classList.remove('active');
-            } else {
-                codeContainer.classList.remove('active');
-                visualContainer.classList.add('active');
-                codeBtn.classList.remove('active');
-                visualBtn.classList.add('active');
-                setTimeout(renderMermaid, 0);
+                return;
             }
+
+            {% if not indexed_files %}
+                alert('Please upload a file first!');
+                return;
+            {% endif %}
+
+            // Set the selected diagram type
+            form.querySelector(`input[name="output_type"][value="${type}"]`).checked = true;
+
+            // Start generation animation
+            btn.classList.add('generating');
+            btn.innerHTML = 'Generating... <div class="progress-bar"></div>';
+
+            // Submit the form
+            form.submit();
         }
 
-        function showError(message) {
-            const popup = document.getElementById('errorPopup');
-            const errorText = document.getElementById('errorText');
-            errorText.textContent = message || 'An error occurred.';
-            popup.classList.add('active');
-            setTimeout(() => closePopup('errorPopup'), 5000);
-        }
-
-        function closePopup(popupId) {
-            const popup = document.getElementById(popupId);
-            if (popup) {
-                popup.classList.remove('active');
-                popup.style.display = 'none'; // Fallback to ensure it's hidden
-            }
-        }
-
+        // Automatically select the first file on page load if not selected
         window.addEventListener('load', () => {
-            console.log('Generated diagram page loaded');
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey || e.metaKey) {
-                switch(e.key) {
-                    case 'r':
-                        e.preventDefault();
-                        document.getElementById('regenerateForm').submit();
-                        break;
-                    case 'e':
-                        e.preventDefault();
-                        downloadBtn.click();
-                        break;
-                    case '=':
-                    case '+':
-                        e.preventDefault();
-                        zoomIn();
-                        break;
-                    case '-':
-                        e.preventDefault();
-                        zoomOut();
-                        break;
+            const fileItems = document.querySelectorAll('.file-item');
+            const fileIndexInput = document.getElementById('file_index');
+            {% if indexed_files and file_index == -1 %}
+                if (fileItems.length > 0) {
+                    updateFile(0); // Auto-select the first file
                 }
-            }
-            
-            if (e.key === 'Escape') {
-                window.location.href = '/diagram?output_type={{ output_type }}';
-            }
+            {% endif %}
+
+            // Welcome animation
+            const cards = document.querySelectorAll('.diagram-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
         });
     </script>
 </body>

@@ -66,6 +66,13 @@
             margin-bottom: 8px;
         }
 
+        .sidebar-instruction {
+            font-size: 14px;
+            color: #64748b;
+            font-style: italic;
+            margin-bottom: 16px;
+        }
+
         .file-info {
             background: white;
             border: 1px solid #e2e8f0;
@@ -74,14 +81,56 @@
             margin-bottom: 16px;
         }
 
-        .file-name {
-            font-weight: 600;
-            color: #1e293b;
-            font-size: 14px;
-            margin-bottom: 4px;
+        .file-list {
+            list-style: none;
+        }
+
+        .file-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            padding: 10px 0;
+            font-size: 14px;
+            color: #1e293b;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .file-item:hover {
+            background: #e6f0fa;
+            border-radius: 6px;
+            padding-left: 8px;
+        }
+
+        .file-item.active {
+            background: #e6f0fa;
+            border-radius: 6px;
+            padding-left: 8px;
+            font-weight: bold;
+            border: 1px solid #4285f4;
+        }
+
+        .file-item:hover .tooltip {
+            opacity: 1;
+        }
+
+        .tooltip {
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            transform: translateY(-50%);
+            background: rgba(30, 41, 59, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+            margin-left: 10px;
+            z-index: 1000;
         }
 
         .file-icon {
@@ -215,6 +264,16 @@
             font-size: 14px;
         }
 
+        .info-message {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
         .diagram-grid {
             display: flex;
             flex-direction: column;
@@ -230,6 +289,11 @@
             cursor: pointer;
             position: relative;
             overflow: hidden;
+        }
+
+        .diagram-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .diagram-card::before {
@@ -248,19 +312,10 @@
             opacity: 1;
         }
 
-        .diagram-card:hover {
+        .diagram-card:hover:not(.disabled) {
             transform: translateY(-8px);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
             border-color: #4f46e5;
-        }
-
-        .diagram-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 16px;
-            position: relative;
-            z-index: 1;
         }
 
         .diagram-icon {
@@ -277,7 +332,7 @@
             transition: transform 0.3s ease;
         }
 
-        .diagram-card:hover .diagram-icon {
+        .diagram-card:hover:not(.disabled) .diagram-icon {
             transform: scale(1.1) rotate(5deg);
         }
 
@@ -332,7 +387,7 @@
             width: 140px;
         }
 
-        .generate-btn:hover {
+        .generate-btn:hover:not(.disabled) {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(66, 133, 244, 0.4);
             background: linear-gradient(135deg, #1a73e8, #1557b0);
@@ -347,8 +402,9 @@
             cursor: wait;
         }
 
-        .generate-btn.completed {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
+        .generate-btn.disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
         }
 
         .progress-bar {
@@ -401,7 +457,7 @@
             z-index: 1000;
         }
 
-        .diagram-card:hover .tooltip {
+        .diagram-card:hover:not(.disabled) .tooltip {
             opacity: 1;
         }
 
@@ -441,7 +497,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- Top Header spanning full width -->
+        <!-- Top Header unchanged -->
         <div class="top-header">
             <div class="logo">
                 <svg viewBox="0 0 24 24">
@@ -467,6 +523,7 @@
                 <div class="sidebar-content">
                     <div class="sidebar-header">
                         <div class="sidebar-title">Uploaded Files</div>
+                        <p class="sidebar-instruction">Select a file to generate its diagram</p>
                     </div>
                     {% if indexed_files %}
                         <div class="file-info">
@@ -475,21 +532,24 @@
                                     <li class="file-item {% if file.index == file_index %}active{% endif %}" onclick="updateFile({{ file.index }})">
                                         <div class="file-icon">📄</div>
                                         <span class="file-name">{{ file.name }}</span>
+                                        <span class="tooltip">Click to select {{ file.name }}</span>
                                     </li>
                                 {% endfor %}
                             </ul>
                         </div>
                     {% else %}
-                        <div style="color: #94a3b8; font-style: italic; text-align: center; margin-top: 40px;">
-                            No files uploaded yet
-                        </div>
+                        <div class="error-message">No files uploaded. Please upload files from the dashboard.</div>
                     {% endif %}
                 </div>
             </div>
-
+            
             <div class="main-content">
                 {% if error %}
                     <div class="error-message">{{ error }}</div>
+                {% elif not indexed_files %}
+                    <div class="error-message">No files uploaded. Please upload files from the dashboard.</div>
+                {% else %}
+                    <div class="info-message">Selected file: {{ indexed_files[file_index].name }}</div>
                 {% endif %}
                 
                 <div class="content-header">
@@ -498,7 +558,7 @@
                 </div>
                 
                 <div class="diagram-grid">
-                    <div class="diagram-card" onclick="generateDiagram('flow')" data-type="flow">
+                    <div class="diagram-card {% if not indexed_files %}disabled{% endif %}" onclick="generateDiagram('flow')" data-type="flow">
                         <div class="tooltip">Click to generate flow diagram</div>
                         <div class="diagram-header">
                             <div class="diagram-icon flow-bg">📊</div>
@@ -507,13 +567,13 @@
                                 <p class="diagram-description">Visualize process flow and logic sequence</p>
                             </div>
                         </div>
-                        <button class="generate-btn" id="flow-btn" form="diagramForm" type="submit">
+                        <button class="generate-btn {% if not indexed_files %}disabled{% endif %}" id="flow-btn" form="diagramForm" type="submit">
                             Generate Now
                             <div class="progress-bar"></div>
                         </button>
                     </div>
                     
-                    <div class="diagram-card" onclick="generateDiagram('sequence')" data-type="sequence">
+                    <div class="diagram-card {% if not indexed_files %}disabled{% endif %}" onclick="generateDiagram('sequence')" data-type="sequence">
                         <div class="tooltip">Click to generate sequence diagram</div>
                         <div class="diagram-header">
                             <div class="diagram-icon sequence-bg">🔗</div>
@@ -522,13 +582,13 @@
                                 <p class="diagram-description">Show interactions between functions and classes</p>
                             </div>
                         </div>
-                        <button class="generate-btn" id="sequence-btn" form="diagramForm" type="submit">
+                        <button class="generate-btn {% if not indexed_files %}disabled{% endif %}" id="sequence-btn" form="diagramForm" type="submit">
                             Generate Now
                             <div class="progress-bar"></div>
                         </button>
                     </div>
                     
-                    <div class="diagram-card" onclick="generateDiagram('component')" data-type="component">
+                    <div class="diagram-card {% if not indexed_files %}disabled{% endif %}" onclick="generateDiagram('component')" data-type="component">
                         <div class="tooltip">Click to generate component diagram</div>
                         <div class="diagram-header">
                             <div class="diagram-icon component-bg">🏗️</div>
@@ -537,13 +597,13 @@
                                 <p class="diagram-description">Display top-level components and their relationships</p>
                             </div>
                         </div>
-                        <button class="generate-btn" id="component-btn" form="diagramForm" type="submit">
+                        <button class="generate-btn {% if not indexed_files %}disabled{% endif %}" id="component-btn" form="diagramForm" type="submit">
                             Generate Now
                             <div class="progress-bar"></div>
                         </button>
                     </div>
                     
-                    <div class="diagram-card" onclick="generateDiagram('class')" data-type="class">
+                    <div class="diagram-card {% if not indexed_files %}disabled{% endif %}" onclick="generateDiagram('class')" data-type="class">
                         <div class="tooltip">Click to generate class diagram</div>
                         <div class="diagram-header">
                             <div class="diagram-icon class-bg">🗄️</div>
@@ -552,7 +612,7 @@
                                 <p class="diagram-description">Illustrate class structure and relationships</p>
                             </div>
                         </div>
-                        <button class="generate-btn" id="class-btn" form="diagramForm" type="submit">
+                        <button class="generate-btn {% if not indexed_files %}disabled{% endif %}" id="class-btn" form="diagramForm" type="submit">
                             Generate Now
                             <div class="progress-bar"></div>
                         </button>
@@ -562,13 +622,14 @@
         </div>
     </div>
 
-<form id="diagramForm" method="POST" action="/diagram_page" style="display: none;">
-    <input type="hidden" name="file_index" value="{{ file_index }}">
-    <input type="radio" name="output_type" value="flow" {% if output_type == 'flow' %}checked{% endif %}>
-    <input type="radio" name="output_type" value="sequence" {% if output_type == 'sequence' %}checked{% endif %}>
-    <input type="radio" name="output_type" value="component" {% if output_type == 'component' %}checked{% endif %}>
-    <input type="radio" name="output_type" value="class" {% if output_type == 'class' %}checked{% endif %}>
-</form>
+    <form id="diagramForm" method="POST" action="/diagram_page" style="display: none;">
+        <input type="hidden" name="file_index" id="file_index" value="{{ file_index }}">
+        <input type="radio" name="output_type" value="flow" {% if output_type == 'flow' %}checked{% endif %}>
+        <input type="radio" name="output_type" value="sequence" {% if output_type == 'sequence' %}checked{% endif %}>
+        <input type="radio" name="output_type" value="component" {% if output_type == 'component' %}checked{% endif %}>
+        <input type="radio" name="output_type" value="class" {% if output_type == 'class' %}checked{% endif %}>
+    </form>
+
     <script>
         // Navigation functionality
         function setActiveNav(element) {
@@ -578,15 +639,21 @@
             element.classList.add('active');
         }
 
+        // Update file selection using GET request
         function updateFile(index) {
-            window.location.href = `/diagram_page?file_index=${index}&output_type=${document.querySelector('input[name="output_type"]:checked').value}`;
+            const currentOutputType = document.querySelector('input[name="output_type"]:checked').value;
+            window.location.href = `/diagram_page?file_index=${index}&output_type=${currentOutputType}`;
         }
 
+        // Generate diagram function
         function generateDiagram(type) {
             const btn = document.getElementById(`${type}-btn`);
             const form = document.getElementById('diagramForm');
 
-            if (btn.classList.contains('generating') || btn.classList.contains('completed')) {
+            if (btn.classList.contains('generating') || btn.classList.contains('completed') || btn.classList.contains('disabled')) {
+                if (btn.classList.contains('disabled')) {
+                    alert('Please upload a file first!');
+                }
                 return;
             }
 
@@ -595,13 +662,28 @@
                 return;
             {% endif %}
 
+            // Set the selected diagram type
             form.querySelector(`input[name="output_type"][value="${type}"]`).checked = true;
+
+            // Start generation animation
             btn.classList.add('generating');
             btn.innerHTML = 'Generating... <div class="progress-bar"></div>';
+
+            // Submit the form
             form.submit();
         }
-        // Welcome animation
+
+        // Automatically select the first file on page load if not selected
         window.addEventListener('load', () => {
+            const fileItems = document.querySelectorAll('.file-item');
+            const fileIndexInput = document.getElementById('file_index');
+            {% if indexed_files and file_index == -1 %}
+                if (fileItems.length > 0) {
+                    updateFile(0); // Auto-select the first file
+                }
+            {% endif %}
+
+            // Welcome animation
             const cards = document.querySelectorAll('.diagram-card');
             cards.forEach((card, index) => {
                 card.style.opacity = '0';
