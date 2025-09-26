@@ -12,7 +12,7 @@
     <header class="flex justify-between items-center px-8 py-6 bg-white shadow-sm">
         <div class="flex items-center gap-3">
             <img 
-                src="./assets/logo.png" 
+                src="/static/assets/logo.png" 
                 alt="ClickDoc Logo" 
                 class="w-8 h-8"
                 onerror="this.style.display='none'"
@@ -27,96 +27,92 @@
         </button>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-6xl mx-auto px-8 py-8">
-        <div class="flex gap-8">
-            <!-- Left Sidebar - File Uploaded -->
-            <div class="w-80 flex-shrink-0">
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                        <i data-lucide="folder" class="w-5 h-5 text-blue-600"></i>
-                        File Uploaded
-                    </h3>
-                    
-                    <div id="uploaded-files" class="space-y-2 max-h-96 overflow-y-auto">
-                        <!-- Files will be populated from uploaded data -->
+    <div class="flex min-h-screen">
+        <!-- Left Sidebar - File Uploaded -->
+        <div class="w-80 bg-white border-r border-gray-200 border-t border-gray-200 shadow-sm">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i data-lucide="folder" class="w-5 h-5 text-blue-600"></i>
+                    File Uploaded
+                </h3>
+                
+                <div id="uploaded-files" class="space-y-2 max-h-96 overflow-y-auto mb-4">
+                    <!-- Files will be populated from uploaded data -->
+                </div>
+
+                <!-- Hidden file input -->
+                <input type="file" id="file-input" multiple accept=".js,.jsx,.ts,.tsx,.py,.java,.c,.cpp,.h,.cs,.php,.rb,.go,.rs,.swift,.kt,.html,.css,.json,.md,.xml,.yml,.yaml,.properties,.sh,.bash,.sql,.r,.scala,.dart" class="hidden">
+                
+                <!-- Upload More Files -->
+                <button class="w-full bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm" id="upload-more-btn">
+                    <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+                    Upload More Files
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-8 border-t border-gray-200">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
+            
+            <!-- Analysis Options -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6">Choose an analysis option</h2>
+                
+                <!-- Analysis Functions in 3 Rows -->
+                <div class="space-y-4">
+                    <!-- Row 1: Generate Documentation -->
+                    <div class="bg-gray-50 rounded-lg p-6 hover:bg-blue-50 transition-colors cursor-pointer border border-gray-200" id="generate-docs-card">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <i data-lucide="file-text" class="w-12 h-12 text-blue-600"></i>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-1">Generate Documentation</h3>
+                                    <p class="text-sm text-gray-600">Auto-create project documentation directly from code</p>
+                                </div>
+                            </div>
+                            <button id="start-documentation-btn" 
+                            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            Start Documentation
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Hidden file input -->
-                    <input type="file" id="file-input" multiple accept=".js,.jsx,.ts,.tsx,.py,.java,.c,.cpp,.h,.cs,.php,.rb,.go,.rs,.swift,.kt,.html,.css,.json,.md,.xml,.yml,.yaml,.properties,.sh,.bash,.sql,.r,.scala,.dart" class="hidden">
-                    
-                    <!-- Upload More Files -->
-                    <button class="w-full mt-4 bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm" id="upload-more-btn">
-                        <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
-                        Upload More Files
-                    </button>
-                </div>
-            </div>
-
-            <!-- Right Main Content -->
-            <div class="flex-1">
-                <h1 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
-                
-                <!-- Analysis Options -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-6">Choose an analysis option</h2>
-                    
-                    <!-- Analysis Functions in 3 Rows -->
-                    <div class="space-y-4">
-                        <!-- Row 1: Generate Documentation -->
-                        <div class="bg-gray-50 rounded-lg p-6 hover:bg-blue-50 transition-colors cursor-pointer border border-gray-200" id="generate-docs-card">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-4">
-                                    <i data-lucide="file-text" class="w-12 h-12 text-blue-600"></i>
-                                    <div>
-                                        <h3 class="text-lg font-semibold text-gray-800 mb-1">Generate Documentation</h3>
-                                        <p class="text-sm text-gray-600">Auto-create project documentation directly from code</p>
-                                    </div>
+                    <!-- Row 2: Ask AI Questions -->
+                    <div class="bg-gray-50 rounded-lg p-6 hover:bg-green-50 transition-colors cursor-pointer border border-gray-200" id="ask-ai-card">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <i data-lucide="message-circle" class="w-12 h-12 text-green-600"></i>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-1">Ask AI Questions</h3>
+                                    <p class="text-sm text-gray-600">Ask AI About Your Code</p>
                                 </div>
-    <button id="start-documentation-btn" 
-    class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-    Start Documentation
-</button>
-
                             </div>
+                            <button id="start-chat-btn" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                                Start Chat
+                            </button>
                         </div>
+                    </div>
 
-                        <!-- Row 2: Ask AI Questions -->
-                        <div class="bg-gray-50 rounded-lg p-6 hover:bg-green-50 transition-colors cursor-pointer border border-gray-200" id="ask-ai-card">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-4">
-                                    <i data-lucide="message-circle" class="w-12 h-12 text-green-600"></i>
-                                    <div>
-                                        <h3 class="text-lg font-semibold text-gray-800 mb-1">Ask AI Questions</h3>
-                                        <p class="text-sm text-gray-600">Ask AI About Your Code</p>
-                                    </div>
+                    <!-- Row 3: Visualize Diagram -->
+                    <div class="bg-gray-50 rounded-lg p-6 hover:bg-purple-50 transition-colors cursor-pointer border border-gray-200" id="visualize-card">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <i data-lucide="network" class="w-12 h-12 text-purple-600"></i>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-1">Visualize Diagram</h3>
+                                    <p class="text-sm text-gray-600">Visualize dependencies, modules, and code flows.</p>
                                 </div>
-                                <button id="start-chat-btn" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                                    Start Chat
-                                </button>
                             </div>
-                        </div>
-
-                        <!-- Row 3: Visualize Diagram -->
-                        <div class="bg-gray-50 rounded-lg p-6 hover:bg-purple-50 transition-colors cursor-pointer border border-gray-200" id="visualize-card">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-4">
-                                    <i data-lucide="network" class="w-12 h-12 text-purple-600"></i>
-                                    <div>
-                                        <h3 class="text-lg font-semibold text-gray-800 mb-1">Visualize Diagram</h3>
-                                        <p class="text-sm text-gray-600">Visualize dependencies, modules, and code flows.</p>
-                                    </div>
-                                </div>
-                                <button id="create-diagram-btn" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
-                                    Create Diagram
-                                </button>
-                            </div>
+                            <button id="create-diagram-btn" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                                Create Diagram
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
     <!-- Upload Progress Modal -->
     <div id="upload-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
