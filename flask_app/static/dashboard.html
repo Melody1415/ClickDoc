@@ -488,12 +488,34 @@
                 }
         });
 
+        startChatBtn.addEventListener('click', async function () {
+            if (uploadedFiles.length === 0) {
+                alert('Please upload at least one file before generating documentation.');
+                return;
+            }
 
-        startChatBtn.addEventListener('click', function() {
-            // Pass all uploaded files to chat page
-            sessionStorage.setItem('selectedFiles', JSON.stringify(uploadedFiles));
-            window.location.href = 'ai-chat.html';
+            try {
+                const response = await fetch('/api/set_files', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ files: uploadedFiles })
+                });
+
+                    const responseData = await response.json();
+
+                    if (response.ok) {
+                        console.log('Files sent successfully:', responseData);
+                       window.location.href = '/chatbot';  // redirect after success
+                    } else {
+                        console.error('Error from server:', responseData);
+                        alert(`Failed to send files to the server: ${responseData.error || 'Unknown error'}`);
+                    }
+                } catch (error) {
+                    console.error('Error sending files:', error);
+                    alert('An error occurred while communicating with the server.');
+                }
         });
+    
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {

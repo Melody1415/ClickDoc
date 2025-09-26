@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClickDoc - AI Code Assistant</title>
+    <link rel="stylesheet" href="static/chatbot.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-section">
+            <div class="logo">📋</div>
+            <span class="logo-text">ClickDoc</span>
+        </div>
+        <nav class="nav-section">
+            <a href="/dashboard" class="nav-item">
+                <div class="nav-icon">📊</div>
+                Dashboard
+            </a>
+            <a href="/" class="nav-item">
+                <div class="nav-icon">🏠</div>
+                Home
+            </a>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <!-- File Uploaded Section -->
+            <div class="file-section">
+                <div class="section-title">
+                    <span class="folder-icon">📁</span>
+                    Files Ready for Analysis
+                </div>
+                <ul id="uploadedFiles" class="file-list">
+                    <!-- Files will be dynamically loaded here -->
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Chat Container -->
+        <main class="chat-container">
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <div class="chat-header-left">
+                    <h1 class="chat-title">Chat with AI</h1>
+                    <p class="chat-subtitle">Ask questions about your code and get instant answers</p>
+                </div>
+                <button class="new-chat-btn" onclick="startNewConversation()">
+                    <span>🔄</span>
+                    <span>New Chat</span>
+                </button>
+            </div>
+
+            <!-- AI Status -->
+            <div class="ai-status">
+                💬 AI Assistant - Ready to help with your code
+            </div>
+
+            <!-- Chat Area -->
+            <div class="chat-area">
+                <!-- Initial state - will be replaced when files are loaded -->
+                <div class="bot-avatar"></div>
+                <div class="conversation-prompt">Loading your files...</div>
+                <div class="suggestions">
+                    <div class="suggestions-title">I can help you with:</div>
+                    <div class="suggestion-item">• Explain what your code does</div>
+                    <div class="suggestion-item">• Find bugs and potential issues</div>
+                    <div class="suggestion-item">• Suggest optimizations</div>
+                    <div class="suggestion-item">• Answer specific questions</div>
+                </div>
+            </div>
+
+            <!-- Input Section -->
+            <div class="input-section">
+                <div class="input-container">
+                    <textarea id="chatInput" 
+                              class="chat-input" 
+                              placeholder="Ask me anything about your code..." 
+                              rows="1"></textarea>
+                </div>
+                <button class="send-button" onclick="sendMessage()">
+                    Send Message
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Initialize files from server -->
+    <script>
+        // Pass files from Flask to JavaScript
+        window.serverFiles = {{ files_json|safe }};
+        console.log('Files loaded from server:', window.serverFiles ? window.serverFiles.length : 0);
+    </script>
+    
+    <!-- Load main JavaScript -->
+    <script src="static/chatbot.js"></script>
+</body>
+</html>
