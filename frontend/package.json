@@ -1,0 +1,19 @@
+{
+  "name": "clickdoc-frontend",
+  "version": "1.0.0",
+  "description": "ClickDoc Frontend - Pure HTML",
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "serve": "python -m http.server 8000"
+  },
+  "keywords": [
+    "documentation",
+    "code-analysis",
+    "frontend"
+  ],
+  "author": "Your Team Name",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

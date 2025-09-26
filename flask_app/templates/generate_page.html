@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClickDoc - Generated Diagram</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        .mermaid {
+            max-width: 100%;
+            overflow: auto;
+            text-align: center;
+            transform-origin: center;
+            transition: transform 0.3s ease;
+        }
+
+        .mermaid svg {
+            max-width: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="flex justify-between items-center px-8 py-6 bg-white shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <img 
+                    src="/static/assets/logo.png" 
+                    alt="ClickDoc Logo" 
+                    class="w-8 h-8"
+                    onerror="this.style.display='none'"
+                />
+            </div>
+            <div class="text-2xl font-bold text-blue-600">
+                ClickDoc
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="window.location.href='/dashboard'" class="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                Dashboard
+            </button>
+            <button onclick="window.location.href='/diagram_page'" class="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                Back
+            </button>
+        </div>
+    </header>
+
+    <div class="flex min-h-screen">
+        <!-- Left Sidebar - File Uploaded -->
+        <div class="w-80 bg-white border-r border-gray-200 border-t border-gray-200 shadow-sm">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i data-lucide="folder" class="w-5 h-5 text-blue-600"></i>
+                    File Uploaded
+                </h3>
+                
+                <div id="uploaded-files" class="space-y-2 max-h-96 overflow-y-auto mb-4">
+                    {% if indexed_files %}
+                        {% for file in indexed_files %}
+                            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg group cursor-pointer hover:bg-blue-50 transition-colors {% if file.index == file_index %}bg-blue-100 border border-blue-300{% endif %}" onclick="updateFile({{ file.index }})">
+                                <i data-lucide="file" class="w-5 h-5 text-gray-500"></i>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-800 truncate">{{ file.name }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-6">
+                            <i data-lucide="folder-x" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i>
+                            <p class="text-gray-500 text-sm">No files uploaded</p>
+                            <button onclick="window.location.href='/dashboard'" class="text-blue-600 hover:text-blue-800 text-sm mt-2">
+                                Upload Files
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Hidden file input for additional uploads -->
+                <input type="file" id="file-input" multiple accept=".js,.jsx,.ts,.tsx,.py,.java,.c,.cpp,.h,.cs,.php,.rb,.go,.rs,.swift,.kt,.html,.css,.json,.md,.xml,.yml,.yaml,.properties,.sh,.bash,.sql,.r,.scala,.dart" class="hidden">
+                
+                <!-- Upload More Files -->
+                <button class="w-full bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm" id="upload-more-btn">
+                    <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+                    Upload More Files
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 border-t border-gray-200 flex flex-col">
+            <div class="p-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ output_type|capitalize }} Diagram</h1>
+                <p class="text-lg text-gray-600 mb-8">Generated from your uploaded code</p>
+            </div>
+
+            <!-- Content Area -->
+            <div class="flex-1 mx-8 mb-8">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex flex-col">
+                    <!-- Toggle Buttons -->
+                    <div class="border-b border-gray-200 p-4">
+                        <div class="flex gap-2">
+                            <button class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent hover:border-blue-600 transition-colors" id="toggleCode" onclick="toggleView('code')">
+                                View Code
+                            </button>
+                            <button class="px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600" id="toggleVisual" onclick="toggleView('visual')">
+                                Visualize Diagram
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Content Views -->
+                    <div class="flex-1 p-6 overflow-auto">
+                        <!-- Code View -->
+                        <div id="codeViewContainer" class="hidden">
+                            <pre class="bg-gray-50 p-4 rounded-lg border text-sm font-mono overflow-x-auto">{{ result }}</pre>
+                        </div>
+
+                        <!-- Visual View -->
+                        <div id="visualViewContainer" class="flex items-center justify-center min-h-full">
+                            <div class="mermaid w-full">{{ result | safe }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="p-6 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+                        <div class="flex flex-wrap gap-4 justify-center">
+                            <form id="regenerateForm" method="POST" action="/diagram_page" class="inline">
+                                <input type="hidden" name="output_type" value="{{ output_type }}">
+                                <input type="hidden" name="file_index" value="{{ file_index }}">
+                                <input type="hidden" name="regenerate" value="1">
+                                <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2" id="regenerateBtn">
+                                    <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                                    Not Accurate? Generate Again
+                                </button>
+                            </form>
+                            
+                            <button class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2" id="downloadBtn">
+                                <i data-lucide="download" class="w-5 h-5"></i>
+                                Export
+                            </button>
+                            
+                            <button class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2" onclick="zoomIn()">
+                                <i data-lucide="zoom-in" class="w-5 h-5"></i>
+                                Zoom In
+                            </button>
+                            
+                            <button class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2" onclick="zoomOut()">
+                                <i data-lucide="zoom-out" class="w-5 h-5"></i>
+                                Zoom Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Popup -->
+    <div id="errorPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 {% if not error %}hidden{% endif %}">
+        <div class="bg-white rounded-lg p-6 w-96 max-w-90vw fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-red-600">Error</h3>
+                <button onclick="closePopup('errorPopup')" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <p id="errorText" class="text-gray-700">{{ error | default('', true) }}</p>
+        </div>
+    </div>
+
+    <!-- Success Popup -->
+    <div id="successPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-96 max-w-90vw fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-green-600 flex items-center gap-2">
+                    <i data-lucide="check-circle" class="w-6 h-6"></i>
+                    Success
+                </h3>
+                <button onclick="closePopup('successPopup')" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <p id="successText" class="text-gray-700"></p>
+        </div>
+    </div>
+
+    <!-- Upload Progress Modal -->
+    <div id="upload-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-96 max-w-90vw">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Uploading Files...</h3>
+            <div class="space-y-3">
+                <div id="upload-progress" class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div id="upload-status" class="text-sm text-gray-600">Preparing files...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedFiles = [];
+        let zoomLevel = 1;
+        const zoomSteps = [0.5, 0.75, 1, 1.2, 1.5, 2];
+
+        // DOM Elements
+        const uploadMoreBtn = document.getElementById('upload-more-btn');
+        const fileInput = document.getElementById('file-input');
+        const uploadModal = document.getElementById('upload-modal');
+        const progressBarModal = document.getElementById('progress-bar');
+        const uploadStatus = document.getElementById('upload-status');
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            loadUploadedFiles();
+            initializeMermaid();
+            toggleView('visual');
+        });
+
+        function initializeMermaid(retryCount = 0, maxRetries = 10) {
+            if (typeof mermaid !== 'undefined') {
+                mermaid.initialize({
+                    startOnLoad: true,
+                    logLevel: 'debug',
+                    theme: 'default',
+                    securityLevel: 'loose',
+                    flowchart: { useMaxWidth: true },
+                    sequence: { useMaxWidth: true }
+                });
+                console.log('Mermaid initialized');
+                renderMermaid();
+            } else if (retryCount < maxRetries) {
+                console.warn(`Mermaid not loaded. Retrying (${retryCount + 1}/${maxRetries}) in 500ms...`);
+                setTimeout(() => initializeMermaid(retryCount + 1, maxRetries), 500);
+            } else {
+                showError('Failed to load Mermaid library. Please try again later.');
+            }
+        }
+
+        function renderMermaid() {
+            const mermaidDiv = document.querySelector('.mermaid');
+            if (mermaidDiv && !document.querySelector('#visualViewContainer').classList.contains('hidden')) {
+                try {
+                    mermaid.render('renderedDiagram', mermaidDiv.textContent, (svgCode) => {
+                        mermaidDiv.innerHTML = svgCode;
+                        applyZoom();
+                    }).catch(err => {
+                        showError('Failed to render diagram: ' + err.message + '. Try regenerating.');
+                    });
+                } catch (err) {
+                    showError('Error rendering diagram. Please try regenerating.');
+                }
+            }
+        }
+
+        function updateFile(index) {
+            const currentOutputType = '{{ output_type }}';
+            window.location.href = `/diagram_page?file_index=${index}&output_type=${currentOutputType}`;
+        }
+
+        function applyZoom() {
+            const mermaidDiv = document.querySelector('.mermaid svg');
+            if (mermaidDiv) {
+                mermaidDiv.style.transform = `scale(${zoomLevel})`;
+                mermaidDiv.style.transformOrigin = 'center';
+            }
+        }
+
+        function zoomIn() {
+            const currentIndex = zoomSteps.indexOf(zoomLevel);
+            zoomLevel = zoomSteps[Math.min(currentIndex + 1, zoomSteps.length - 1)];
+            applyZoom();
+        }
+
+        function zoomOut() {
+            const currentIndex = zoomSteps.indexOf(zoomLevel);
+            zoomLevel = zoomSteps[Math.max(currentIndex - 1, 0)];
+            applyZoom();
+        }
+
+        function toggleView(view) {
+            const codeContainer = document.getElementById('codeViewContainer');
+            const visualContainer = document.getElementById('visualViewContainer');
+            const codeBtn = document.getElementById('toggleCode');
+            const visualBtn = document.getElementById('toggleVisual');
+
+            if (view === 'code') {
+                codeContainer.classList.remove('hidden');
+                visualContainer.classList.add('hidden');
+                codeBtn.classList.add('text-blue-600', 'border-blue-600');
+                codeBtn.classList.remove('text-gray-600', 'border-transparent');
+                visualBtn.classList.add('text-gray-600', 'border-transparent');
+                visualBtn.classList.remove('text-blue-600', 'border-blue-600');
+            } else {
+                codeContainer.classList.add('hidden');
+                visualContainer.classList.remove('hidden');
+                visualBtn.classList.add('text-blue-600', 'border-blue-600');
+                visualBtn.classList.remove('text-gray-600', 'border-transparent');
+                codeBtn.classList.add('text-gray-600', 'border-transparent');
+                codeBtn.classList.remove('text-blue-600', 'border-blue-600');
+                setTimeout(renderMermaid, 0);
+            }
+        }
+
+        function showError(message) {
+            const popup = document.getElementById('errorPopup');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message || 'An error occurred.';
+            popup.classList.remove('hidden');
+            setTimeout(() => closePopup('errorPopup'), 5000);
+        }
+
+        function showSuccess(message) {
+            const popup = document.getElementById('successPopup');
+            const successText = document.getElementById('successText');
+            successText.textContent = message || 'Success!';
+            popup.classList.remove('hidden');
+            setTimeout(() => closePopup('successPopup'), 3000);
+        }
+
+        function closePopup(popupId) {
+            const popup = document.getElementById(popupId);
+            if (popup) {
+                popup.classList.add('hidden');
+            }
+        }
+
+        // Load uploaded files from sessionStorage
+        function loadUploadedFiles() {
+            const storedFiles = sessionStorage.getItem('uploadedFiles');
+            if (storedFiles) {
+                uploadedFiles = JSON.parse(storedFiles);
+            }
+        }
+
+        // File handling functions (same as setup documentation)
+        function isValidFileType(file) {
+            const allowedExtensions = [
+                '.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.json', '.md',
+                '.py', '.java', '.c', '.cpp', '.h', '.cs', '.php', '.rb', '.go', '.rs', '.swift', '.kt',
+                '.xml', '.yml', '.yaml', '.properties', '.sh', '.bash', '.sql',
+                '.r', '.scala', '.dart'
+            ];
+            const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+            return allowedExtensions.includes(fileExt);
+        }
+
+        async function handleFileUpload(files) {
+            if (files.length === 0) return;
+
+            const allFiles = Array.from(files);
+            const validFiles = allFiles.filter(file => isValidFileType(file));
+            const invalidFiles = allFiles.filter(file => !isValidFileType(file));
+
+            if (invalidFiles.length > 0) {
+                alert(`The following files are not supported and will be ignored:\n\n${invalidFiles.map(f => f.name).join('\n')}`);
+            }
+
+            if (validFiles.length === 0) return;
+
+            uploadModal.classList.remove('hidden');
+            
+            const totalFiles = validFiles.length;
+            let processedFiles = 0;
+
+            for (let i = 0; i < validFiles.length; i++) {
+                const file = validFiles[i];
+                uploadStatus.textContent = `Processing ${file.name}... (${processedFiles + 1}/${totalFiles})`;
+                
+                try {
+                    const content = await readFileContent(file);
+                    const fileData = {
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        content: content,
+                        lastModified: file.lastModified,
+                        uploadedAt: new Date().toISOString()
+                    };
+                    uploadedFiles.push(fileData);
+                } catch (error) {
+                    console.error(`Error processing file ${file.name}:`, error);
+                }
+                
+                processedFiles++;
+                const progress = (processedFiles / totalFiles) * 100;
+                progressBarModal.style.width = `${progress}%`;
+            }
+
+            sessionStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+            uploadStatus.textContent = 'Upload completed! Refreshing page...';
+            await new Promise(resolve => setTimeout(resolve, 500));
+            window.location.reload();
+        }
+
+        async function readFileContent(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                reader.onerror = function() {
+                    reject(new Error(`Failed to read file: ${file.name}`));
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        // Event Listeners
+        uploadMoreBtn.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                handleFileUpload(Array.from(e.target.files));
+                e.target.value = '';
+            }
+        });
+
+        // Download functionality
+        const downloadBtn = document.getElementById('downloadBtn');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', () => {
+                const mermaidDiv = document.querySelector('#visualViewContainer .mermaid');
+                if (mermaidDiv && typeof mermaid !== 'undefined') {
+                    html2canvas(document.querySelector('#visualViewContainer'), { scale: 2 }).then(canvas => {
+                        const link = document.createElement('a');
+                        link.download = `diagram_{{ output_type }}.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                        showSuccess('Diagram exported successfully!');
+                    }).catch(error => {
+                        showError('Failed to export diagram. Please try again.');
+                    });
+                } else {
+                    showError('Cannot export: Mermaid library failed to load or no diagram available.');
+                }
+            });
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'r':
+                        e.preventDefault();
+                        document.getElementById('regenerateForm').submit();
+                        break;
+                    case 'e':
+                        e.preventDefault();
+                        document.getElementById('downloadBtn').click();
+                        break;
+                    case '=':
+                    case '+':
+                        e.preventDefault();
+                        zoomIn();
+                        break;
+                    case '-':
+                        e.preventDefault();
+                        zoomOut();
+                        break;
+                }
+            }
+            
+            if (e.key === 'Escape') {
+                window.location.href = '/diagram_page?output_type={{ output_type }}&file_index={{ file_index }}';
+            }
+        });
+    </script>
+</body>
+</html>
