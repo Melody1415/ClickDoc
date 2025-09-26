@@ -4,269 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ClickDoc - Generated Diagram</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-        }
-        .container {
-            display: flex;
-            flex-direction: column;
-            width: 100vw;
-            height: 100vh;
-            margin: 0;
-            background: white;
-            border-radius: 0;
-            box-shadow: none;
-            overflow: auto;
-        }
-        .top-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 20px 32px;
-            background: white;
-            border-bottom: 1px solid #e2e8f0;
-            width: 100%;
-        }
-        .content-wrapper {
-            display: flex;
-            flex: 1;
-        }
-        .logo {
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #4285f4;
-            border-radius: 8px;
-            transition: transform 0.3s ease;
-        }
-        .logo:hover {
-            transform: scale(1.1);
-        }
-        .logo svg {
-            width: 32px;
-            height: 32px;
-            fill: white;
-        }
-        .logo-text {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1e293b;
-        }
-        .nav-icons {
-            display: flex;
-            gap: 8px;
-            margin-left: auto;
-        }
-        .nav-icon {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 20px;
-            border-radius: 8px;
-            color: #475569;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 1px solid transparent;
-            background: #f1f5f9;
-        }
-        .nav-icon:hover {
-            background: rgba(66, 133, 244, 0.1);
-            color: #4285f4;
-            border-color: #4285f4;
-            transform: translateY(-2px);
-        }
-        .nav-icon.active {
-            background: #4285f4;
-            color: white;
-        }
-        .nav-icon-symbol {
-            width: 20px;
-            height: 20px;
-            background: #4285f4;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 12px;
-        }
-        .nav-icon.active .nav-icon-symbol {
-            background: white;
-            color: #4285f4;
-        }
-        .sidebar {
-            width: 320px;
-            background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
-            padding: 24px;
-            border-right: 1px solid #e2e8f0;
-            min-height: auto;
-        }
-        .sidebar-content {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-        .sidebar-header {
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .sidebar-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 8px;
-        }
-        .sidebar-instruction {
-            font-size: 14px;
-            color: #64748b;
-            font-style: italic;
-            margin-bottom: 16px;
-        }
-        .file-info {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-        .file-list {
-            list-style: none;
-        }
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            font-size: 14px;
-            color: #1e293b;
-            font-weight: 600;
-            transition: background-color 0.2s;
-            cursor: pointer;
-            position: relative;
-        }
-        .file-item:hover {
-            background: #e6f0fa;
-            border-radius: 6px;
-            padding-left: 8px;
-        }
-        .file-item.active {
-            background: #e6f0fa;
-            border-radius: 6px;
-            padding-left: 8px;
-            font-weight: bold;
-            border: 1px solid #4285f4;
-        }
-        .file-item:hover .tooltip {
-            opacity: 1;
-        }
-        .tooltip {
-            position: absolute;
-            top: 50%;
-            left: 100%;
-            transform: translateY(-50%);
-            background: rgba(30, 41, 59, 0.9);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            white-space: nowrap;
-            margin-left: 10px;
-            z-index: 1000;
-        }
-        .file-icon {
-            width: 20px;
-            height: 20px;
-            background: linear-gradient(135deg, #51cf66, #40c057);
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .main-content {
-            flex: 1;
-            padding: 32px;
-            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-        }
-        .content-header {
-            margin-bottom: 32px;
-        }
-        .page-title {
-            font-size: 32px;
-            font-weight: 800;
-            color: #1e293b;
-            margin-bottom: 8px;
-        }
-        .page-subtitle {
-            font-size: 18px;
-            color: #64748b;
-            font-weight: 500;
-        }
-        .toggle-buttons {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 8px;
-        }
-        .toggle-btn {
-            padding: 10px 20px;
-            border: none;
-            background: #f1f5f9;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            color: #475569;
-            transition: all 0.2s ease;
-            outline: none;
-        }
-        .toggle-btn.active {
-            background: #4285f4;
-            color: white;
-            box-shadow: 0 2px 4px rgba(66, 133, 244, 0.2);
-        }
-        .toggle-btn:hover {
-            background: #e6f0fa;
-            color: #1a73e8;
-        }
-        .code-view, .visual-view {
-            display: none;
-        }
-        .code-view.active, .visual-view.active {
-            display: block;
-        }
-        .code-display {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 32px;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            white-space: pre-wrap;
-            overflow-x: auto;
-        }
         .mermaid {
             max-width: 100%;
             overflow: auto;
@@ -274,245 +16,221 @@
             transform-origin: center;
             transition: transform 0.3s ease;
         }
-        .error-message, .success-message {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-            z-index: 1000;
-            text-align: center;
-            max-width: 400px;
-            font-size: 16px;
-            font-weight: 600;
-            animation: fadeIn 0.3s ease-in-out;
+
+        .mermaid svg {
+            max-width: none;
         }
-        .error-message {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #dc2626;
-        }
-        .success-message {
-            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
-            border: 1px solid #6ee7b7;
-            color: #047857;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            justify-content: center;
-        }
-        .success-message::before {
-            content: '✔';
-            font-size: 24px;
-            color: #047857;
-        }
-        .error-message.active, .success-message.active {
-            display: flex;
-        }
-        .error-message .close-btn, .success-message .close-btn {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            line-height: 1;
-            color: inherit;
-        }
-        .error-message .close-btn {
-            color: #dc2626;
-        }
-        .success-message .close-btn {
-            color: #047857;
-        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translate(-50%, -60%); }
             to { opacity: 1; transform: translate(-50%, -50%); }
         }
-        .action-buttons {
-            display: flex;
-            gap: 16px;
-            align-items: center;
-        }
-        .action-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 14px 24px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            border: none;
-        }
-        .primary-btn {
-            background: linear-gradient(135deg, #4285f4, #1a73e8);
-            color: white;
-            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
-        }
-        .primary-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(66, 133, 244, 0.4);
-        }
-        .secondary-btn {
-            background: #f1f5f9;
-            color: #475569;
-            border: 1px solid #e2e8f0;
-        }
-        .secondary-btn:hover {
-            background: #e2e8f0;
-            transform: translateY(-1px);
-        }
-        .btn-icon {
-            font-size: 16px;
-        }
-        @media (max-width: 768px) {
-            .container {
-                margin: 0;
-            }
-            .content-wrapper {
-                flex-direction: column;
-            }
-            .sidebar {
-                width: 100%;
-                min-height: 200px;
-            }
-            .action-buttons {
-                flex-direction: column;
-                width: 100%;
-            }
-            .action-btn {
-                width: 100%;
-                justify-content: center;
-            }
-            .top-header {
-                flex-direction: column;
-                gap: 16px;
-                text-align: center;
-            }
-            .nav-icons {
-                margin-left: 0;
-            }
-            .main-content {
-                padding: 20px;
-            }
-            .toggle-buttons {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .toggle-btn {
-                width: 100%;
-                text-align: center;
-                margin-bottom: 8px;
-            }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
-<body>
-    <div class="container">
-        <div class="top-header">
-            <div class="logo">
-                <svg viewBox="0 0 24 24">
-                    <path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/>
-                </svg>
+<body class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="flex justify-between items-center px-8 py-6 bg-white shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <img 
+                    src="/static/assets/logo.png" 
+                    alt="ClickDoc Logo" 
+                    class="w-8 h-8"
+                    onerror="this.style.display='none'"
+                />
             </div>
-            <div class="logo-text">ClickDoc</div>
-            <div class="nav-icons">
-                 <a href="/dashboard" class="nav-icon">
-                    <div class="nav-icon-symbol">📊</div>
-                    Dashboard
-                </a>
-                <a href="/" class="nav-icon">
-                    <div class="nav-icon-symbol">⌂</div>
-                    Home
-                </a>
+            <div class="text-2xl font-bold text-blue-600">
+                ClickDoc
             </div>
         </div>
-        <div class="content-wrapper">
-            <div class="sidebar">
-                <div class="sidebar-content">
-                    <div class="sidebar-header">
-                        <div class="sidebar-title">Uploaded Files</div>
-                        <p class="sidebar-instruction">Select a file below to view its diagram</p>
-                    </div>
+        <div class="flex items-center gap-4">
+            <button onclick="window.location.href='/dashboard'" class="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                Dashboard
+            </button>
+            <button onclick="window.location.href='/diagram_page'" class="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                Back
+            </button>
+        </div>
+    </header>
+
+    <div class="flex min-h-screen">
+        <!-- Left Sidebar - File Uploaded -->
+        <div class="w-80 bg-white border-r border-gray-200 border-t border-gray-200 shadow-sm">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i data-lucide="folder" class="w-5 h-5 text-blue-600"></i>
+                    File Uploaded
+                </h3>
+                
+                <div id="uploaded-files" class="space-y-2 max-h-96 overflow-y-auto mb-4">
                     {% if indexed_files %}
-                        <div class="file-info">
-                            <ul class="file-list">
-                                {% for file in indexed_files %}
-                                    <li class="file-item {% if file.index == file_index %}active{% endif %}" onclick="updateFile({{ file.index }})">
-                                        <div class="file-icon">📄</div>
-                                        <span class="file-name">{{ file.name }}</span>
-                                        <span class="tooltip">Click to select this file</span>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
+                        {% for file in indexed_files %}
+                            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg group cursor-pointer hover:bg-blue-50 transition-colors {% if file.index == file_index %}bg-blue-100 border border-blue-300{% endif %}" onclick="updateFile({{ file.index }})">
+                                <i data-lucide="file" class="w-5 h-5 text-gray-500"></i>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-800 truncate">{{ file.name }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
                     {% else %}
-                        <div class="error-message">No files uploaded. Please upload files from the dashboard and select one here.</div>
+                        <div class="text-center py-6">
+                            <i data-lucide="folder-x" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i>
+                            <p class="text-gray-500 text-sm">No files uploaded</p>
+                            <button onclick="window.location.href='/dashboard'" class="text-blue-600 hover:text-blue-800 text-sm mt-2">
+                                Upload Files
+                            </button>
+                        </div>
                     {% endif %}
                 </div>
+
+                <!-- Hidden file input for additional uploads -->
+                <input type="file" id="file-input" multiple accept=".js,.jsx,.ts,.tsx,.py,.java,.c,.cpp,.h,.cs,.php,.rb,.go,.rs,.swift,.kt,.html,.css,.json,.md,.xml,.yml,.yaml,.properties,.sh,.bash,.sql,.r,.scala,.dart" class="hidden">
+                
+                <!-- Upload More Files -->
+                <button class="w-full bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm" id="upload-more-btn">
+                    <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+                    Upload More Files
+                </button>
             </div>
-            <div class="main-content">
-                <div class="content-header">
-                    <h1 class="page-title">{{ output_type|capitalize }} Diagram</h1>
-                    <p class="page-subtitle">Generated from your uploaded code</p>
-                </div>
-                <div class="toggle-buttons">
-                    <button class="toggle-btn" id="toggleCode" onclick="toggleView('code')">View Code</button>
-                    <button class="toggle-btn active" id="toggleVisual" onclick="toggleView('visual')">Visualize Diagram</button>
-                </div>
-                <div id="codeViewContainer" class="code-view">
-                    <div id="codeView" class="code-display">{{ result }}</div>
-                </div>
-                <div id="visualViewContainer" class="visual-view active">
-                    <div id="visualView" class="code-display">
-                        <div class="mermaid">{{ result | safe }}</div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 border-t border-gray-200 flex flex-col">
+            <div class="p-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ output_type|capitalize }} Diagram</h1>
+                <p class="text-lg text-gray-600 mb-8">Generated from your uploaded code</p>
+            </div>
+
+            <!-- Content Area -->
+            <div class="flex-1 mx-8 mb-8">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex flex-col">
+                    <!-- Toggle Buttons -->
+                    <div class="border-b border-gray-200 p-4">
+                        <div class="flex gap-2">
+                            <button class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent hover:border-blue-600 transition-colors" id="toggleCode" onclick="toggleView('code')">
+                                View Code
+                            </button>
+                            <button class="px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600" id="toggleVisual" onclick="toggleView('visual')">
+                                Visualize Diagram
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <div class="action-buttons">
-                    <form id="regenerateForm" method="POST" action="/diagram_page">
-                        <input type="hidden" name="output_type" value="{{ output_type }}">
-                        <input type="hidden" name="file_index" value="{{ file_index }}">
-                        <input type="hidden" name="regenerate" value="1">
-                        <button type="submit" class="action-btn primary-btn" id="regenerateBtn">
-                            <span class="btn-icon">🔄</span>
-                            Not Accurate? Generate Again
-                        </button>
-                    </form>
-                    <button class="action-btn secondary-btn" id="downloadBtn">
-                        <span class="btn-icon">📥</span>
-                        Export
-                    </button>
-                    <button class="action-btn secondary-btn" onclick="zoomIn()">
-                        <span class="btn-icon">🔍+</span>
-                        Zoom In
-                    </button>
-                    <button class="action-btn secondary-btn" onclick="zoomOut()">
-                        <span class="btn-icon">🔍-</span>
-                        Zoom Out
-                    </button>
+
+                    <!-- Content Views -->
+                    <div class="flex-1 p-6 overflow-auto">
+                        <!-- Code View -->
+                        <div id="codeViewContainer" class="hidden">
+                            <pre class="bg-gray-50 p-4 rounded-lg border text-sm font-mono overflow-x-auto">{{ result }}</pre>
+                        </div>
+
+                        <!-- Visual View -->
+                        <div id="visualViewContainer" class="flex items-center justify-center min-h-full">
+                            <div class="mermaid w-full">{{ result | safe }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="p-6 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+                        <div class="flex flex-wrap gap-4 justify-center">
+                            <form id="regenerateForm" method="POST" action="/diagram_page" class="inline">
+                                <input type="hidden" name="output_type" value="{{ output_type }}">
+                                <input type="hidden" name="file_index" value="{{ file_index }}">
+                                <input type="hidden" name="regenerate" value="1">
+                                <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2" id="regenerateBtn">
+                                    <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                                    Not Accurate? Generate Again
+                                </button>
+                            </form>
+                            
+                            <button class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2" id="downloadBtn">
+                                <i data-lucide="download" class="w-5 h-5"></i>
+                                Export
+                            </button>
+                            
+                            <button class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2" onclick="zoomIn()">
+                                <i data-lucide="zoom-in" class="w-5 h-5"></i>
+                                Zoom In
+                            </button>
+                            
+                            <button class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2" onclick="zoomOut()">
+                                <i data-lucide="zoom-out" class="w-5 h-5"></i>
+                                Zoom Out
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div id="errorPopup" class="error-message{% if error %} active{% endif %}" style="{% if not error %}display: none;{% endif %}">
-        <button class="close-btn" onclick="closePopup('errorPopup')">×</button>
-        <p id="errorText">{{ error | default('', true) }}</p>
+
+    <!-- Error Popup -->
+    <div id="errorPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 {% if not error %}hidden{% endif %}">
+        <div class="bg-white rounded-lg p-6 w-96 max-w-90vw fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-red-600">Error</h3>
+                <button onclick="closePopup('errorPopup')" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <p id="errorText" class="text-gray-700">{{ error | default('', true) }}</p>
+        </div>
     </div>
-    <div id="successPopup" class="success-message" style="display: none;">
-        <button class="close-btn" onclick="closePopup('successPopup')">×</button>
-        <p id="successText"></p>
+
+    <!-- Success Popup -->
+    <div id="successPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-96 max-w-90vw fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-green-600 flex items-center gap-2">
+                    <i data-lucide="check-circle" class="w-6 h-6"></i>
+                    Success
+                </h3>
+                <button onclick="closePopup('successPopup')" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <p id="successText" class="text-gray-700"></p>
+        </div>
+    </div>
+
+    <!-- Upload Progress Modal -->
+    <div id="upload-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-96 max-w-90vw">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Uploading Files...</h3>
+            <div class="space-y-3">
+                <div id="upload-progress" class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div id="upload-status" class="text-sm text-gray-600">Preparing files...</div>
+            </div>
+        </div>
     </div>
 
     <script>
+        let uploadedFiles = [];
+        let zoomLevel = 1;
+        const zoomSteps = [0.5, 0.75, 1, 1.2, 1.5, 2];
+
+        // DOM Elements
+        const uploadMoreBtn = document.getElementById('upload-more-btn');
+        const fileInput = document.getElementById('file-input');
+        const uploadModal = document.getElementById('upload-modal');
+        const progressBarModal = document.getElementById('progress-bar');
+        const uploadStatus = document.getElementById('upload-status');
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            loadUploadedFiles();
+            initializeMermaid();
+            toggleView('visual');
+        });
+
         function initializeMermaid(retryCount = 0, maxRetries = 10) {
             if (typeof mermaid !== 'undefined') {
                 mermaid.initialize({
@@ -535,7 +253,7 @@
 
         function renderMermaid() {
             const mermaidDiv = document.querySelector('.mermaid');
-            if (mermaidDiv && document.querySelector('#visualViewContainer').classList.contains('active')) {
+            if (mermaidDiv && !document.querySelector('#visualViewContainer').classList.contains('hidden')) {
                 try {
                     mermaid.render('renderedDiagram', mermaidDiv.textContent, (svgCode) => {
                         mermaidDiv.innerHTML = svgCode;
@@ -549,18 +267,10 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeMermaid();
-            toggleView('visual');
-        });
-
         function updateFile(index) {
-            const currentOutputType = document.querySelector('input[name="output_type"]:checked').value;
+            const currentOutputType = '{{ output_type }}';
             window.location.href = `/diagram_page?file_index=${index}&output_type=${currentOutputType}`;
         }
-
-        let zoomLevel = 1;
-        const zoomSteps = [0.5, 0.75, 1, 1.2, 1.5, 2];
 
         function applyZoom() {
             const mermaidDiv = document.querySelector('.mermaid svg');
@@ -589,15 +299,19 @@
             const visualBtn = document.getElementById('toggleVisual');
 
             if (view === 'code') {
-                codeContainer.classList.add('active');
-                visualContainer.classList.remove('active');
-                codeBtn.classList.add('active');
-                visualBtn.classList.remove('active');
+                codeContainer.classList.remove('hidden');
+                visualContainer.classList.add('hidden');
+                codeBtn.classList.add('text-blue-600', 'border-blue-600');
+                codeBtn.classList.remove('text-gray-600', 'border-transparent');
+                visualBtn.classList.add('text-gray-600', 'border-transparent');
+                visualBtn.classList.remove('text-blue-600', 'border-blue-600');
             } else {
-                codeContainer.classList.remove('active');
-                visualContainer.classList.add('active');
-                codeBtn.classList.remove('active');
-                visualBtn.classList.add('active');
+                codeContainer.classList.add('hidden');
+                visualContainer.classList.remove('hidden');
+                visualBtn.classList.add('text-blue-600', 'border-blue-600');
+                visualBtn.classList.remove('text-gray-600', 'border-transparent');
+                codeBtn.classList.add('text-gray-600', 'border-transparent');
+                codeBtn.classList.remove('text-blue-600', 'border-blue-600');
                 setTimeout(renderMermaid, 0);
             }
         }
@@ -606,8 +320,7 @@
             const popup = document.getElementById('errorPopup');
             const errorText = document.getElementById('errorText');
             errorText.textContent = message || 'An error occurred.';
-            popup.classList.add('active');
-            popup.style.display = 'flex';
+            popup.classList.remove('hidden');
             setTimeout(() => closePopup('errorPopup'), 5000);
         }
 
@@ -615,36 +328,124 @@
             const popup = document.getElementById('successPopup');
             const successText = document.getElementById('successText');
             successText.textContent = message || 'Success!';
-            popup.classList.add('active');
-            popup.style.display = 'flex';
+            popup.classList.remove('hidden');
             setTimeout(() => closePopup('successPopup'), 3000);
         }
 
         function closePopup(popupId) {
             const popup = document.getElementById(popupId);
             if (popup) {
-                popup.classList.remove('active');
-                popup.style.display = 'none';
+                popup.classList.add('hidden');
             }
         }
 
+        // Load uploaded files from sessionStorage
+        function loadUploadedFiles() {
+            const storedFiles = sessionStorage.getItem('uploadedFiles');
+            if (storedFiles) {
+                uploadedFiles = JSON.parse(storedFiles);
+            }
+        }
+
+        // File handling functions (same as setup documentation)
+        function isValidFileType(file) {
+            const allowedExtensions = [
+                '.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.json', '.md',
+                '.py', '.java', '.c', '.cpp', '.h', '.cs', '.php', '.rb', '.go', '.rs', '.swift', '.kt',
+                '.xml', '.yml', '.yaml', '.properties', '.sh', '.bash', '.sql',
+                '.r', '.scala', '.dart'
+            ];
+            const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+            return allowedExtensions.includes(fileExt);
+        }
+
+        async function handleFileUpload(files) {
+            if (files.length === 0) return;
+
+            const allFiles = Array.from(files);
+            const validFiles = allFiles.filter(file => isValidFileType(file));
+            const invalidFiles = allFiles.filter(file => !isValidFileType(file));
+
+            if (invalidFiles.length > 0) {
+                alert(`The following files are not supported and will be ignored:\n\n${invalidFiles.map(f => f.name).join('\n')}`);
+            }
+
+            if (validFiles.length === 0) return;
+
+            uploadModal.classList.remove('hidden');
+            
+            const totalFiles = validFiles.length;
+            let processedFiles = 0;
+
+            for (let i = 0; i < validFiles.length; i++) {
+                const file = validFiles[i];
+                uploadStatus.textContent = `Processing ${file.name}... (${processedFiles + 1}/${totalFiles})`;
+                
+                try {
+                    const content = await readFileContent(file);
+                    const fileData = {
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        content: content,
+                        lastModified: file.lastModified,
+                        uploadedAt: new Date().toISOString()
+                    };
+                    uploadedFiles.push(fileData);
+                } catch (error) {
+                    console.error(`Error processing file ${file.name}:`, error);
+                }
+                
+                processedFiles++;
+                const progress = (processedFiles / totalFiles) * 100;
+                progressBarModal.style.width = `${progress}%`;
+            }
+
+            sessionStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+            uploadStatus.textContent = 'Upload completed! Refreshing page...';
+            await new Promise(resolve => setTimeout(resolve, 500));
+            window.location.reload();
+        }
+
+        async function readFileContent(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                reader.onerror = function() {
+                    reject(new Error(`Failed to read file: ${file.name}`));
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        // Event Listeners
+        uploadMoreBtn.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                handleFileUpload(Array.from(e.target.files));
+                e.target.value = '';
+            }
+        });
+
+        // Download functionality
         const downloadBtn = document.getElementById('downloadBtn');
         if (downloadBtn) {
             downloadBtn.addEventListener('click', () => {
-                const mermaidDiv = document.querySelector('#visualView .mermaid');
+                const mermaidDiv = document.querySelector('#visualViewContainer .mermaid');
                 if (mermaidDiv && typeof mermaid !== 'undefined') {
-                    mermaid.render('exportDiagram', mermaidDiv.textContent, (svgCode) => {
-                        html2canvas(document.querySelector('#visualView'), { scale: 2 }).then(canvas => {
-                            const link = document.createElement('a');
-                            link.download = `{{ indexed_files[file_index].name }}_{{ output_type }}_diagram.png`;
-                            link.href = canvas.toDataURL('image/png');
-                            link.click();
-                            showSuccess('Diagram exported successfully!');
-                        }).catch(error => {
-                            showError('Failed to export diagram. Please try again.');
-                        });
-                    }).catch(err => {
-                        showError('Failed to render diagram for export: ' + err.message);
+                    html2canvas(document.querySelector('#visualViewContainer'), { scale: 2 }).then(canvas => {
+                        const link = document.createElement('a');
+                        link.download = `diagram_{{ output_type }}.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                        showSuccess('Diagram exported successfully!');
+                    }).catch(error => {
+                        showError('Failed to export diagram. Please try again.');
                     });
                 } else {
                     showError('Cannot export: Mermaid library failed to load or no diagram available.');
@@ -652,10 +453,7 @@
             });
         }
 
-        window.addEventListener('load', () => {
-            console.log('Generated diagram page loaded');
-        });
-
+        // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey || e.metaKey) {
                 switch(e.key) {

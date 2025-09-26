@@ -4,407 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ClickDoc - Interactive Visualization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4285f4;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            width: 100vw;
-            height: 100vh;
-            margin: 0;
-            background: white;
-            border-radius: 0;
-            box-shadow: none;
-            overflow: auto;
-        }
-
-        .top-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 20px 32px;
-            background: white;
-            border-bottom: 1px solid #e2e8f0;
-            width: 100%;
-        }
-
-        .content-wrapper {
-            display: flex;
-            flex: 1;
-        }
-
-        .sidebar {
-            width: 320px;
-            background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
-            padding: 24px;
-            border-right: 1px solid #e2e8f0;
-            min-height: auto;
-        }
-
-        .sidebar-header {
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .sidebar-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 8px;
-        }
-
-        .sidebar-instruction {
-            font-size: 14px;
-            color: #64748b;
-            font-style: italic;
-            margin-bottom: 16px;
-        }
-
-        .file-info {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-
-        .file-list {
-            list-style: none;
-        }
-
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            font-size: 14px;
-            color: #1e293b;
-            font-weight: 600;
-            transition: background-color 0.2s;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .file-item:hover {
-            background: #e6f0fa;
-            border-radius: 6px;
-            padding-left: 8px;
-        }
-
-        .file-item.active {
-            background: #e6f0fa;
-            border-radius: 6px;
-            padding-left: 8px;
-            font-weight: bold;
-            border: 1px solid #4285f4;
-        }
-
-        .file-item:hover .tooltip {
-            opacity: 1;
-        }
-
-        .tooltip {
-            position: absolute;
-            top: 50%;
-            left: 100%;
-            transform: translateY(-50%);
-            background: rgba(30, 41, 59, 0.9);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            white-space: nowrap;
-            margin-left: 10px;
-            z-index: 1000;
-        }
-
-        .file-icon {
-            width: 20px;
-            height: 20px;
-            background: linear-gradient(135deg, #51cf66, #40c057);
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .sidebar-content {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            color: #94a3b8;
-            font-style: italic;
-            font-size: 14px;
-        }
-
-        .logo {
-            width: 48px;
-            height: 48px;
-            background: #4285f4;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1e293b;
-        }
-
-        .nav-icons {
-            display: flex;
-            gap: 8px;
-            margin-left: auto;
-        }
-
-        .nav-icon {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 20px;
-            border-radius: 8px;
-            color: #475569;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 1px solid transparent;
-            background: #f1f5f9;
-        }
-
-        .nav-icon:hover {
-            background: rgba(66, 133, 244, 0.1);
-            color: #4285f4;
-            border-color: #4285f4;
-            transform: translateY(-2px);
-        }
-
-        .nav-icon.active {
-            background: #4285f4;
-            color: white;
-        }
-
-        .nav-icon-symbol {
-            width: 20px;
-            height: 20px;
-            background: #4285f4;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 12px;
-        }
-
-        .nav-icon.active .nav-icon-symbol {
-            background: white;
-            color: #4285f4;
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 32px;
-            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-        }
-
-        .content-header {
-            margin-bottom: 32px;
-        }
-
-        .page-title {
-            font-size: 32px;
-            font-weight: 800;
-            color: #1e293b;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #4285f4, #1a73e8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .page-subtitle {
-            font-size: 18px;
-            color: #64748b;
-            font-weight: 500;
-        }
-
-        .error-message {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #dc2626;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 24px;
-            font-size: 14px;
-        }
-
-        .info-message {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            color: #1e40af;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 24px;
-            font-size: 14px;
-        }
-
-        .diagram-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .diagram-card {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            border: 1px solid #e2e8f0;
-            transition: all 0.4s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .diagram-card.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .diagram-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.05), rgba(124, 58, 237, 0.05));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .diagram-card:hover::before {
-            opacity: 1;
-        }
-
-        .diagram-card:hover:not(.disabled) {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-            border-color: #4f46e5;
-        }
-
-        .diagram-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            transition: transform 0.3s ease;
-        }
-
-        .diagram-card:hover:not(.disabled) .diagram-icon {
-            transform: scale(1.1) rotate(5deg);
-        }
-
-        .flow-bg {
-            background: linear-gradient(135deg, #06b6d4, #0891b2);
-        }
-
-        .sequence-bg {
-            background: linear-gradient(135deg, #8b5cf6, #a855f7);
-        }
-
-        .component-bg {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-        }
-
-        .class-bg {
-            background: linear-gradient(135deg, #ec4899, #db2777);
-        }
-
-        .diagram-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .diagram-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 8px;
-        }
-
-        .diagram-description {
-            font-size: 14px;
-            color: #64748b;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        .generate-btn {
-            background: linear-gradient(135deg, #4285f4, #1a73e8);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3);
-            position: relative;
-            overflow: hidden;
-            width: 140px;
-        }
-
-        .generate-btn:hover:not(.disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.4);
-            background: linear-gradient(135deg, #1a73e8, #1557b0);
-        }
-
-        .generate-btn:active {
-            transform: translateY(0);
-        }
-
-        .generate-btn.generating {
-            background: linear-gradient(135deg, #10b981, #059669);
-            cursor: wait;
-        }
-
-        .generate-btn.disabled {
-            background: #94a3b8;
-            cursor: not-allowed;
+        @keyframes spin { 
+            100% { transform: rotate(360deg); } 
         }
 
         .progress-bar {
@@ -431,193 +45,176 @@
         .generating {
             animation: pulse 1.5s ease-in-out infinite;
         }
-
-        @keyframes bounce {
-            0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
-            40%, 43% { transform: translate3d(0,-8px,0); }
-            70% { transform: translate3d(0,-4px,0); }
-            90% { transform: translate3d(0,-2px,0); }
-        }
-
-        .completed {
-            animation: bounce 0.8s ease;
-        }
-
-        .tooltip {
-            position: absolute;
-            background: rgba(30, 41, 59, 0.9);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            z-index: 1000;
-        }
-
-        .diagram-card:hover:not(.disabled) .tooltip {
-            opacity: 1;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                margin: 0;
-            }
-            
-            .content-wrapper {
-                flex-direction: column;
-            }
-            
-            .sidebar {
-                width: 100%;
-                min-height: 200px;
-            }
-            
-            .diagram-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .top-header {
-                flex-direction: column;
-                gap: 16px;
-                text-align: center;
-            }
-
-            .nav-icons {
-                margin-left: 0;
-            }
-
-            .main-content {
-                padding: 20px;
-            }
-        }
     </style>
 </head>
-<body>
-    <div class="container">
-        <!-- Top Header unchanged -->
-        <div class="top-header">
-            <div class="logo">
-                <svg viewBox="0 0 24 24">
-                    <path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/>
-                </svg>
+<body class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="flex justify-between items-center px-8 py-6 bg-white shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <img 
+                    src="/static/assets/logo.png" 
+                    alt="ClickDoc Logo" 
+                    class="w-8 h-8"
+                    onerror="this.style.display='none'"
+                />
             </div>
-            <div class="logo-text">ClickDoc</div>
-            <div class="nav-icons">
-                 <a href="/dashboard" class="nav-icon">
-                    <div class="nav-icon-symbol">📊</div>
-                    Dashboard
-                </a>
-                <a href="/" class="nav-icon">
-                    <div class="nav-icon-symbol">⌂</div>
-                    Home
-                </a>
+            <div class="text-2xl font-bold text-blue-600">
+                ClickDoc
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="window.location.href='/dashboard'" class="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                Dashboard
+            </button>
+            <button onclick="window.location.href='/'" class="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2">
+                <i data-lucide="home" class="w-5 h-5"></i>
+                Home
+            </button>
+        </div>
+    </header>
+
+    <div class="flex min-h-screen">
+        <!-- Left Sidebar - File Uploaded -->
+        <div class="w-80 bg-white border-r border-gray-200 border-t border-gray-200 shadow-sm">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i data-lucide="folder" class="w-5 h-5 text-blue-600"></i>
+                    File Uploaded
+                </h3>
+                
+                <div id="uploaded-files" class="space-y-2 max-h-96 overflow-y-auto mb-4">
+                    {% if indexed_files %}
+                        {% for file in indexed_files %}
+                            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg group cursor-pointer hover:bg-blue-50 transition-colors {% if file.index == file_index %}bg-blue-100 border border-blue-300{% endif %}" onclick="updateFile({{ file.index }})">
+                                <i data-lucide="file" class="w-5 h-5 text-gray-500"></i>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-800 truncate">{{ file.name }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-6">
+                            <i data-lucide="folder-x" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i>
+                            <p class="text-gray-500 text-sm">No files uploaded</p>
+                            <button onclick="window.location.href='/dashboard'" class="text-blue-600 hover:text-blue-800 text-sm mt-2">
+                                Upload Files
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Hidden file input for additional uploads -->
+                <input type="file" id="file-input" multiple accept=".js,.jsx,.ts,.tsx,.py,.java,.c,.cpp,.h,.cs,.php,.rb,.go,.rs,.swift,.kt,.html,.css,.json,.md,.xml,.yml,.yaml,.properties,.sh,.bash,.sql,.r,.scala,.dart" class="hidden">
+                
+                <!-- Upload More Files -->
+                <button class="w-full bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm" id="upload-more-btn">
+                    <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+                    Upload More Files
+                </button>
             </div>
         </div>
 
-        <!-- Content wrapper with sidebar and main content -->
-        <div class="content-wrapper">
-            <div class="sidebar">
-                <div class="sidebar-content">
-                    <div class="sidebar-header">
-                        <div class="sidebar-title">Uploaded Files</div>
-                        <p class="sidebar-instruction">Select a file to generate its diagram</p>
-                    </div>
-                    {% if indexed_files %}
-                        <div class="file-info">
-                            <ul class="file-list">
-                                {% for file in indexed_files %}
-                                    <li class="file-item {% if file.index == file_index %}active{% endif %}" onclick="updateFile({{ file.index }})">
-                                        <div class="file-icon">📄</div>
-                                        <span class="file-name">{{ file.name }}</span>
-                                        <span class="tooltip">Click to select {{ file.name }}</span>
-                                    </li>
-                                {% endfor %}
-                            </ul>
+        <!-- Main Content -->
+        <div class="flex-1 border-t border-gray-200 flex flex-col">
+            <div class="p-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Visualize Diagram</h1>
+                {% if indexed_files and file_index >= 0 %}
+                    <p class="text-lg text-gray-600 mb-8">
+                        Selected file: {{ indexed_files[file_index].name }}
+                    </p>
+                {% elif error %}
+                    <p class="text-lg text-red-600 mb-8">{{ error }}</p>
+                {% else %}
+                    <p class="text-lg text-gray-600 mb-8">No files uploaded. Please upload files from the dashboard.</p>
+                {% endif %}
+            </div>
+
+            <!-- Diagram Selection Cards -->
+            <div class="flex-1 mx-8 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Flow Diagram -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer {% if not indexed_files %}opacity-50 cursor-not-allowed{% endif %}" onclick="generateDiagram('flow')" data-type="flow">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="workflow" class="w-6 h-6 text-blue-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Flow Diagram</h3>
+                                <p class="text-gray-600 text-sm mb-4">Visualize process flow and logic sequence</p>
+                                <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm {% if not indexed_files %}opacity-50 cursor-not-allowed{% endif %}" id="flow-btn">
+                                    <span class="button-text">Generate Now</span>
+                                    <div class="progress-bar"></div>
+                                </button>
+                            </div>
                         </div>
-                    {% else %}
-                        <div class="error-message">No files uploaded. Please upload files from the dashboard.</div>
-                    {% endif %}
+                    </div>
+
+                    <!-- Sequence Diagram -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer {% if not indexed_files %}opacity-50 cursor-not-allowed{% endif %}" onclick="generateDiagram('sequence')" data-type="sequence">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="git-branch" class="w-6 h-6 text-purple-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Sequence Diagram</h3>
+                                <p class="text-gray-600 text-sm mb-4">Show interactions between functions and classes</p>
+                                <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm {% if not indexed_files %}opacity-50 cursor-not-allowed{% endif %}" id="sequence-btn">
+                                    <span class="button-text">Generate Now</span>
+                                    <div class="progress-bar"></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Component Diagram -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer {% if not indexed_files %}opacity-50 cursor-not-allowed{% endif %}" onclick="generateDiagram('component')" data-type="component">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="boxes" class="w-6 h-6 text-green-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Component Diagram</h3>
+                                <p class="text-gray-600 text-sm mb-4">Display top-level components and their relationships</p>
+                                <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm {% if not indexed_files %}opacity-50 cursor-not-allowed{% endif %}" id="component-btn">
+                                    <span class="button-text">Generate Now</span>
+                                    <div class="progress-bar"></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Class Diagram -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer {% if not indexed_files %}opacity-50 cursor-not-allowed{% endif %}" onclick="generateDiagram('class')" data-type="class">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="database" class="w-6 h-6 text-red-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Class Diagram</h3>
+                                <p class="text-gray-600 text-sm mb-4">Illustrate class structure and relationships</p>
+                                <button class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm {% if not indexed_files %}opacity-50 cursor-not-allowed{% endif %}" id="class-btn">
+                                    <span class="button-text">Generate Now</span>
+                                    <div class="progress-bar"></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-            <div class="main-content">
-                {% if error %}
-                    <div class="error-message">{{ error }}</div>
-                {% elif not indexed_files %}
-                    <div class="error-message">No files uploaded. Please upload files from the dashboard.</div>
-                {% else %}
-                    <div class="info-message">Selected file: {{ indexed_files[file_index].name }}</div>
-                {% endif %}
-                
-                <div class="content-header">
-                    <h1 class="page-title">Visualize Diagram</h1>
-                    <p class="page-subtitle">Choose Diagram Type</p>
+        </div>
+    </div>
+
+    <!-- Upload Progress Modal -->
+    <div id="upload-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-96 max-w-90vw">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Uploading Files...</h3>
+            <div class="space-y-3">
+                <div id="upload-progress" class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
                 </div>
-                
-                <div class="diagram-grid">
-                    <div class="diagram-card {% if not indexed_files %}disabled{% endif %}" onclick="generateDiagram('flow')" data-type="flow">
-                        <div class="tooltip">Click to generate flow diagram</div>
-                        <div class="diagram-header">
-                            <div class="diagram-icon flow-bg">📊</div>
-                            <div class="diagram-content">
-                                <h3 class="diagram-title">Flow Diagram</h3>
-                                <p class="diagram-description">Visualize process flow and logic sequence</p>
-                            </div>
-                        </div>
-                        <button class="generate-btn {% if not indexed_files %}disabled{% endif %}" id="flow-btn" form="diagramForm" type="submit">
-                            Generate Now
-                            <div class="progress-bar"></div>
-                        </button>
-                    </div>
-                    
-                    <div class="diagram-card {% if not indexed_files %}disabled{% endif %}" onclick="generateDiagram('sequence')" data-type="sequence">
-                        <div class="tooltip">Click to generate sequence diagram</div>
-                        <div class="diagram-header">
-                            <div class="diagram-icon sequence-bg">🔗</div>
-                            <div class="diagram-content">
-                                <h3 class="diagram-title">Sequence Diagram</h3>
-                                <p class="diagram-description">Show interactions between functions and classes</p>
-                            </div>
-                        </div>
-                        <button class="generate-btn {% if not indexed_files %}disabled{% endif %}" id="sequence-btn" form="diagramForm" type="submit">
-                            Generate Now
-                            <div class="progress-bar"></div>
-                        </button>
-                    </div>
-                    
-                    <div class="diagram-card {% if not indexed_files %}disabled{% endif %}" onclick="generateDiagram('component')" data-type="component">
-                        <div class="tooltip">Click to generate component diagram</div>
-                        <div class="diagram-header">
-                            <div class="diagram-icon component-bg">🏗️</div>
-                            <div class="diagram-content">
-                                <h3 class="diagram-title">Component Diagram</h3>
-                                <p class="diagram-description">Display top-level components and their relationships</p>
-                            </div>
-                        </div>
-                        <button class="generate-btn {% if not indexed_files %}disabled{% endif %}" id="component-btn" form="diagramForm" type="submit">
-                            Generate Now
-                            <div class="progress-bar"></div>
-                        </button>
-                    </div>
-                    
-                    <div class="diagram-card {% if not indexed_files %}disabled{% endif %}" onclick="generateDiagram('class')" data-type="class">
-                        <div class="tooltip">Click to generate class diagram</div>
-                        <div class="diagram-header">
-                            <div class="diagram-icon class-bg">🗄️</div>
-                            <div class="diagram-content">
-                                <h3 class="diagram-title">Class Diagram</h3>
-                                <p class="diagram-description">Illustrate class structure and relationships</p>
-                            </div>
-                        </div>
-                        <button class="generate-btn {% if not indexed_files %}disabled{% endif %}" id="class-btn" form="diagramForm" type="submit">
-                            Generate Now
-                            <div class="progress-bar"></div>
-                        </button>
-                    </div>
-                </div>
+                <div id="upload-status" class="text-sm text-gray-600">Preparing files...</div>
             </div>
         </div>
     </div>
@@ -631,6 +228,33 @@
     </form>
 
     <script>
+        let uploadedFiles = [];
+
+        // DOM Elements
+        const uploadMoreBtn = document.getElementById('upload-more-btn');
+        const fileInput = document.getElementById('file-input');
+        const uploadedFilesContainer = document.getElementById('uploaded-files');
+        const uploadModal = document.getElementById('upload-modal');
+        const progressBarModal = document.getElementById('progress-bar');
+        const uploadStatus = document.getElementById('upload-status');
+
+        // Initialize Lucide icons
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            loadUploadedFiles();
+        });
+
+        // Load uploaded files from sessionStorage
+        function loadUploadedFiles() {
+            const storedFiles = sessionStorage.getItem('uploadedFiles');
+            
+            if (storedFiles) {
+                uploadedFiles = JSON.parse(storedFiles);
+                // If we have stored files, we might want to sync with the server
+                // For now, we'll just display what's already in the template
+            }
+        }
+
         // Update file selection using GET request
         function updateFile(index) {
             const currentOutputType = document.querySelector('input[name="output_type"]:checked').value;
@@ -642,8 +266,8 @@
             const btn = document.getElementById(`${type}-btn`);
             const form = document.getElementById('diagramForm');
 
-            if (btn.classList.contains('generating') || btn.classList.contains('completed') || btn.classList.contains('disabled')) {
-                if (btn.classList.contains('disabled')) {
+            if (btn.classList.contains('generating') || btn.classList.contains('opacity-50')) {
+                if (btn.classList.contains('opacity-50')) {
                     alert('Please upload a file first!');
                 }
                 return;
@@ -659,33 +283,151 @@
 
             // Start generation animation
             btn.classList.add('generating');
-            btn.innerHTML = 'Generating... <div class="progress-bar"></div>';
+            const buttonText = btn.querySelector('.button-text');
+            if (buttonText) {
+                buttonText.textContent = 'Generating...';
+            }
 
             // Submit the form
             form.submit();
         }
 
+        // Validate file type
+        function isValidFileType(file) {
+            const allowedExtensions = [
+                '.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.json', '.md',
+                '.py', '.java', '.c', '.cpp', '.h', '.cs', '.php', '.rb', '.go', '.rs', '.swift', '.kt',
+                '.xml', '.yml', '.yaml', '.properties', '.sh', '.bash', '.sql',
+                '.r', '.scala', '.dart'
+            ];
+            const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+            return allowedExtensions.includes(fileExt);
+        }
+
+        // Handle file upload
+        async function handleFileUpload(files) {
+            if (files.length === 0) return;
+
+            const allFiles = Array.from(files);
+            const validFiles = [];
+            const invalidFiles = [];
+
+            allFiles.forEach(file => {
+                if (isValidFileType(file)) {
+                    validFiles.push(file);
+                } else {
+                    invalidFiles.push(file.name);
+                }
+            });
+
+            if (invalidFiles.length > 0) {
+                alert(`The following files are not supported and will be ignored:\n\n${invalidFiles.join('\n')}\n\nSupported code file types:\nJavaScript/TypeScript: .js, .jsx, .ts, .tsx\nPython: .py\nJava: .java\nC/C++: .c, .cpp, .h\nC#: .cs\nPHP: .php\nRuby: .rb\nGo: .go\nRust: .rs\nSwift: .swift\nKotlin: .kt\nWeb: .html, .css\nConfig: .json, .xml, .yml, .yaml, .properties\nScripts: .sh, .bash, .sql\nOther: .r, .scala, .dart, .md`);
+            }
+
+            if (validFiles.length === 0) return;
+
+            uploadModal.classList.remove('hidden');
+            
+            const totalFiles = validFiles.length;
+            let processedFiles = 0;
+
+            for (let i = 0; i < validFiles.length; i++) {
+                const file = validFiles[i];
+                uploadStatus.textContent = `Processing ${file.name}... (${processedFiles + 1}/${totalFiles})`;
+                
+                try {
+                    const existingFileIndex = uploadedFiles.findIndex(f => f.name === file.name);
+                    const content = await readFileContent(file);
+                    
+                    const fileData = {
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        content: content,
+                        lastModified: file.lastModified,
+                        uploadedAt: new Date().toISOString()
+                    };
+
+                    if (existingFileIndex !== -1) {
+                        uploadedFiles[existingFileIndex] = fileData;
+                    } else {
+                        uploadedFiles.push(fileData);
+                    }
+                } catch (error) {
+                    console.error(`Error processing file ${file.name}:`, error);
+                }
+                
+                processedFiles++;
+                const progress = (processedFiles / totalFiles) * 100;
+                progressBarModal.style.width = `${progress}%`;
+            }
+
+            sessionStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+            uploadStatus.textContent = 'Upload completed! Refreshing page...';
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Refresh the page to show new files
+            window.location.reload();
+        }
+
+        // Read file content
+        async function readFileContent(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                reader.onerror = function() {
+                    reject(new Error(`Failed to read file: ${file.name}`));
+                };
+                if (file.type === 'application/pdf') {
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    reader.readAsText(file);
+                }
+            });
+        }
+
+        // Event Listeners
+        uploadMoreBtn.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                handleFileUpload(Array.from(e.target.files));
+                e.target.value = '';
+            }
+        });
+
+        // Drag and drop functionality
+        const sidebar = document.querySelector('.w-80');
+        
+        sidebar.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            sidebar.classList.add('bg-blue-50', 'border-blue-300');
+        });
+
+        sidebar.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            sidebar.classList.remove('bg-blue-50', 'border-blue-300');
+        });
+
+        sidebar.addEventListener('drop', function(e) {
+            e.preventDefault();
+            sidebar.classList.remove('bg-blue-50', 'border-blue-300');
+            
+            const files = Array.from(e.dataTransfer.files);
+            if (files.length > 0) {
+                handleFileUpload(files);
+            }
+        });
+
         // Automatically select the first file on page load if not selected
         window.addEventListener('load', () => {
-            const fileItems = document.querySelectorAll('.file-item');
-            const fileIndexInput = document.getElementById('file_index');
             {% if indexed_files and file_index == -1 %}
-                if (fileItems.length > 0) {
-                    updateFile(0); // Auto-select the first file
-                }
+                updateFile(0); // Auto-select the first file
             {% endif %}
-
-            // Welcome animation
-            const cards = document.querySelectorAll('.diagram-card');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(30px)';
-                setTimeout(() => {
-                    card.style.transition = 'all 0.6s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 200);
-            });
         });
     </script>
 </body>
