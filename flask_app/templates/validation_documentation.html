@@ -4,218 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ClickDoc - Validation Documentation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked@4.0.0/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://unpkg.com/docx@7.8.2/build/index.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background-color: #f7f9fc;
-      color: #2d3748;
-      line-height: 1.5;
-      min-height: 100vh;
-    }
-
-    /* ----- Header ----- */
-    .header {
-      background: linear-gradient(90deg, #2b6cb0, #2c5282);
-      padding: 20px 32px;
-      border-bottom: 1px solid #e2e8f0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      position: relative;
-      z-index: 10;
-    }
-
-    .header-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .logo-icon {
-      width: 48px;
-      height: 48px;
-      background: #ffffff;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #2b6cb0;
-      font-size: 20px;
-      font-weight: 700;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-
-    .logo-text {
-      font-size: 26px;
-      font-weight: 700;
-      color: #ffffff;
-    }
-
-    .header-buttons {
-      display: flex;
-      gap: 12px;
-    }
-
-    .dashboard-btn, .back-btn {
-      background: #ffffff;
-      color: #2b6cb0;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.2s, transform 0.2s;
-    }
-
-    .dashboard-btn:hover, .back-btn:hover {
-      background: #edf2f7;
-      transform: translateY(-1px);
-    }
-
-    /* ----- Layout ----- */
-    .main-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      min-height: calc(100vh - 80px);
-    }
-
-    .sidebar {
-      width: 300px;
-      background: #ffffff;
-      border-right: 1px solid #e2e8f0;
-      padding: 32px;
-      min-height: 100%;
-    }
-
-    .sidebar-section {
-      margin-bottom: 32px;
-    }
-
-    .section-title {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #4a5568;
-    }
-
-    .status-icon {
-      width: 18px;
-      height: 18px;
-      background: #48bb78;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      color: #ffffff;
-    }
-
-    .file-list {
-      list-style: none;
-    }
-
-    .file-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 0;
-      font-size: 15px;
-      color: #2d3748;
-      transition: background-color 0.2s;
-    }
-
-    .file-item:hover {
-      background: #edf2f7;
-      border-radius: 6px;
-      padding-left: 8px;
-    }
-
-    .file-icon {
-      width: 24px;
-      height: 24px;
-      background: #718096;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    .content-area {
-      flex: 1;
-      padding: 40px 48px;
-      background: #f7f9fc;
-      display: flex;
-      flex-direction: column;
-      min-height: 100%;
-    }
-
-    .main-title {
-      font-size: 32px;
-      font-weight: 700;
-      color: #2d3748;
-      margin-bottom: 12px;
-    }
-
-    .subtitle {
-      font-size: 18px;
-      color: #718096;
-      margin-bottom: 48px;
-    }
-
-    /* ----- Documentation Card ----- */
-    .doc-card {
-      background: white;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      margin-bottom: 32px;
-      max-height: 500px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .doc-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 20px 30px;
-      color: white;
-      font-size: 20px;
-      font-weight: 600;
-      flex-shrink: 0;
-    }
-
-    .doc-content {
-      padding: 32px;
-      font-size: 15px;
-      color: #374151;
-      line-height: 1.8;
-      overflow-y: auto;
-      flex: 1;
-      min-height: 0;
-    }
-
+    /* Custom styles for documentation content */
     .doc-content h1,
     .doc-content h2,
     .doc-content h3,
@@ -325,117 +120,6 @@
       background: #5a67d8;
     }
 
-    .actions {
-      padding: 0 30px 30px;
-      display: flex;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .button-group {
-      display: flex;
-      gap: 16px;
-    }
-
-    .action-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 16px;
-      transition: all 0.3s ease;
-    }
-
-    .regenerate-btn, .download-btn {
-      background: #4285f4;
-      color: white;
-    }
-
-    .regenerate-btn:hover, .download-btn:hover {
-      background: #3367d6;
-      transform: translateY(-1px);
-    }
-
-    /* Modal Styles */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-content {
-      background: white;
-      padding: 24px;
-      border-radius: 16px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
-      position: relative;
-    }
-
-    .modal-content h3 {
-      font-size: 20px;
-      font-weight: 600;
-      color: #2d3748;
-      margin-bottom: 16px;
-    }
-
-    .modal-content select {
-      width: 100%;
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      background: #ffffff;
-      font-size: 16px;
-      margin-bottom: 24px;
-      cursor: pointer;
-    }
-
-    .modal-content .modal-btn {
-      background: #4285f4;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .modal-content .modal-btn:hover {
-      background: #3367d6;
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: none;
-      border: none;
-      font-size: 20px;
-      color: #2d3748;
-      cursor: pointer;
-      transition: color 0.3s ease;
-    }
-
-    .modal-close:hover {
-      color: #4285f4;
-    }
-
-    /* Spinner */
     .spinner {
       border: 4px solid #f3f3f3;
       border-top: 4px solid #4285f4;
@@ -446,180 +130,416 @@
       margin: 20px auto;
     }
 
-    .file-list-subtitle {
-  list-style: none;
-  padding: 0;
-  margin-bottom: 48px;
-}
-.file-list-subtitle li {
-  display: inline;
-  font-size: 18px;
-  color: #718096;
-}
-.file-list-subtitle li:not(:last-child):after {
-  content: ", ";
-}
-
-
-
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-
-    @media (max-width: 768px) {
-      .main-container {
-        flex-direction: column;
-      }
-
-      .sidebar {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid #e2e8f0;
-        padding: 24px;
-      }
-
-      .content-area {
-        padding: 32px 20px;
-      }
-
-      .main-title {
-        font-size: 28px;
-      }
-
-      .subtitle {
-        font-size: 16px;
-      }
-
-      .doc-card {
-        margin-bottom: 24px;
-        max-height: 400px;
-      }
-
-      .doc-header {
-        padding: 16px 20px;
-        font-size: 18px;
-      }
-
-      .doc-content {
-        padding: 20px;
-      }
-
-      .actions {
-        padding: 0 20px 20px;
-      }
-
-      .button-group {
-        flex-direction: column;
-        gap: 12px;
-      }
-
-      .header-buttons {
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .modal-content {
-        max-width: 90%;
-      }
+    @keyframes spin { 
+      100% { transform: rotate(360deg); } 
     }
   </style>
 </head>
-<body>
-  <header class="header">
-    <div class="header-content">
-      <div class="logo">
-        <div class="logo-icon">📄</div>
-        <span class="logo-text">ClickDoc</span>
+<body class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="flex justify-between items-center px-8 py-6 bg-white shadow-sm">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+        <img 
+                src="/static/assets/logo.png" 
+                alt="ClickDoc Logo" 
+                class="w-8 h-8"
+                onerror="this.style.display='none'"
+            />
       </div>
-      <div class="header-buttons">
-        <button class="dashboard-btn" onclick="window.location.href='/dashboard'">Dashboard</button>
-        <button class="back-btn" onclick="window.location.href='/functiondashboard'">Back</button>
+      <div class="text-2xl font-bold text-blue-600">
+        ClickDoc
       </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <button onclick="window.location.href='/dashboard'" class="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2">
+        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+        Dashboard
+      </button>
+      <button onclick="window.location.href='/functiondashboard'" class="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2">
+        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        Back
+      </button>
     </div>
   </header>
 
-  <div class="main-container">
-    <aside class="sidebar">
-      <div class="sidebar-section">
-        <div class="section-title">
-          <div class="status-icon">↑</div>
+  <div class="flex min-h-screen">
+    <!-- Left Sidebar - File Uploaded -->
+    <div class="w-80 bg-white border-r border-gray-200 border-t border-gray-200 shadow-sm">
+      <div class="p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <i data-lucide="folder" class="w-5 h-5 text-blue-600"></i>
           File Uploaded
-        </div>
-        <ul class="file-list">
+        </h3>
+        
+        <div id="uploaded-files" class="space-y-2 max-h-96 overflow-y-auto mb-4">
           {% if files %}
             {% for file in files %}
-              <li class="file-item">
-                <div class="file-icon">📄</div>
-                <span class="file-name">{{ file.name }}</span>
-              </li>
+              <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg group">
+                <i data-lucide="file" class="w-5 h-5 text-gray-500"></i>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-800 truncate">{{ file.name }}</p>
+                </div>
+              </div>
             {% endfor %}
           {% else %}
-            <li class="file-item">
-              <div class="file-icon">📄</div>
-              <span class="file-name">No files uploaded</span>
-            </li>
+            <div class="text-center py-6">
+              <i data-lucide="folder-x" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i>
+              <p class="text-gray-500 text-sm">No files uploaded</p>
+            </div>
           {% endif %}
-        </ul>
+        </div>
+
+        <!-- Hidden file input -->
+        <input type="file" id="file-input" multiple accept=".js,.jsx,.ts,.tsx,.py,.java,.c,.cpp,.h,.cs,.php,.rb,.go,.rs,.swift,.kt,.html,.css,.json,.md,.xml,.yml,.yaml,.properties,.sh,.bash,.sql,.r,.scala,.dart" class="hidden">
+        
+        <!-- Upload More Files -->
+        <button class="w-full bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm" id="upload-more-btn">
+          <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+          Upload More Files
+        </button>
       </div>
-    </aside>
+    </div>
 
-   <main class="content-area">
-      <h1 class="main-title">Validation Documentation</h1>
-      {% if files %}
-        <ul class="file-list-subtitle">
-          <li>Generated for:</li>
-          {% for file in files %}
-            <li>{{ file.name }}</li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p class="subtitle">No files uploaded</p>
-      {% endif %}
+    <!-- Main Content -->
+    <div class="flex-1 border-t border-gray-200 flex flex-col">
+      <div class="p-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Validation Documentation</h1>
+        {% if files %}
+          <p class="text-lg text-gray-600 mb-8">
+            Generated for: 
+            {% for file in files %}
+              {{ file.name }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+          </p>
+        {% else %}
+          <p class="text-lg text-gray-600 mb-8">No files uploaded</p>
+        {% endif %}
+      </div>
 
-      <div class="doc-card">
-        <div class="doc-header">
-          <h3>Generated Documentation</h3>
-        </div>
-        <div class="doc-content">
-          <div id="markdown-content">{{ result | safe }}</div>
-        </div>
-        <div class="actions">
-          <div class="button-group">
-            <button class="action-btn regenerate-btn" onclick="regenerate()">
-              🔄 Regenerate
-            </button>
-            <button class="action-btn download-btn" onclick="showDownloadModal()">
-              ⬇️ Download
-            </button>
+      <!-- Documentation Card -->
+      <div class="flex-1 mx-8 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex flex-col">
+          <!-- Card Header -->
+          <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-lg">
+            <h2 class="text-xl font-semibold flex items-center gap-2">
+              <i data-lucide="shield-check" class="w-6 h-6"></i>
+              Generated Documentation
+            </h2>
+          </div>
+
+          <!-- Card Content -->
+          <div class="flex-1 p-8 overflow-y-auto doc-content" style="max-height: calc(100vh - 400px);">
+            <div id="markdown-content">{{ result | safe }}</div>
+          </div>
+
+          <!-- Actions -->
+          <div class="p-6 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+            <div class="flex justify-center gap-4">
+              <button onclick="regenerate()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                Regenerate
+              </button>
+              <button onclick="showDownloadModal()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
+                <i data-lucide="download" class="w-5 h-5"></i>
+                Download
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </main>
+    </div>
+  </div>
+
+  <!-- Upload Progress Modal -->
+  <div id="upload-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-6 w-96 max-w-90vw">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Uploading Files...</h3>
+      <div class="space-y-3">
+        <div id="upload-progress" class="w-full bg-gray-200 rounded-full h-2">
+          <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <div id="upload-status" class="text-sm text-gray-600">Preparing files...</div>
+      </div>
+    </div>
   </div>
 
   <!-- Download Modal -->
-  <div id="download-modal" class="modal">
-    <div class="modal-content">
-      <button class="modal-close" onclick="closeDownloadModal()">×</button>
-      <h3>Select Download Format</h3>
-      <select id="download-format">
+  <div id="download-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-6 w-96 max-w-90vw">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-800">Select Download Format</h3>
+        <button onclick="closeDownloadModal()" class="text-gray-400 hover:text-gray-600">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+      <select id="download-format" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
         <option value="markdown">Markdown (.md)</option>
         <option value="pdf">PDF (.pdf)</option>
         <option value="word">Word (.docx)</option>
       </select>
-      <button class="modal-btn" onclick="downloadDoc()">Download</button>
+      <button onclick="downloadDoc()" class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+        Download
+      </button>
     </div>
   </div>
 
   <script>
+    let uploadedFiles = [];
+
+    // DOM Elements
+    const uploadMoreBtn = document.getElementById('upload-more-btn');
+    const fileInput = document.getElementById('file-input');
+    const uploadedFilesContainer = document.getElementById('uploaded-files');
+    const uploadModal = document.getElementById('upload-modal');
+    const progressBar = document.getElementById('progress-bar');
+    const uploadStatus = document.getElementById('upload-status');
+
+    // Markdown setup
     marked.setOptions({
       gfm: true,
       breaks: true
     });
 
+    // Load uploaded files from sessionStorage
+    function loadUploadedFiles() {
+      const storedFiles = sessionStorage.getItem('uploadedFiles');
+      
+      if (storedFiles) {
+        uploadedFiles = JSON.parse(storedFiles);
+        displayUploadedFiles();
+      } else {
+        // Fallback - show message if no files found in sessionStorage but files exist from template
+        const templateFiles = document.querySelectorAll('#uploaded-files .group');
+        if (templateFiles.length === 0) {
+          uploadedFilesContainer.innerHTML = `
+            <div class="text-center py-6">
+              <i data-lucide="folder-x" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i>
+              <p class="text-gray-500 text-sm">No files uploaded</p>
+              <button onclick="document.getElementById('file-input').click()" class="text-blue-600 hover:text-blue-800 text-sm mt-2">
+                Upload Files
+              </button>
+            </div>
+          `;
+          lucide.createIcons();
+        }
+      }
+    }
+
+    // Display uploaded files
+    function displayUploadedFiles() {
+      uploadedFilesContainer.innerHTML = '';
+      
+      uploadedFiles.forEach((file, index) => {
+        const fileDiv = document.createElement('div');
+        fileDiv.className = 'flex items-center gap-3 p-3 bg-gray-50 rounded-lg group';
+        
+        fileDiv.innerHTML = `
+          <i data-lucide="${getFileIcon(file.name)}" class="w-5 h-5 ${getFileIconColor(file.name)}"></i>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-gray-800 truncate">${file.name}</p>
+            <p class="text-xs text-gray-500">${formatFileSize(file.size)}</p>
+          </div>
+          <button onclick="removeFile(${index})" class="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 transition-opacity">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        `;
+        
+        uploadedFilesContainer.appendChild(fileDiv);
+      });
+      
+      lucide.createIcons();
+    }
+
+    // Remove file function
+    function removeFile(index) {
+      uploadedFiles.splice(index, 1);
+      sessionStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+      displayUploadedFiles();
+    }
+
+    // Validate file type
+    function isValidFileType(file) {
+      const allowedExtensions = [
+        '.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.json', '.md',
+        '.py', '.java', '.c', '.cpp', '.h', '.cs', '.php', '.rb', '.go', '.rs', '.swift', '.kt',
+        '.xml', '.yml', '.yaml', '.properties', '.sh', '.bash', '.sql',
+        '.r', '.scala', '.dart'
+      ];
+      const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+      return allowedExtensions.includes(fileExt);
+    }
+
+    // Handle file upload
+    async function handleFileUpload(files) {
+      if (files.length === 0) return;
+
+      const allFiles = Array.from(files);
+      const validFiles = [];
+      const invalidFiles = [];
+
+      allFiles.forEach(file => {
+        if (isValidFileType(file)) {
+          validFiles.push(file);
+        } else {
+          invalidFiles.push(file.name);
+        }
+      });
+
+      if (invalidFiles.length > 0) {
+        alert(`❌ The following files are not supported and will be ignored:\n\n${invalidFiles.join('\n')}\n\n✅ Supported code file types:\nJavaScript/TypeScript: .js, .jsx, .ts, .tsx\nPython: .py\nJava: .java\nC/C++: .c, .cpp, .h\nC#: .cs\nPHP: .php\nRuby: .rb\nGo: .go\nRust: .rs\nSwift: .swift\nKotlin: .kt\nWeb: .html, .css\nConfig: .json, .xml, .yml, .yaml, .properties\nScripts: .sh, .bash, .sql\nOther: .r, .scala, .dart, .md`);
+      }
+
+      if (validFiles.length === 0) return;
+
+      uploadModal.classList.remove('hidden');
+      
+      const totalFiles = validFiles.length;
+      let processedFiles = 0;
+
+      for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
+        uploadStatus.textContent = `Processing ${file.name}... (${processedFiles + 1}/${totalFiles})`;
+        
+        try {
+          const existingFileIndex = uploadedFiles.findIndex(f => f.name === file.name);
+          const content = await readFileContent(file);
+          
+          const fileData = {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            content: content,
+            lastModified: file.lastModified,
+            uploadedAt: new Date().toISOString()
+          };
+
+          if (existingFileIndex !== -1) {
+            uploadedFiles[existingFileIndex] = fileData;
+          } else {
+            uploadedFiles.push(fileData);
+          }
+        } catch (error) {
+          console.error(`Error processing file ${file.name}:`, error);
+        }
+        
+        processedFiles++;
+        const progress = (processedFiles / totalFiles) * 100;
+        progressBar.style.width = `${progress}%`;
+      }
+
+      sessionStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+      uploadStatus.textContent = 'Upload completed!';
+      await new Promise(resolve => setTimeout(resolve, 500));
+      uploadModal.classList.add('hidden');
+      displayUploadedFiles();
+      progressBar.style.width = '0%';
+      uploadStatus.textContent = 'Preparing files...';
+    }
+
+    // Read file content
+    async function readFileContent(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          resolve(e.target.result);
+        };
+        reader.onerror = function() {
+          reject(new Error(`Failed to read file: ${file.name}`));
+        };
+        if (file.type === 'application/pdf') {
+          reader.readAsArrayBuffer(file);
+        } else {
+          reader.readAsText(file);
+        }
+      });
+    }
+
+    // Get appropriate icon for file type
+    function getFileIcon(filename) {
+      const ext = filename.split('.').pop().toLowerCase();
+      const iconMap = {
+        'js': 'file-code', 'jsx': 'file-code', 'ts': 'file-code', 'tsx': 'file-code',
+        'html': 'file-text', 'css': 'file-text', 'json': 'file-text',
+        'py': 'file-code', 'java': 'file-code', 'c': 'file-code', 'cpp': 'file-code', 'h': 'file-code',
+        'cs': 'file-code', 'php': 'file-code', 'rb': 'file-code', 'go': 'file-code', 'rs': 'file-code',
+        'swift': 'file-code', 'kt': 'file-code',
+        'xml': 'file-text', 'yml': 'file-text', 'yaml': 'file-text', 'properties': 'file-text',
+        'sh': 'terminal', 'bash': 'terminal', 'sql': 'database',
+        'md': 'file-text', 'r': 'file-code', 'scala': 'file-code', 'dart': 'file-code'
+      };
+      return iconMap[ext] || 'file';
+    }
+
+    // Get appropriate color for file type
+    function getFileIconColor(filename) {
+      const ext = filename.split('.').pop().toLowerCase();
+      const colorMap = {
+        'js': 'text-yellow-600', 'jsx': 'text-yellow-600', 'ts': 'text-blue-600', 'tsx': 'text-blue-600',
+        'html': 'text-red-600', 'css': 'text-purple-600', 'json': 'text-gray-600',
+        'py': 'text-green-600', 'java': 'text-orange-600', 'c': 'text-blue-500', 'cpp': 'text-blue-500', 'h': 'text-blue-500',
+        'cs': 'text-purple-500', 'php': 'text-indigo-600', 'rb': 'text-red-500', 'go': 'text-cyan-600', 'rs': 'text-orange-500',
+        'swift': 'text-orange-400', 'kt': 'text-purple-400',
+        'xml': 'text-green-500', 'yml': 'text-purple-500', 'yaml': 'text-purple-500', 'properties': 'text-gray-500',
+        'sh': 'text-green-700', 'bash': 'text-green-700', 'sql': 'text-blue-700',
+        'md': 'text-blue-500', 'r': 'text-blue-400', 'scala': 'text-red-400', 'dart': 'text-blue-400'
+      };
+      return colorMap[ext] || 'text-gray-500';
+    }
+
+    // Format file size
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Event Listeners
+    uploadMoreBtn.addEventListener('click', function() {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function(e) {
+      if (e.target.files.length > 0) {
+        handleFileUpload(Array.from(e.target.files));
+        e.target.value = '';
+      }
+    });
+
+    // Drag and drop functionality
+    const sidebar = document.querySelector('.w-80');
+    
+    sidebar.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      sidebar.classList.add('bg-blue-50', 'border-blue-300');
+    });
+
+    sidebar.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      sidebar.classList.remove('bg-blue-50', 'border-blue-300');
+    });
+
+    sidebar.addEventListener('drop', function(e) {
+      e.preventDefault();
+      sidebar.classList.remove('bg-blue-50', 'border-blue-300');
+      
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length > 0) {
+        handleFileUpload(files);
+      }
+    });
+
+    // Documentation functions
     document.addEventListener('DOMContentLoaded', function () {
+      lucide.createIcons();
+      loadUploadedFiles();
+      
       const markdownContent = document.getElementById('markdown-content').textContent.trim();
       const parsedHtml = marked.parse(markdownContent);
       document.getElementById('markdown-content').innerHTML = parsedHtml;
-      document.getElementById('markdown-content').dataset.markdown = markdownContent; // Store markdown for downloads
+      document.getElementById('markdown-content').dataset.markdown = markdownContent;
     });
 
     async function regenerate() {
@@ -631,7 +551,7 @@
         const data = await response.json();
         if (data.result) {
           contentDiv.innerHTML = marked.parse(data.result);
-          contentDiv.dataset.markdown = data.result; // Store markdown for downloads
+          contentDiv.dataset.markdown = data.result;
         } else {
           contentDiv.innerHTML = "<p style='color:red;'>Error: could not regenerate.</p>";
         }
@@ -642,12 +562,12 @@
 
     function showDownloadModal() {
       const modal = document.getElementById('download-modal');
-      modal.style.display = 'flex';
+      modal.classList.remove('hidden');
     }
 
     function closeDownloadModal() {
       const modal = document.getElementById('download-modal');
-      modal.style.display = 'none';
+      modal.classList.add('hidden');
     }
 
     async function downloadDoc() {
@@ -657,7 +577,7 @@
       const filename = "{{ filename | safe }}";
       const sanitizedFilename = filename.replace(/\.[^/.]+$/, "") || "documentation";
 
-      closeDownloadModal(); // Close modal after selection
+      closeDownloadModal();
 
       if (format === 'markdown') {
         const blob = new Blob([markdownContent], { type: 'text/markdown' });
@@ -690,11 +610,11 @@
                 new docx.TextRun({
                   text: codeBlockLines.join('\n'),
                   font: 'Courier New',
-                  size: 28, // 14pt
+                  size: 28,
                   color: '374151'
                 })
               ],
-              spacing: { before: 320, after: 480 }, // Match CSS margins
+              spacing: { before: 320, after: 480 },
               border: {
                 left: { style: docx.BorderStyle.SINGLE, size: 12, color: '22c55e' }
               },
@@ -720,7 +640,6 @@
             return;
           }
 
-          // Handle bold and inline code in text
           const textRuns = [];
           let currentText = line;
           while (currentText.length) {
@@ -748,23 +667,23 @@
             children.push(new docx.Paragraph({
               children: textRuns,
               heading: docx.HeadingLevel.HEADING_1,
-              spacing: { before: 480, after: 320 } // Match CSS margins
+              spacing: { before: 480, after: 320 }
             }));
           } else if (line.startsWith('## ')) {
             children.push(new docx.Paragraph({
-              children: textRuns.map(tr => new docx.TextRun({ ...tr, size: 48 })), // 24pt
+              children: textRuns.map(tr => new docx.TextRun({ ...tr, size: 48 })),
               heading: docx.HeadingLevel.HEADING_2,
               spacing: { before: 480, after: 320 }
             }));
           } else if (line.startsWith('### ')) {
             children.push(new docx.Paragraph({
-              children: textRuns.map(tr => new docx.TextRun({ ...tr, size: 40 })), // 20pt
+              children: textRuns.map(tr => new docx.TextRun({ ...tr, size: 40 })),
               heading: docx.HeadingLevel.HEADING_3,
               spacing: { before: 480, after: 320 }
             }));
           } else if (line.startsWith('#### ')) {
             children.push(new docx.Paragraph({
-              children: textRuns.map(tr => new docx.TextRun({ ...tr, size: 36 })), // 18pt
+              children: textRuns.map(tr => new docx.TextRun({ ...tr, size: 36 })),
               heading: docx.HeadingLevel.HEADING_4,
               spacing: { before: 480, after: 320 }
             }));
@@ -789,12 +708,11 @@
           } else if (line) {
             children.push(new docx.Paragraph({
               children: textRuns,
-              spacing: { before: 240, after: 400 } // Match CSS p margins
+              spacing: { before: 240, after: 400 }
             }));
           }
         });
 
-        // Add any remaining code block
         addCodeBlock();
 
         const doc = new docx.Document({
@@ -806,16 +724,16 @@
                 format: docx.NumberFormat.DECIMAL,
                 text: '%1.',
                 alignment: docx.AlignmentType.LEFT,
-                style: { paragraph: { indent: { left: 720 } } } // Match CSS padding-left
+                style: { paragraph: { indent: { left: 720 } } }
               }]
             }]
           },
           styles: {
             default: {
-              heading1: { run: { font: 'Arial', size: 56, bold: true, color: '2d3748' } }, // 28pt
-              heading2: { run: { font: 'Arial', size: 48, bold: true, color: '2d3748' } }, // 24pt
-              heading3: { run: { font: 'Arial', size: 40, bold: true, color: '2d3748' } }, // 20pt
-              heading4: { run: { font: 'Arial', size: 36, bold: true, color: '2d3748' } } // 18pt
+              heading1: { run: { font: 'Arial', size: 56, bold: true, color: '2d3748' } },
+              heading2: { run: { font: 'Arial', size: 48, bold: true, color: '2d3748' } },
+              heading3: { run: { font: 'Arial', size: 40, bold: true, color: '2d3748' } },
+              heading4: { run: { font: 'Arial', size: 36, bold: true, color: '2d3748' } }
             }
           },
           sections: [{
