@@ -6,6 +6,7 @@ from relationship import relationship
 from setup import setup 
 from tech_stack import tech_stack 
 from diagram import diagram
+from chatbot import chatbot1
 
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -19,6 +20,7 @@ app.register_blueprint(relationship)
 app.register_blueprint(setup)
 app.register_blueprint(tech_stack)
 app.register_blueprint(diagram)
+app.register_blueprint(chatbot1)
 
 
 # Route for home page (static home.html)
@@ -45,7 +47,6 @@ def set_files():
         return jsonify({'status': 'success'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 
 if __name__ == '__main__':
     app.run(debug=True)
