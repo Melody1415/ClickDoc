@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ClickDoc - AI Code Assistant</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='chatbot.css') }}">
+    <link rel="stylesheet" href="static/chatbot.css">
 </head>
 <body>
     <!-- Header -->
@@ -14,11 +14,11 @@
             <span class="logo-text">ClickDoc</span>
         </div>
         <nav class="nav-section">
-            <a href="/" class="nav-item">
+            <a href="/dashboard" class="nav-item">
                 <div class="nav-icon">📊</div>
                 Dashboard
             </a>
-            <a href="#" class="nav-item">
+            <a href="/" class="nav-item">
                 <div class="nav-icon">🏠</div>
                 Home
             </a>
@@ -97,6 +97,6 @@
     </script>
     
     <!-- Load main JavaScript -->
-     <script src="{{ url_for('static', filename='chatbot.js') }}"></script>
+    <script src="static/chatbot.js"></script>
 </body>
 </html>

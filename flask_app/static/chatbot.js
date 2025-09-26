@@ -184,11 +184,11 @@ function addFilesToConversation() {
                     </div>
                     <p class="ready-prompt">You can ask me to:</p>
                     <ul class="capability-list">
-                        <li>📖 Explain what any file does</li>
-                        <li>🔍 Analyze the code structure</li>
-                        <li>🐛 Find potential issues or bugs</li>
-                        <li>💡 Suggest improvements</li>
-                        <li>❓ Answer any specific questions about the code</li>
+                        <li onclick="sendPresetMessage('📖 Explain what any file does')">📖 Explain what any file does</li>
+                        <li onclick="sendPresetMessage('🔍 Analyze the code structure')">🔍 Analyze the code structure</li>
+                        <li onclick="sendPresetMessage('🐛 Find potential issues or bugs')">🐛 Find potential issues or bugs</li>
+                        <li onclick="sendPresetMessage('💡 Suggest improvements')">💡 Suggest improvements</li>
+                        <li onclick="sendPresetMessage('❓ Answer any specific questions about the code')">❓ Answer any specific questions about the code</li>
                     </ul>
                     <p class="start-prompt">What would you like to know about your code?</p>
                 </div>
@@ -373,6 +373,16 @@ function startNewConversation() {
             
             chatArea.classList.add('initial-state');
         }
+    }
+}
+
+// Handle preset message sending from capability list
+function sendPresetMessage(message) {
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+        chatInput.value = message;
+        // Trigger the send message function
+        sendMessage();
     }
 }
 
