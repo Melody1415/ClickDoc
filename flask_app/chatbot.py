@@ -1,12 +1,22 @@
 from flask import Blueprint, request, render_template, jsonify, session
 from flask_cors import CORS
 from groq import Groq
+from dotenv import load_dotenv
+import os
 import json
+
 
 chatbot1 = Blueprint('chatbot', __name__)
 CORS(chatbot1)  # Enable CORS for all routes
 
-GROQ_API_KEY = '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'
+load_dotenv()
+
+# Get API key securely
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
+if not GROQ_API_KEY:
+    raise ValueError("GROQ_API_KEY is missing! Please set it in the .env file.")
+
 client = Groq(api_key=GROQ_API_KEY)
 
 # Store conversations in memory (use a database in production)

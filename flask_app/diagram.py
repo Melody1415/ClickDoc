@@ -2,9 +2,17 @@ from flask import Blueprint, request, render_template, session, redirect, url_fo
 from groq import Groq
 import os
 import re
+from dotenv import load_dotenv
 
 diagram = Blueprint('diagram', __name__)
-GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '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')
+
+load_dotenv()
+
+# Get API key securely
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
+if not GROQ_API_KEY:
+    raise ValueError("GROQ_API_KEY is missing! Please set it in the .env file.")
 client = Groq(api_key=GROQ_API_KEY)
 
 # Mermaid syntax validation

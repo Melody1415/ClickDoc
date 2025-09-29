@@ -7,9 +7,11 @@ from setup import setup
 from tech_stack import tech_stack
 from diagram import diagram 
 from chatbot import chatbot1
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key_here'  # Replace with a secure random key later
+
 app.register_blueprint(bp_dashboard)
 app.register_blueprint(generate)
 app.register_blueprint(validation)

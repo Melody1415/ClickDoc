@@ -1,9 +1,18 @@
 from flask import Blueprint, render_template, session, redirect, url_for, jsonify, current_app
 from groq import Groq
+from dotenv import load_dotenv
+import os
 
 validation = Blueprint('validation', __name__)
 
-GROQ_API_KEY = "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"
+load_dotenv()
+
+# Get API key securely
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
+if not GROQ_API_KEY:
+    raise ValueError("GROQ_API_KEY is missing! Please set it in the .env file.")
+
 client = Groq(api_key=GROQ_API_KEY)
 
 @validation.route('/validation_documentation')
