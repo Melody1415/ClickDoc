@@ -94,10 +94,19 @@
         </div>
     </div>
 
-    <!-- Initialize files from server -->
+    <!-- Initialize files from server - FIXED -->
     <script>
-        window.serverFiles = {{ files_json|safe }};
-        console.log('Files loaded from server:', window.serverFiles ? window.serverFiles.length : 0);
+        // Parse server files safely
+        (function() {
+            try {
+                var filesJsonString = '{{ files_json|safe }}';
+                window.serverFiles = JSON.parse(filesJsonString);
+                console.log('Files loaded from server:', window.serverFiles ? window.serverFiles.length : 0);
+            } catch (e) {
+                console.error('Error parsing server files:', e);
+                window.serverFiles = [];
+            }
+        })();
     </script>
     <script src="static/chatbot.js"></script>
 </body>

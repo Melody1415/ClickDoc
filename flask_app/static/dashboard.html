@@ -72,7 +72,7 @@
                                 </div>
                             </div>
                             <button id="start-documentation-btn" 
-                            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors w-52">
                             Start Documentation
                             </button>
                         </div>
@@ -88,7 +88,7 @@
                                     <p class="text-sm text-gray-600">Ask AI About Your Code</p>
                                 </div>
                             </div>
-                            <button id="start-chat-btn" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                            <button id="start-chat-btn" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors w-52">
                                 Start Chat
                             </button>
                         </div>
@@ -104,7 +104,7 @@
                                     <p class="text-sm text-gray-600">Visualize dependencies, modules, and code flows.</p>
                                 </div>
                             </div>
-                            <button id="create-diagram-btn" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                            <button id="create-diagram-btn" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors w-52">
                                 Create Diagram
                             </button>
                         </div>
@@ -445,7 +445,7 @@
 
                     if (response.ok) {
                         console.log('Files sent successfully:', responseData);
-                        window.location.href = '/functiondashboard';  // redirect after success
+                        window.location.href = '/functiondashboard';
                     } else {
                         console.error('Error from server:', responseData);
                         alert(`Failed to send files to the server: ${responseData.error || 'Unknown error'}`);
@@ -473,7 +473,7 @@
 
                     if (response.ok) {
                         console.log('Files sent successfully:', responseData);
-                        window.location.href = '/diagram_page';  // redirect after success
+                        window.location.href = '/diagram_page';
                     } else {
                         console.error('Error from server:', responseData);
                         alert(`Failed to send files to the server: ${responseData.error || 'Unknown error'}`);
@@ -501,7 +501,7 @@
 
                     if (response.ok) {
                         console.log('Files sent successfully:', responseData);
-                       window.location.href = '/chatbot';  // redirect after success
+                       window.location.href = '/chatbot';
                     } else {
                         console.error('Error from server:', responseData);
                         alert(`Failed to send files to the server: ${responseData.error || 'Unknown error'}`);

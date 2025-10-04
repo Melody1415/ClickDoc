@@ -69,24 +69,7 @@
                 </h3>
                 
                 <div id="uploaded-files" class="space-y-2 max-h-96 overflow-y-auto mb-4">
-                    {% if indexed_files %}
-                        {% for file in indexed_files %}
-                            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg group cursor-pointer hover:bg-blue-50 transition-colors {% if file.index == file_index %}bg-blue-100 border border-blue-300{% endif %}" onclick="updateFile({{ file.index }})">
-                                <i data-lucide="file" class="w-5 h-5 text-gray-500"></i>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-medium text-gray-800 truncate">{{ file.name }}</p>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="text-center py-6">
-                            <i data-lucide="folder-x" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i>
-                            <p class="text-gray-500 text-sm">No files uploaded</p>
-                            <button onclick="window.location.href='/dashboard'" class="text-blue-600 hover:text-blue-800 text-sm mt-2">
-                                Upload Files
-                            </button>
-                        </div>
-                    {% endif %}
+                    <!-- Files will be populated dynamically -->
                 </div>
 
                 <!-- Hidden file input for additional uploads -->
@@ -215,10 +198,12 @@
         let uploadedFiles = [];
         let zoomLevel = 1;
         const zoomSteps = [0.5, 0.75, 1, 1.2, 1.5, 2];
+        let selectedFileIndex = {{ file_index }};
 
         // DOM Elements
         const uploadMoreBtn = document.getElementById('upload-more-btn');
         const fileInput = document.getElementById('file-input');
+        const uploadedFilesContainer = document.getElementById('uploaded-files');
         const uploadModal = document.getElementById('upload-modal');
         const progressBarModal = document.getElementById('progress-bar');
         const uploadStatus = document.getElementById('upload-status');
@@ -264,6 +249,87 @@
                 } catch (err) {
                     showError('Error rendering diagram. Please try regenerating.');
                 }
+            }
+        }
+
+        // Load uploaded files from sessionStorage
+        function loadUploadedFiles() {
+            const storedFiles = sessionStorage.getItem('uploadedFiles');
+            
+            if (storedFiles) {
+                uploadedFiles = JSON.parse(storedFiles);
+                displayUploadedFiles();
+            } else {
+                displayEmptyState();
+            }
+        }
+
+        // Display empty state when no files
+        function displayEmptyState() {
+            uploadedFilesContainer.innerHTML = `
+                <div class="text-center py-6">
+                    <i data-lucide="folder-x" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i>
+                    <p class="text-gray-500 text-sm">No files uploaded</p>
+                    <button onclick="document.getElementById('file-input').click()" class="text-blue-600 hover:text-blue-800 text-sm mt-2">
+                        Upload Files
+                    </button>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        // Display uploaded files with proper icons and colors
+        function displayUploadedFiles() {
+            if (uploadedFiles.length === 0) {
+                displayEmptyState();
+                return;
+            }
+
+            uploadedFilesContainer.innerHTML = '';
+            
+            uploadedFiles.forEach((file, index) => {
+                const fileDiv = document.createElement('div');
+                const isSelected = index === selectedFileIndex;
+                fileDiv.className = `flex items-center gap-3 p-3 rounded-lg group cursor-pointer transition-colors ${
+                    isSelected ? 'bg-blue-100 border border-blue-300' : 'bg-gray-50 hover:bg-blue-50'
+                }`;
+                fileDiv.onclick = () => updateFile(index);
+                
+                fileDiv.innerHTML = `
+                    <i data-lucide="${getFileIcon(file.name)}" class="w-5 h-5 ${getFileIconColor(file.name)}"></i>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-800 truncate">${file.name}</p>
+                        <p class="text-xs text-gray-500">${formatFileSize(file.size)}</p>
+                    </div>
+                    <button onclick="event.stopPropagation(); removeFile(${index})" class="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 transition-opacity">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                `;
+                
+                uploadedFilesContainer.appendChild(fileDiv);
+            });
+            
+            lucide.createIcons();
+        }
+
+        // Remove file function
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            sessionStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+            
+            // Adjust selected index if needed
+            if (selectedFileIndex === index) {
+                selectedFileIndex = uploadedFiles.length > 0 ? 0 : -1;
+            } else if (selectedFileIndex > index) {
+                selectedFileIndex--;
+            }
+            
+            displayUploadedFiles();
+            
+            if (uploadedFiles.length === 0) {
+                window.location.href = '/diagram_page';
+            } else if (selectedFileIndex !== {{ file_index }}) {
+                updateFile(selectedFileIndex);
             }
         }
 
@@ -339,15 +405,7 @@
             }
         }
 
-        // Load uploaded files from sessionStorage
-        function loadUploadedFiles() {
-            const storedFiles = sessionStorage.getItem('uploadedFiles');
-            if (storedFiles) {
-                uploadedFiles = JSON.parse(storedFiles);
-            }
-        }
-
-        // File handling functions (same as setup documentation)
+        // File handling functions
         function isValidFileType(file) {
             const allowedExtensions = [
                 '.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.json', '.md',
@@ -363,11 +421,19 @@
             if (files.length === 0) return;
 
             const allFiles = Array.from(files);
-            const validFiles = allFiles.filter(file => isValidFileType(file));
-            const invalidFiles = allFiles.filter(file => !isValidFileType(file));
+            const validFiles = [];
+            const invalidFiles = [];
+
+            allFiles.forEach(file => {
+                if (isValidFileType(file)) {
+                    validFiles.push(file);
+                } else {
+                    invalidFiles.push(file.name);
+                }
+            });
 
             if (invalidFiles.length > 0) {
-                alert(`The following files are not supported and will be ignored:\n\n${invalidFiles.map(f => f.name).join('\n')}`);
+                alert(`The following files are not supported and will be ignored:\n\n${invalidFiles.join('\n')}\n\nSupported code file types:\nJavaScript/TypeScript: .js, .jsx, .ts, .tsx\nPython: .py\nJava: .java\nC/C++: .c, .cpp, .h\nC#: .cs\nPHP: .php\nRuby: .rb\nGo: .go\nRust: .rs\nSwift: .swift\nKotlin: .kt\nWeb: .html, .css\nConfig: .json, .xml, .yml, .yaml, .properties\nScripts: .sh, .bash, .sql\nOther: .r, .scala, .dart, .md`);
             }
 
             if (validFiles.length === 0) return;
@@ -382,7 +448,9 @@
                 uploadStatus.textContent = `Processing ${file.name}... (${processedFiles + 1}/${totalFiles})`;
                 
                 try {
+                    const existingFileIndex = uploadedFiles.findIndex(f => f.name === file.name);
                     const content = await readFileContent(file);
+                    
                     const fileData = {
                         name: file.name,
                         size: file.size,
@@ -391,7 +459,12 @@
                         lastModified: file.lastModified,
                         uploadedAt: new Date().toISOString()
                     };
-                    uploadedFiles.push(fileData);
+
+                    if (existingFileIndex !== -1) {
+                        uploadedFiles[existingFileIndex] = fileData;
+                    } else {
+                        uploadedFiles.push(fileData);
+                    }
                 } catch (error) {
                     console.error(`Error processing file ${file.name}:`, error);
                 }
@@ -416,8 +489,53 @@
                 reader.onerror = function() {
                     reject(new Error(`Failed to read file: ${file.name}`));
                 };
-                reader.readAsText(file);
+                if (file.type === 'application/pdf') {
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    reader.readAsText(file);
+                }
             });
+        }
+
+        // Get appropriate icon for file type
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const iconMap = {
+                'js': 'file-code', 'jsx': 'file-code', 'ts': 'file-code', 'tsx': 'file-code',
+                'html': 'file-text', 'css': 'file-text', 'json': 'file-text',
+                'py': 'file-code', 'java': 'file-code', 'c': 'file-code', 'cpp': 'file-code', 'h': 'file-code',
+                'cs': 'file-code', 'php': 'file-code', 'rb': 'file-code', 'go': 'file-code', 'rs': 'file-code',
+                'swift': 'file-code', 'kt': 'file-code',
+                'xml': 'file-text', 'yml': 'file-text', 'yaml': 'file-text', 'properties': 'file-text',
+                'sh': 'terminal', 'bash': 'terminal', 'sql': 'database',
+                'md': 'file-text', 'r': 'file-code', 'scala': 'file-code', 'dart': 'file-code'
+            };
+            return iconMap[ext] || 'file';
+        }
+
+        // Get appropriate color for file type
+        function getFileIconColor(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const colorMap = {
+                'js': 'text-yellow-600', 'jsx': 'text-yellow-600', 'ts': 'text-blue-600', 'tsx': 'text-blue-600',
+                'html': 'text-red-600', 'css': 'text-purple-600', 'json': 'text-gray-600',
+                'py': 'text-green-600', 'java': 'text-orange-600', 'c': 'text-blue-500', 'cpp': 'text-blue-500', 'h': 'text-blue-500',
+                'cs': 'text-purple-500', 'php': 'text-indigo-600', 'rb': 'text-red-500', 'go': 'text-cyan-600', 'rs': 'text-orange-500',
+                'swift': 'text-orange-400', 'kt': 'text-purple-400',
+                'xml': 'text-green-500', 'yml': 'text-purple-500', 'yaml': 'text-purple-500', 'properties': 'text-gray-500',
+                'sh': 'text-green-700', 'bash': 'text-green-700', 'sql': 'text-blue-700',
+                'md': 'text-blue-500', 'r': 'text-blue-400', 'scala': 'text-red-400', 'dart': 'text-blue-400'
+            };
+            return colorMap[ext] || 'text-gray-500';
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
         // Event Listeners
@@ -429,6 +547,29 @@
             if (e.target.files.length > 0) {
                 handleFileUpload(Array.from(e.target.files));
                 e.target.value = '';
+            }
+        });
+
+        // Drag and drop functionality
+        const sidebar = document.querySelector('.w-80');
+        
+        sidebar.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            sidebar.classList.add('bg-blue-50', 'border-blue-300');
+        });
+
+        sidebar.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            sidebar.classList.remove('bg-blue-50', 'border-blue-300');
+        });
+
+        sidebar.addEventListener('drop', function(e) {
+            e.preventDefault();
+            sidebar.classList.remove('bg-blue-50', 'border-blue-300');
+            
+            const files = Array.from(e.dataTransfer.files);
+            if (files.length > 0) {
+                handleFileUpload(files);
             }
         });
 
