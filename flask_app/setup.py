@@ -3,7 +3,7 @@ from groq import Groq
 from dotenv import load_dotenv
 import os
 
-generate = Blueprint('generate', __name__)
+setup = Blueprint('setup', __name__)
 
 load_dotenv()
 
@@ -15,8 +15,8 @@ if not GROQ_API_KEY:
 
 client = Groq(api_key=GROQ_API_KEY)
 
-@generate.route('/function_documentation')
-def function_documentation():
+@setup.route('/setup_documentation')
+def setup_documentation():
     files = session.get('files', [])
     if not files:
         current_app.logger.warning("No files found in session for /function_documentation")
@@ -34,16 +34,16 @@ def function_documentation():
             combined_result += f"## {filename}\nNo content available for documentation\n\n"
             continue
 
-        prompt = f"""Analyze this code and generate a structured documentation in markdown format with the following sections:
-        - **Code Structure**: Provide a high-level overview of how the code is organized (e.g., functions and their relationships).
-        - **Code Overview**: Describe the general purpose of the program and how to use it.
-        - **List of Functions**: Provide a numbered list of all functions (e.g., 1. process_data, 2. validate_input).
-        - **Explanation of Functions**: For each function, include:
-          - Purpose: What the function does.
-          - Parameters: List and describe all parameters.
-          - Return Values: Describe what the function returns.
-          - Example: Provide a code example with expected output.
-        Ensure the output is well-organized and follows this exact structure. Include a header with the filename '{filename}' at the start of the documentation. Here is the code to analyze:\n\n{content}"""
+        # Prompt for setup documentation
+        prompt = f"""Analyze this code and determine if it requires a setup guide (e.g., dependencies to install, environment configuration, or steps to run). If setup is required, generate a structured setup guide in markdown format with the following sections:
+        - **Setup Overview**: Provide a high-level overview of the setup process and requirements.
+        - **Installation Steps**: List detailed steps to install dependencies (e.g., pip install for Python packages).
+        - **Configuration**: Describe any configuration needed (e.g., environment variables, folders to create).
+        - **Running the Code**: Provide step-by-step instructions on how to run the code, including commands.
+        Ensure the output is concise, well-organized, and follows this exact structure.
+
+        Here is the code to analyze:\n\n{content}"""    
+
 
         try:
             chat_completion = client.chat.completions.create(
@@ -64,10 +64,10 @@ def function_documentation():
         combined_result = "No documentation generated for any files."
 
     # Pass the combined result and list of files to the template
-    return render_template('function_documentation.html', result=combined_result, files=files)
+    return render_template('setup_documentation.html', result=combined_result, files=files)
 
-@generate.route('/api/regenerate_doc', methods=['POST'])
-def regenerate_doc():
+@setup.route('/api/regenerate_setup', methods=['POST'])
+def regenerate_setup():
     files = session.get('files', [])
     if not files:
         current_app.logger.warning("No files found in session for /api/regenerate_doc")
@@ -85,16 +85,14 @@ def regenerate_doc():
             combined_result += f"## {filename}\nNo content available for documentation\n\n"
             continue
 
-        prompt = f"""Analyze this code and generate a structured documentation in markdown format with the following sections:
-        - **Code Structure**: Provide a high-level overview of how the code is organized (e.g., functions and their relationships).
-        - **Code Overview**: Describe the general purpose of the program and how to use it.
-        - **List of Functions**: Provide a numbered list of all functions (e.g., 1. process_data, 2. validate_input).
-        - **Explanation of Functions**: For each function, include:
-          - Purpose: What the function does.
-          - Parameters: List and describe all parameters.
-          - Return Values: Describe what the function returns.
-          - Example: Provide a code example with expected output.
-        Ensure the output is well-organized and follows this exact structure. Include a header with the filename '{filename}' at the start of the documentation. Here is the code to analyze:\n\n{content}"""
+        prompt = f"""Analyze this code and determine if it requires a setup guide (e.g., dependencies to install, environment configuration, or steps to run). If setup is required, generate a structured setup guide in markdown format with the following sections:
+        - **Setup Overview**: Provide a high-level overview of the setup process and requirements.
+        - **Installation Steps**: List detailed steps to install dependencies (e.g., pip install for Python packages).
+        - **Configuration**: Describe any configuration needed (e.g., environment variables, folders to create).
+        - **Running the Code**: Provide step-by-step instructions on how to run the code, including commands.
+        Ensure the output is concise, well-organized, and follows this exact structure.
+
+        Here is the code to analyze:\n\n{content}"""
 
         try:
             chat_completion = client.chat.completions.create(

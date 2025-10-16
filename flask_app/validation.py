@@ -3,7 +3,7 @@ from groq import Groq
 from dotenv import load_dotenv
 import os
 
-generate = Blueprint('generate', __name__)
+validation = Blueprint('validation', __name__)
 
 load_dotenv()
 
@@ -15,8 +15,8 @@ if not GROQ_API_KEY:
 
 client = Groq(api_key=GROQ_API_KEY)
 
-@generate.route('/function_documentation')
-def function_documentation():
+@validation.route('/validation_documentation')
+def validation_documentation():
     files = session.get('files', [])
     if not files:
         current_app.logger.warning("No files found in session for /function_documentation")
@@ -34,16 +34,22 @@ def function_documentation():
             combined_result += f"## {filename}\nNo content available for documentation\n\n"
             continue
 
-        prompt = f"""Analyze this code and generate a structured documentation in markdown format with the following sections:
-        - **Code Structure**: Provide a high-level overview of how the code is organized (e.g., functions and their relationships).
-        - **Code Overview**: Describe the general purpose of the program and how to use it.
-        - **List of Functions**: Provide a numbered list of all functions (e.g., 1. process_data, 2. validate_input).
-        - **Explanation of Functions**: For each function, include:
-          - Purpose: What the function does.
-          - Parameters: List and describe all parameters.
-          - Return Values: Describe what the function returns.
-          - Example: Provide a code example with expected output.
-        Ensure the output is well-organized and follows this exact structure. Include a header with the filename '{filename}' at the start of the documentation. Here is the code to analyze:\n\n{content}"""
+         # Prompt for validation documentation
+        prompt = f"""Analyze this code and determine if it contains a form (e.g., HTML form elements or form-related validation logic). If it is a form, generate a structured documentation in markdown format with the following sections:
+        - **Form Overview**: Describe the purpose of the form and its general validation approach.
+        - **Field Validations**: List each field with:
+        - **Field Name**: The name or identifier of the field.
+        - **Validation Rules**: Specify required rules (e.g., required, min/max length, pattern, data type).
+        - **Error Handling**: Describe how errors are handled or displayed.
+        - **Example**: Provide an example of valid and invalid input with expected outcomes.
+        Ensure the output is well-organized and focuses on form validation details.
+
+        If the code is not a form, check for any general validation logic (e.g., data type checks, range validation). If no validation is detected, return the message: "Since this is not a form file, no validation detected." If validation logic is present, generate a structured documentation with:
+        - **Validation Overview**: Summarize the purpose and scope of the validation.
+        - **Validation Rules**: List detected validation checks (e.g., type, range, conditions) with descriptions.
+        - **Example**: Provide an example of the validation in action with expected outcomes.
+        Ensure the output is well-organized and focuses on form validation details.
+        Here is the code to analyze:\n\n{content}""" 
 
         try:
             chat_completion = client.chat.completions.create(
@@ -64,10 +70,10 @@ def function_documentation():
         combined_result = "No documentation generated for any files."
 
     # Pass the combined result and list of files to the template
-    return render_template('function_documentation.html', result=combined_result, files=files)
+    return render_template('validation_documentation.html', result=combined_result, files=files)
 
-@generate.route('/api/regenerate_doc', methods=['POST'])
-def regenerate_doc():
+@validation.route('/api/regenerate_validation', methods=['POST'])
+def regenerate_validation():
     files = session.get('files', [])
     if not files:
         current_app.logger.warning("No files found in session for /api/regenerate_doc")
@@ -85,16 +91,21 @@ def regenerate_doc():
             combined_result += f"## {filename}\nNo content available for documentation\n\n"
             continue
 
-        prompt = f"""Analyze this code and generate a structured documentation in markdown format with the following sections:
-        - **Code Structure**: Provide a high-level overview of how the code is organized (e.g., functions and their relationships).
-        - **Code Overview**: Describe the general purpose of the program and how to use it.
-        - **List of Functions**: Provide a numbered list of all functions (e.g., 1. process_data, 2. validate_input).
-        - **Explanation of Functions**: For each function, include:
-          - Purpose: What the function does.
-          - Parameters: List and describe all parameters.
-          - Return Values: Describe what the function returns.
-          - Example: Provide a code example with expected output.
-        Ensure the output is well-organized and follows this exact structure. Include a header with the filename '{filename}' at the start of the documentation. Here is the code to analyze:\n\n{content}"""
+        prompt = f"""Analyze this code and determine if it contains a form (e.g., HTML form elements or form-related validation logic). If it is a form, generate a structured documentation in markdown format with the following sections:
+        - **Form Overview**: Describe the purpose of the form and its general validation approach.
+        - **Field Validations**: List each field with:
+        - **Field Name**: The name or identifier of the field.
+        - **Validation Rules**: Specify required rules (e.g., required, min/max length, pattern, data type).
+        - **Error Handling**: Describe how errors are handled or displayed.
+        **Example**: Provide an example of valid and invalid input with expected outcomes.
+        Ensure the output is well-organized and focuses on form validation details.
+
+        If the code is not a form, check for any general validation logic (e.g., data type checks, range validation). If no validation is detected, return the message: "Since this is not a form file, no validation detected." If validation logic is present, generate a structured documentation with:
+        - **Validation Overview**: Summarize the purpose and scope of the validation.
+        - **Validation Rules**: List detected validation checks (e.g., type, range, conditions) with descriptions.
+        - **Example**: Provide an example of the validation in action with expected outcomes.
+        Ensure the output is well-organized and focuses on form validation details.
+        Here is the code to analyze:\n\n{content}"""
 
         try:
             chat_completion = client.chat.completions.create(
