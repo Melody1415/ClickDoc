@@ -1,18 +1,14 @@
-from flask import Blueprint, request, render_template, session, redirect, url_for
+from flask import Flask, request, render_template, session, redirect, url_for
 from groq import Groq
 import os
+import base64
 import re
-from dotenv import load_dotenv
+import json
 
-diagram = Blueprint('diagram', __name__)
-
-load_dotenv()
-
-# Get API key securely
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-
-if not GROQ_API_KEY:
-    raise ValueError("GROQ_API_KEY is missing! Please set it in the .env file.")
+app = Flask(__name__)
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'yoursecretkey')  # Use env var for security
+# Your Groq API key here
+GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 
 # Mermaid syntax validation
@@ -28,6 +24,7 @@ def is_valid_mermaid(code, diagram_type):
     if diagram_type == 'component' and not code.startswith('flowchart TD'):
         return False
     
+    # Check for common syntax issues
     if diagram_type == 'flow':
         if 'subgraph' in code and code.count('subgraph') != code.count('end'):
             return False
@@ -39,10 +36,11 @@ def is_valid_mermaid(code, diagram_type):
         if not re.search(r'->>|-->>|-->|-\+>|--\+>', code):
             return False
     elif diagram_type == 'component':
-        if not re.search(r'\w+\["\w.*"\]', code):
+        if not re.search(r'\w+\["\w.*"\]', code):  # Check for nodes like main["Main Function"]
             return False
         if not re.search(r'-->\|?.*\|?', code):
             return False
+        # CRITICAL: Check for C4 syntax and reject it
         if re.search(r'component\s*\[', code) or re.search(r'as\s+\w+', code):
             return False
     elif diagram_type == 'class':
@@ -50,46 +48,57 @@ def is_valid_mermaid(code, diagram_type):
             return False
     return True
 
-@diagram.route('/diagram_page', methods=['GET', 'POST'])
-def diagram_page():
-    # Check for session['files'] or convert session['file'] to session['files']
-    files = session.get('files', [])
-    if not files and 'file' in session:
-        file_dict = session['file']
-        if file_dict:
-            filename, content = next(iter(file_dict.items()))
-            files = [{'name': filename, 'content': content}]
-            session['files'] = files
-            session.pop('file', None)  # Clean up session['file']
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return render_template('index.html', error="No file uploaded!")
+        file = request.files['file']
+        if file.filename == '':
+            return render_template('index.html', error="No file selected!")
+        
+        try:
+            content_bytes = file.read()
+            content = content_bytes.decode('utf-8').strip()
+            if not content:
+                return render_template('index.html', error="Uploaded file is empty!")
+        except UnicodeDecodeError:
+            return render_template('index.html', error="Error: File must be text (e.g., .py, .txt, .js, .md, .cpp, .h)!")
+        except Exception as e:
+            return render_template('index.html', error=f"Error processing file: {str(e)}")
+        
+        session['file_content'] = base64.b64encode(content_bytes).decode('utf-8')
+        session['filename'] = file.filename
+        session['regen_count'] = 0  # Initialize regen count
+        session['previous_mermaid'] = ''  # Initialize previous Mermaid code
+        return redirect(url_for('diagram_page'))
     
-    # Create indexed_files for template
-    indexed_files = [{'index': i, 'name': f.get('name', 'Unknown'), 'content': f.get('content', '')} for i, f in enumerate(files)]
+    return render_template('index.html', error=None)
 
-    # Set default file_index to 0 if files exist, otherwise -1
-    if files:
-        file_index = request.args.get('file_index', 0, type=int)  # Default to 0 for GET
-        if request.method == 'POST':
-            file_index = int(request.form.get('file_index', 0))
-        # Validate file_index
-        if file_index < 0 or file_index >= len(files):
-            file_index = 0  # Default to first file
-        selected_file = files[file_index]
-    else:
-        file_index = -1  # No files available
-        selected_file = None
-
+@app.route('/diagram', methods=['GET', 'POST'])
+def diagram_page():
+    if 'file_content' not in session or 'filename' not in session:
+        return redirect(url_for('index'))
+    
     output_type = request.args.get('output_type', 'flow')
+
     if request.method == 'POST':
         output_type = request.form.get('output_type', output_type)
         is_regenerate = request.form.get('regenerate') == '1'
-
-        # Only proceed with diagram generation if explicitly triggered
-        if not files or file_index == -1:
-            return render_template('diagram_page.html', error="No valid file selected!", indexed_files=indexed_files, file_index=file_index, output_type=output_type)
-
+        
+        try:
+            content_bytes = base64.b64decode(session['file_content'])
+            content = content_bytes.decode('utf-8').strip()
+            if not content:
+                return render_template('diagram_page.html', error="Session file is empty!", output_type=output_type, filename=session['filename'], file_content='')
+        except Exception as e:
+            return render_template('diagram_page.html', error=f"Error decoding session file: {str(e)}", output_type=output_type, filename=session['filename'], file_content='')
+        
+        # Increment regen count for regeneration
         if is_regenerate:
             session['regen_count'] = session.get('regen_count', 0) + 1
-
+        
+        # Build regeneration prompt
         prompt_extra = ""
         if is_regenerate:
             prompt_extra = f"""
@@ -102,12 +111,6 @@ Previous Mermaid code (if available): {session.get('previous_mermaid', 'None')}
 """
             if session.get('regen_count', 0) > 2:
                 prompt_extra += "\nMultiple regenerations detected—simplify the diagram: reduce nodes, focus on high-level structure."
-
-        # Get file content for the selected file
-        selected_file = files[file_index]
-        content = selected_file.get('content', '').strip()
-        if not content:
-            return render_template('diagram_page.html', error="Selected file is empty!", indexed_files=indexed_files, file_index=file_index, output_type=output_type)
 
         prompt = f"""
 IMPORTANT: OUTPUT ONLY VALID MERMAID CODE FOR '{output_type}'. NO EXPLANATIONS, NO TEXT ANALYSIS, NO EXTRA WORDS, NO COMMENTS. OUTPUT ONLY THE CODE. The code MUST be parseable by Mermaid without errors.
@@ -141,12 +144,13 @@ Match the code's structure exactly. For loops, use backward edges. For condition
 
 Code to analyze:\n\n{content}
 """
+        
         try:
-            temperature = 0.7 if is_regenerate else 0.0
+            temperature = 0.7 if is_regenerate else 0.0  # Higher for regeneration
             chat_completion = client.chat.completions.create(
                 messages=[
                     {
-                        "role": "system",
+                        "role": "system", 
                         "content": "You are a helpful code documentation assistant. For component diagrams, use ONLY standard Mermaid flowchart syntax. NEVER use C4 PlantUML syntax like 'component [name] as label'."
                     },
                     {"role": "user", "content": prompt},
@@ -156,37 +160,35 @@ Code to analyze:\n\n{content}
                 temperature=temperature
             )
             ai_response = chat_completion.choices[0].message.content.strip()
-
-            ai_response = re.sub(r'```mermaid\s*', '', ai_response, flags=re.DOTALL)
+            
+            # Clean the response
+            ai_response = re.sub(r'```mermaid', '', ai_response)
             ai_response = re.sub(r'```\s*', '', ai_response).strip()
-
-            ai_response = re.sub(r'-->(?=\S)', '--> ', ai_response)
-            ai_response = re.sub(r'(\w+)\s+([[{(\["])', r'\1\2', ai_response)
-            ai_response = re.sub(r'"\s*([^"]*?)\s*"', r'"\1"', ai_response)
-            ai_response = re.sub(r'\("\s*([^"]*?)\s*"\)', r'(\1)', ai_response)
-
+            
+            # Auto-fix common syntax errors
+            ai_response = re.sub(r'-->(?=\S)', '--> ', ai_response)  # Add missing spaces after arrows
+            ai_response = re.sub(r'(\w+)\s+([[{(\["])', r'\1\2', ai_response)  # Remove spaces between node ID and shape/label start
+            ai_response = re.sub(r'"\s*([^"]*?)\s*"', r'"\1"', ai_response)  # Trim spaces inside quoted labels
+            ai_response = re.sub(r'\("\s*([^"]*?)\s*"\)', r'(\1)', ai_response)  # Simplify labels with nested quotes
+            
             if not is_valid_mermaid(ai_response, output_type):
                 raise ValueError("Invalid or incomplete Mermaid code generated")
-
+            
+            # Store the new Mermaid code for future regenerations
             session['previous_mermaid'] = ai_response
-
+                
         except Exception as e:
-            return render_template('diagram_page.html', error=f"API error: {str(e)}", indexed_files=indexed_files, file_index=file_index, output_type=output_type)
+            return render_template('diagram_page.html', error=f"API error: {str(e)}", output_type=output_type, filename=session['filename'], file_content=content)
+        
+        return render_template('generate_page.html', error=None, result=ai_response, filename=session['filename'], output_type=output_type, file_content=content, success="Regeneration successful!" if is_regenerate else None)
+    
+    try:
+        content_bytes = base64.b64decode(session['file_content'])
+        content = content_bytes.decode('utf-8').strip()
+    except Exception as e:
+        return render_template('diagram_page.html', error=f"Error decoding file: {str(e)}", output_type=output_type, filename=session['filename'], file_content='')
+    
+    return render_template('diagram_page.html', error=None, output_type=output_type, filename=session['filename'], file_content=content)
 
-        return render_template('generate_page.html', error=None, result=ai_response, indexed_files=indexed_files, file_index=file_index, output_type=output_type)
-
-    indexed_files = [{'index': i, 'name': f.get('name', 'Unknown'), 'content': f.get('content', '')} for i, f in enumerate(files)]
-
-    # Only try to read file content if files exist and file_index is valid
-    content = ''
-    if files and file_index >= 0:
-        selected_file = files[file_index]
-        try:
-            filename = selected_file.get('name', 'Unknown')
-            content = selected_file.get('content', '').strip()
-            if not content:
-                return render_template('diagram_page.html', error="Selected file is empty!", indexed_files=indexed_files, file_index=file_index, output_type=output_type)
-        except Exception as e:
-            return render_template('diagram_page.html', error=f"Error reading file: {str(e)}", indexed_files=indexed_files, file_index=file_index, output_type=output_type)
-
-    return render_template('diagram_page.html', error=None, indexed_files=indexed_files, file_index=file_index, output_type=output_type, file_content=content)
+if __name__ == '__main__':
+    app.run(debug=True)
