@@ -329,3 +329,16 @@ Code to analyze:\n\n{content}
     session['all_diagrams'] = all_diagrams
     session['current_diagram_index'] = 0
     return jsonify({'success': True, 'total': len(all_diagrams)})
+
+@diagram.route('/get_diagram/<int:index>', methods=['GET'])
+def get_diagram(index):
+    all_diagrams = session.get('all_diagrams', [])
+    if index < 0 or index >= len(all_diagrams):
+        return jsonify({'error': 'Invalid index'}), 400
+    diagram_data = all_diagrams[index]
+    return jsonify({
+        'file_index': diagram_data['file_index'],
+        'filename': diagram_data['filename'],
+        'diagram': diagram_data['diagram'],
+        'error': diagram_data['error']
+    })

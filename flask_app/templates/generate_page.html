@@ -171,9 +171,9 @@
         </div>
     </div>
 
-    <!-- FIXED: Only show error popup if error exists -->
+    <!-- Error Popup -->
     {% if error %}
-   <div id="errorPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div id="errorPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 w-96 max-w-90vw fade-in">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-semibold text-red-600">Error</h3>
@@ -522,7 +522,7 @@
 
             const formData = new FormData();
             validFiles.forEach((file, i) => {
-                formData.append('files', file);  // Matches server expectation
+                formData.append('files', file);
                 uploadStatus.textContent = `Preparing ${file.name}... (${i + 1}/${totalFiles})`;
                 processedFiles++;
                 const progress = (processedFiles / totalFiles) * 100;
@@ -552,23 +552,6 @@
             } finally {
                 uploadModal.classList.add('hidden');
             }
-        }
-
-        async function readFileContent(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    resolve(e.target.result);
-                };
-                reader.onerror = function() {
-                    reject(new Error(`Failed to read file: ${file.name}`));
-                };
-                if (file.type === 'application/pdf') {
-                    reader.readAsArrayBuffer(file);
-                } else {
-                    reader.readAsText(file);
-                }
-            });
         }
 
         // Get appropriate icon for file type
@@ -619,7 +602,7 @@
 
         fileInput.addEventListener('change', function(e) {
             if (e.target.files.length > 0) {
-                handleFileUpload(Array.from(e.target.files));
+                handleFileUpload(e.target.files);
                 e.target.value = '';
             }
         });
@@ -641,30 +624,58 @@
             e.preventDefault();
             sidebar.classList.remove('bg-blue-50', 'border-blue-300');
             
-            const files = Array.from(e.dataTransfer.files);
+            const files = e.dataTransfer.files;
             if (files.length > 0) {
                 handleFileUpload(files);
             }
         });
 
-        // Download functionality
+        // Helper function to capture diagram with high quality
+        function captureDiagram(container, filename) {
+            const mermaidSvg = container.querySelector('.mermaid svg') || container.querySelector('svg');
+            if (!mermaidSvg || typeof mermaid === 'undefined') {
+                showError('Cannot export: No diagram available or Mermaid failed to load.');
+                return;
+            }
+
+            // Get full dimensions of the SVG
+            const bbox = mermaidSvg.getBoundingClientRect();
+            const width = Math.max(bbox.width, container.scrollWidth);
+            const height = Math.max(bbox.height, container.scrollHeight);
+
+            // Temporarily reset zoom to 1x for capture
+            const originalZoom = zoomLevel;
+            zoomLevel = 1;
+            applyZoom();
+
+            html2canvas(container, {
+                scale: 9, // Increase resolution (3x for sharp output)
+                width: width, // Full width of diagram
+                height: height, // Full height of diagram
+                useCORS: true, // Handle external resources if any
+                logging: false // Disable verbose logging
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL('image/png', 1.0); // Full quality
+                link.click();
+                showSuccess('Diagram exported successfully!');
+
+                // Restore original zoom
+                zoomLevel = originalZoom;
+                applyZoom();
+            }).catch(error => {
+                console.error('Export error:', error);
+                showError('Failed to export diagram. Please try again.');
+            });
+        }
+
+        // Download functionality (main diagram)
         const downloadBtn = document.getElementById('downloadBtn');
         if (downloadBtn) {
             downloadBtn.addEventListener('click', () => {
-                const mermaidDiv = document.querySelector('#visualViewContainer .mermaid');
-                if (mermaidDiv && typeof mermaid !== 'undefined') {
-                    html2canvas(document.querySelector('#visualViewContainer'), { scale: 2 }).then(canvas => {
-                        const link = document.createElement('a');
-                        link.download = `diagram_{{ output_type }}.png`;
-                        link.href = canvas.toDataURL('image/png');
-                        link.click();
-                        showSuccess('Diagram exported successfully!');
-                    }).catch(error => {
-                        showError('Failed to export diagram. Please try again.');
-                    });
-                } else {
-                    showError('Cannot export: Mermaid library failed to load or no diagram available.');
-                }
+                const container = document.getElementById('visualViewContainer');
+                captureDiagram(container, `diagram_{{ output_type }}.png`);
             });
         }
 
@@ -790,21 +801,9 @@
         }
 
         function exportCurrentDiagram() {
-            const diagramContainer = document.getElementById('modalDiagramContainer');
-            if (diagramContainer && typeof mermaid !== 'undefined') {
-                html2canvas(diagramContainer, { scale: 2 }).then(canvas => {
-                    const link = document.createElement('a');
-                    const filename = document.getElementById('modalFileInfo').textContent.replace('File: ', '');
-                    link.download = `diagram_${filename}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    showSuccess('Diagram exported successfully!');
-                }).catch(error => {
-                    showError('Failed to export diagram. Please try again.');
-                });
-            } else {
-                showError('Cannot export: Mermaid library failed to load or no diagram available.');
-            }
+            const container = document.getElementById('modalDiagramContainer');
+            const filename = document.getElementById('modalFileInfo').textContent.replace('File: ', '') + '.png';
+            captureDiagram(container, `diagram_${filename}`);
         }
 
         function closeViewAllModal() {
