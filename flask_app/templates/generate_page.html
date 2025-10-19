@@ -682,6 +682,102 @@
                 window.location.href = '/diagram_page?output_type={{ output_type }}&file_index={{ file_index }}';
             }
         });
+
+        // Generate All functionality
+        const generateAllBtn = document.getElementById('generateAllBtn');
+        if (generateAllBtn) {
+            generateAllBtn.addEventListener('click', async () => {
+                const generateModal = document.getElementById('generateAllModal');
+                const progressBar = document.getElementById('generate-progress-bar');
+                const status = document.getElementById('generate-status');
+                
+                generateModal.classList.remove('hidden');
+                status.textContent = 'Starting generation...';
+                progressBar.style.width = '0%';
+
+                try {
+                    const response = await fetch('/generate_all', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `output_type=${encodeURIComponent('{{ output_type }}')}`
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        progressBar.style.width = '100%';
+                        status.textContent = 'Generation complete!';
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        generateModal.classList.add('hidden');
+                        const viewAllModal = document.getElementById('viewAllModal');
+                        viewAllModal.classList.remove('hidden');
+                        document.getElementById('totalDiagrams').textContent = data.total;
+                        loadDiagram(0);
+                    } else {
+                        showError(data.error);
+                        generateModal.classList.add('hidden');
+                    }
+                } catch (error) {
+                    showError('Failed to generate diagrams: ' + error.message);
+                    generateModal.classList.add('hidden');
+                }
+            });
+        }
+
+        async function loadDiagram(index) {
+            try {
+                const response = await fetch(`/get_diagram/${index}`);
+                const data = await response.json();
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                document.getElementById('modalFileInfo').textContent = `File: ${data.filename}`;
+                document.getElementById('currentDiagramNumber').textContent = index + 1;
+
+                const container = document.getElementById('modalDiagramContainer');
+                container.innerHTML = '<p>Loading diagram...</p>';
+
+                if (data.diagram) {
+                    const id = 'modalDiagram';
+                    mermaid.render(id, data.diagram).then(({ svg }) => {
+                        container.innerHTML = svg;
+                    }).catch(err => {
+                        container.innerHTML = '<p>Error rendering diagram: ' + err.message + '</p>';
+                    });
+                } else {
+                    container.innerHTML = '<p>Error: ' + data.error + '</p>';
+                }
+
+                const total = parseInt(document.getElementById('totalDiagrams').textContent);
+                document.getElementById('prevDiagramBtn').disabled = index === 0;
+                document.getElementById('nextDiagramBtn').disabled = index === total - 1;
+            } catch (error) {
+                showError('Failed to load diagram: ' + error.message);
+            }
+        }
+
+        function previousDiagram() {
+            const current = parseInt(document.getElementById('currentDiagramNumber').textContent) - 1;
+            if (current > 0) {
+                loadDiagram(current - 1);
+            }
+        }
+
+        function nextDiagram() {
+            const current = parseInt(document.getElementById('currentDiagramNumber').textContent) - 1;
+            const total = parseInt(document.getElementById('totalDiagrams').textContent);
+            if (current < total - 1) {
+                loadDiagram(current + 1);
+            }
+        }
+
+        function closeViewAllModal() {
+            document.getElementById('viewAllModal').classList.add('hidden');
+        }
     </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, session, redirect, url_for
+from flask import Blueprint, request, render_template, session, redirect, url_for, jsonify
 from groq import Groq
 import os
 import re
@@ -157,7 +157,7 @@ Code to analyze:\n\n{content}
             )
             ai_response = chat_completion.choices[0].message.content.strip()
 
-            ai_response = re.sub(r'```mermaid\s*', '', ai_response, flags=re.DOTALL)
+            ai_response = re.sub(r'```mermaid', '', ai_response)
             ai_response = re.sub(r'```\s*', '', ai_response).strip()
 
             ai_response = re.sub(r'-->(?=\S)', '--> ', ai_response)
@@ -264,3 +264,10 @@ Code to analyze:\n\n{content}
     session['all_diagrams'] = all_diagrams
     session['current_diagram_index'] = 0
     return jsonify({'success': True, 'total': len(all_diagrams)})
+
+@diagram.route('/get_diagram/<int:index>', methods=['GET'])
+def get_diagram(index):
+    all_diagrams = session.get('all_diagrams', [])
+    if index < 0 or index >= len(all_diagrams):
+        return jsonify({'error': 'Invalid index'}), 400
+    return jsonify(all_diagrams[index])
