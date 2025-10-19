@@ -56,6 +56,8 @@
       margin-bottom: 12px;
     }
 
+   
+
     .doc-content ul ul,
     .doc-content ol ul,
     .doc-content ul ol,
@@ -548,7 +550,7 @@
       contentDiv.innerHTML = '<div class="spinner"></div><p style="text-align:center">Regenerating documentation...</p>';
 
       try {
-        const response = await fetch("/api/regenerate_doc", { method: "POST" });
+        const response = await fetch("/api/regenerate_relationship", { method: "POST" });
         const data = await response.json();
         if (data.result) {
           contentDiv.innerHTML = marked.parse(data.result);
