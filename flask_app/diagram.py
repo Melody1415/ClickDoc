@@ -173,7 +173,8 @@ Code to analyze:\n\n{content}
         except Exception as e:
             return render_template('diagram_page.html', error=f"API error: {str(e)}", indexed_files=indexed_files, file_index=file_index, output_type=output_type)
 
-        return render_template('generate_page.html', error=None, result=ai_response, indexed_files=indexed_files, file_index=file_index, output_type=output_type)
+        return render_template('generate_page.html', result=ai_response, indexed_files=indexed_files, file_index=file_index, output_type=output_type, error=None)
+
 
     indexed_files = [{'index': i, 'name': f.get('name', 'Unknown'), 'content': f.get('content', '')} for i, f in enumerate(files)]
 
@@ -190,3 +191,76 @@ Code to analyze:\n\n{content}
             return render_template('diagram_page.html', error=f"Error reading file: {str(e)}", indexed_files=indexed_files, file_index=file_index, output_type=output_type)
 
     return render_template('diagram_page.html', error=None, indexed_files=indexed_files, file_index=file_index, output_type=output_type, file_content=content)
+
+@diagram.route('/generate_all', methods=['POST'])
+def generate_all():
+    files = session.get('files', [])
+    if not files or len(files) == 0:
+        return jsonify({'error': 'No files available'}), 400
+    
+    output_type = request.form.get('output_type', 'flow')
+    all_diagrams = []
+    
+    for index, file_data in enumerate(files):
+        content = file_data.get('content', '').strip()
+        if not content:
+            all_diagrams.append({
+                'file_index': index,
+                'filename': file_data.get('name', 'Unknown'),
+                'error': 'File is empty',
+                'diagram': None
+            })
+            continue
+        
+        prompt = f"""
+IMPORTANT: OUTPUT ONLY VALID MERMAID CODE FOR '{output_type}'. NO EXPLANATIONS, NO TEXT ANALYSIS, NO EXTRA WORDS, NO COMMENTS. OUTPUT ONLY THE CODE. The code MUST be parseable by Mermaid without errors.
+
+Analyze the code to identify its structures: functions, classes, methods, loops, conditionals, and interactions (e.g., function calls, object creation, I/O operations). Generate Mermaid code that accurately represents the code's structure for '{output_type}'.
+
+Rules (STRICTLY FOLLOW THESE TO AVOID PARSE ERRORS):
+- For 'flow': Start with 'flowchart TD'. Use [] for actions, {{}} for decisions, -->|label| for edges (no quotes in labels). Include all control flow paths (if-else, while loops) with backward edges for loops. Include I/O operations (e.g., print, input) as nodes. End with an 'End' node.
+- Node labels: Use plain text for simple labels. For ANY label with spaces, special characters (e.g., (, ), ,, :, /, <, >), or details, ALWAYS enclose the ENTIRE label in double quotes inside the shape, e.g., ["Print message"], ["Input option"], ["Create Record(1, TestRecord)"]. If inner double quotes are absolutely needed, escape them as \", e.g., ["Print \"message\""], but STRICTLY prefer simplifying by removing unnecessary inner quotes or rephrasing (e.g., use TestRecord without quotes). This prevents parse errors from unbalanced or special characters.
+- ALWAYS output each node and edge on a SEPARATE NEW LINE to ensure proper separation and avoid concatenated tokens (e.g., do NOT output ]C; use a newline after each statement). Ensure spaces around elements where needed (e.g., after action words inside labels: ["Print message"] NOT ["Printmessage"]).
+
+Code to analyze:\n\n{content}
+"""
+        
+        try:
+            chat_completion = client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a helpful code documentation assistant. For component diagrams, use ONLY standard Mermaid flowchart syntax. NEVER use C4 PlantUML syntax like 'component [name] as label'."
+                    },
+                    {"role": "user", "content": prompt},
+                ],
+                model="llama-3.3-70b-versatile",
+                max_tokens=2000,
+                temperature=0.0
+            )
+            ai_response = chat_completion.choices[0].message.content.strip()
+            
+            ai_response = re.sub(r'```mermaid\s*', '', ai_response, flags=re.DOTALL)
+            ai_response = re.sub(r'```\s*', '', ai_response).strip()
+            ai_response = re.sub(r'-->(?=\S)', '--> ', ai_response)
+            ai_response = re.sub(r'(\w+)\s+([[{(\["])', r'\1\2', ai_response)
+            ai_response = re.sub(r'"\s*([^"]*?)\s*"', r'"\1"', ai_response)
+            ai_response = re.sub(r'\("\s*([^"]*?)\s*"\)', r'(\1)', ai_response)
+            
+            all_diagrams.append({
+                'file_index': index,
+                'filename': file_data.get('name', 'Unknown'),
+                'diagram': ai_response,
+                'error': None
+            })
+        except Exception as e:
+            all_diagrams.append({
+                'file_index': index,
+                'filename': file_data.get('name', 'Unknown'),
+                'error': str(e),
+                'diagram': None
+            })
+    
+    session['all_diagrams'] = all_diagrams
+    session['current_diagram_index'] = 0
+    return jsonify({'success': True, 'total': len(all_diagrams)})
