@@ -35,7 +35,13 @@ def relationship_documentation():
             continue
 
         # Prompt for relationship documentation with filename header instruction
-        prompt = f"""Analyze this code and generate a structured documentation in markdown format with the following sections to detail the relationships within the code:
+        prompt = f"""
+       Generate CONCISE documentation that fits in a fixed-height scrollable card viewer.
+         FORMATTING RULES:
+        - Write naturally in complete sentences and paragraphs
+        - Keep sentences under 15-20 words each
+        - Code examples: MAX 3 lines, 70 characters per line
+        Analyze this code and generate a structured documentation in markdown format with the following sections to detail the relationships within the code:
         - **Code Structure**: Provide a high-level overview of how the code is organized (e.g., classes, modules, or functions and their relationships).
         - **Code Overview**: Describe the general purpose of the program and how its components interact.
         - **List of Relationships**: Provide a numbered list of detected relationships (e.g., 1. Inheritance: ClassA extends ClassB, 2. Data Flow: VariableX updates VariableY).
@@ -87,7 +93,13 @@ def regenerate_relationship():
             continue
 
         # Prompt for relationship documentation with filename header instruction
-        prompt = f"""Analyze this code and generate a structured documentation in markdown format with the following sections to detail the relationships within the code:
+        prompt = f"""
+        Generate CONCISE documentation that fits in a fixed-height scrollable card viewer.
+          FORMATTING RULES:
+        - Write naturally in complete sentences and paragraphs
+        - Keep sentences under 15-20 words each
+        - Code examples: MAX 3 lines, 70 characters per line
+        Analyze this code and generate a structured documentation in markdown format with the following sections to detail the relationships within the code:
         - **Code Structure**: Provide a high-level overview of how the code is organized (e.g., classes, modules, or functions and their relationships).
         - **Code Overview**: Describe the general purpose of the program and how its components interact.
         - **List of Relationships**: Provide a numbered list of detected relationships (e.g., 1. Inheritance: ClassA extends ClassB, 2. Data Flow: VariableX updates VariableY).

@@ -543,7 +543,7 @@
       contentDiv.innerHTML = '<div class="spinner"></div><p style="text-align:center">Regenerating documentation...</p>';
 
       try {
-        const response = await fetch("/api/regenerate_doc", {
+        const response = await fetch("/api/regenerate_tech_stack", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ files: uploadedFiles })
