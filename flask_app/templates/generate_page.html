@@ -12,7 +12,7 @@
     <style>
         .mermaid {
             max-width: 100%;
-            overflow: auto; /* Enables scrolling in both directions */
+            overflow: auto;
             text-align: center;
             transform-origin: center;
             transition: transform 0.3s ease;
@@ -22,8 +22,8 @@
 
         .mermaid svg {
             max-width: none;
-            min-width: 100%; /* Ensures the diagram can expand horizontally */
-            min-height: 100%; /* Ensures the diagram can expand vertically */
+            min-width: 100%;
+            min-height: 100%;
             transform-origin: top left;
         }
 
@@ -37,7 +37,7 @@
         }
 
         #visualViewContainer {
-            overflow: auto; /* Ensures the container supports scrolling in both directions */
+            overflow: auto;
             width: 100%;
             height: 100%;
         }
@@ -253,8 +253,14 @@
                     Previous
                 </button>
                 
-                <div class="text-sm text-gray-600">
-                    <span id="currentDiagramNumber">1</span> / <span id="totalDiagrams">1</span>
+                <div class="flex items-center gap-4">
+                    <div class="text-sm text-gray-600">
+                        <span id="currentDiagramNumber">1</span> / <span id="totalDiagrams">1</span>
+                    </div>
+                    <button onclick="exportCurrentDiagram()" id="exportDiagramBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
+                        <i data-lucide="download" class="w-5 h-5"></i>
+                        Export
+                    </button>
                 </div>
                 
                 <button onclick="nextDiagram()" id="nextDiagramBtn" class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2">
@@ -514,41 +520,38 @@
             const totalFiles = validFiles.length;
             let processedFiles = 0;
 
-            for (let i = 0; i < validFiles.length; i++) {
-                const file = validFiles[i];
-                uploadStatus.textContent = `Processing ${file.name}... (${processedFiles + 1}/${totalFiles})`;
-                
-                try {
-                    const existingFileIndex = uploadedFiles.findIndex(f => f.name === file.name);
-                    const content = await readFileContent(file);
-                    
-                    const fileData = {
-                        name: file.name,
-                        size: file.size,
-                        type: file.type,
-                        content: content,
-                        lastModified: file.lastModified,
-                        uploadedAt: new Date().toISOString()
-                    };
-
-                    if (existingFileIndex !== -1) {
-                        uploadedFiles[existingFileIndex] = fileData;
-                    } else {
-                        uploadedFiles.push(fileData);
-                    }
-                } catch (error) {
-                    console.error(`Error processing file ${file.name}:`, error);
-                }
-                
+            const formData = new FormData();
+            validFiles.forEach((file, i) => {
+                formData.append('files', file);  // Matches server expectation
+                uploadStatus.textContent = `Preparing ${file.name}... (${i + 1}/${totalFiles})`;
                 processedFiles++;
                 const progress = (processedFiles / totalFiles) * 100;
                 progressBarModal.style.width = `${progress}%`;
-            }
+            });
 
-            sessionStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
-            uploadStatus.textContent = 'Upload completed! Refreshing page...';
-            await new Promise(resolve => setTimeout(resolve, 500));
-            window.location.reload();
+            try {
+                const response = await fetch('/upload_more', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    uploadedFiles = data.uploaded_files;
+                    sessionStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+                    uploadStatus.textContent = 'Upload completed! Refreshing page...';
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    window.location.reload();
+                } else {
+                    showError(data.error || 'Upload failed.');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                showError('Failed to upload files to server.');
+            } finally {
+                uploadModal.classList.add('hidden');
+            }
         }
 
         async function readFileContent(file) {
@@ -783,6 +786,24 @@
             const total = parseInt(document.getElementById('totalDiagrams').textContent);
             if (current < total - 1) {
                 loadDiagram(current + 1);
+            }
+        }
+
+        function exportCurrentDiagram() {
+            const diagramContainer = document.getElementById('modalDiagramContainer');
+            if (diagramContainer && typeof mermaid !== 'undefined') {
+                html2canvas(diagramContainer, { scale: 2 }).then(canvas => {
+                    const link = document.createElement('a');
+                    const filename = document.getElementById('modalFileInfo').textContent.replace('File: ', '');
+                    link.download = `diagram_${filename}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    showSuccess('Diagram exported successfully!');
+                }).catch(error => {
+                    showError('Failed to export diagram. Please try again.');
+                });
+            } else {
+                showError('Cannot export: Mermaid library failed to load or no diagram available.');
             }
         }
 

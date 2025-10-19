@@ -50,15 +50,80 @@ def is_valid_mermaid(code, diagram_type):
             return False
     return True
 
+@diagram.route('/upload_more', methods=['POST'])
+def upload_more():
+    if 'files' not in request.files:
+        return jsonify({'success': False, 'error': 'No files uploaded'}), 400
+
+    files = request.files.getlist('files')
+    if not files:
+        return jsonify({'success': False, 'error': 'No valid files provided'}), 400
+
+    allowed_extensions = {
+        '.js', '.jsx', '.ts', '.tsx', '.py', '.java', '.c', '.cpp', '.h', '.cs', '.php',
+        '.rb', '.go', '.rs', '.swift', '.kt', '.html', '.css', '.json', '.md', '.xml',
+        '.yml', '.yaml', '.properties', '.sh', '.bash', '.sql', '.r', '.scala', '.dart'
+    }
+
+    valid_files = []
+    invalid_files = []
+
+    for file in files:
+        if file.filename == '':
+            continue
+        ext = '.' + file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
+        if ext in allowed_extensions:
+            valid_files.append(file)
+        else:
+            invalid_files.append(file.filename)
+
+    if not valid_files:
+        return jsonify({
+            'success': False,
+            'error': f'No valid files uploaded. Invalid files: {", ".join(invalid_files)}'
+        }), 400
+
+    # Get existing files from session
+    session_files = session.get('files', [])
+
+    # Update session files, overwriting duplicates by name
+    for file in valid_files:
+        content = file.read().decode('utf-8', errors='ignore')  # Decode with error handling
+        file_data = {
+            'name': file.filename,
+            'content': content,
+            'size': len(content.encode('utf-8'))  # Approximate size in bytes
+        }
+        # Check for existing file with same name
+        existing_index = next((i for i, f in enumerate(session_files) if f['name'] == file.filename), None)
+        if existing_index is not None:
+            session_files[existing_index] = file_data
+        else:
+            session_files.append(file_data)
+
+    session['files'] = session_files
+
+    # Prepare response with file metadata (no content)
+    uploaded_files = [{'name': f['name'], 'size': f['size']} for f in session_files]
+
+    return jsonify({
+        'success': True,
+        'uploaded_files': uploaded_files
+    })
+
 @diagram.route('/diagram_page', methods=['GET', 'POST'])
 def diagram_page():
+    # Initialize session['files'] if not exists
+    if 'files' not in session:
+        session['files'] = []
+    
     # Check for session['files'] or convert session['file'] to session['files']
     files = session.get('files', [])
     if not files and 'file' in session:
         file_dict = session['file']
         if file_dict:
             filename, content = next(iter(file_dict.items()))
-            files = [{'name': filename, 'content': content}]
+            files = [{'name': filename, 'content': content, 'size': len(content.encode('utf-8'))}]
             session['files'] = files
             session.pop('file', None)  # Clean up session['file']
     
@@ -264,10 +329,3 @@ Code to analyze:\n\n{content}
     session['all_diagrams'] = all_diagrams
     session['current_diagram_index'] = 0
     return jsonify({'success': True, 'total': len(all_diagrams)})
-
-@diagram.route('/get_diagram/<int:index>', methods=['GET'])
-def get_diagram(index):
-    all_diagrams = session.get('all_diagrams', [])
-    if index < 0 or index >= len(all_diagrams):
-        return jsonify({'error': 'Invalid index'}), 400
-    return jsonify(all_diagrams[index])
