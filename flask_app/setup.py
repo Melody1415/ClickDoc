@@ -36,11 +36,10 @@ def setup_documentation():
 
         # Prompt for setup documentation
         prompt = f"""Analyze this code and determine if it requires a setup guide (e.g., dependencies to install, environment configuration, or steps to run). If setup is required, generate a structured setup guide in markdown format with the following sections:
-        Generate CONCISE documentation that fits in a fixed-height scrollable card viewer.
+        Generate CONCISE and USEFUL  documentation that fits in a fixed-height scrollable card viewer.
           FORMATTING RULES:
         - Write naturally in complete sentences and paragraphs
-        - Keep sentences under 15-20 words each
-        - Code examples: MAX 3 lines, 70 characters per line
+        - Keep sentences under 15-20 words each including code example
         - **Setup Overview**: Provide a high-level overview of the setup process and requirements.
         - **Installation Steps**: List detailed steps to install dependencies (e.g., pip install for Python packages).
         - **Configuration**: Describe any configuration needed (e.g., environment variables, folders to create).
@@ -91,11 +90,10 @@ def regenerate_setup():
             continue
 
         prompt = f"""Analyze this code and determine if it requires a setup guide (e.g., dependencies to install, environment configuration, or steps to run). If setup is required, generate a structured setup guide in markdown format with the following sections:
-        Generate CONCISE documentation that fits in a fixed-height scrollable card viewer.
+        Generate CONCISE and USEFUL  documentation that fits in a fixed-height scrollable card viewer.
           FORMATTING RULES:
         - Write naturally in complete sentences and paragraphs
-        - Keep sentences under 15-20 words each
-        - Code examples: MAX 3 lines, 70 characters per line
+        - Keep sentences under 15-20 words each including example 
         - **Setup Overview**: Provide a high-level overview of the setup process and requirements.
         - **Installation Steps**: List detailed steps to install dependencies (e.g., pip install for Python packages).
         - **Configuration**: Describe any configuration needed (e.g., environment variables, folders to create).
