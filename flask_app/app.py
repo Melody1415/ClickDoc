@@ -1,12 +1,12 @@
 from flask import Flask, send_from_directory,request,session,jsonify
-from functiondashboard import bp_dashboard
-from generate import generate
-from validation import validation  # New import
-from relationship import relationship 
-from setup import setup 
-from tech_stack import tech_stack 
-from diagram import diagram
-from chatbot import chatbot1
+from .functiondashboard import bp_dashboard
+from .generate import generate
+from .validation import validation  # New import
+from .relationship import relationship 
+from .setup import setup 
+from .tech_stack import tech_stack 
+from .diagram import diagram
+from .chatbot import chatbot1
 from dotenv import load_dotenv
 import os
 
