@@ -73,7 +73,7 @@ def relationship_documentation():
     # Pass the combined result and list of files to the template
     return render_template('relationship_documentation.html', result=combined_result, files=files)
 
-@relationship.route('/api/regenerate_relationship', methods=['POST'])
+@relationship.route('regenerate_relationship', methods=['POST'])
 def regenerate_relationship():
     files = session.get('files', [])
     if not files:
