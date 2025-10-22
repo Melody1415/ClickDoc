@@ -36,11 +36,10 @@ def tech_stack_documentation():
 
             # Prompt for tech stack documentation
         prompt = f"""Analyze this code and determine if it contains a detectable tech stack (e.g., languages, frameworks, libraries, databases, or dependencies). If a tech stack is detected, generate a structured documentation in markdown format with the following sections:
-        Generate CONCISE documentation that fits in a fixed-height scrollable card viewer.
+        Generate documentation that fits in a fixed-height scrollable card viewer.
           FORMATTING RULES:
         - Write naturally in complete sentences and paragraphs
-        - Keep sentences under 15-20 words each
-        - Code examples: MAX 3 lines, 70 characters per line
+        - Keep sentences under 15-20 words each including example
         - **Tech Stack Overview**: Provide a high-level overview of the technologies used, including backend, frontend, databases, and key dependencies.
         - **List of Technologies**: Provide a numbered list of detected technologies (e.g., 1. Python 3.x, 2. Flask framework).
         - **Explanation of Technologies**: For each technology, include:
@@ -94,11 +93,10 @@ def regenerate_tech_stack():
             continue
 
         prompt = f"""Analyze this code and determine if it contains a detectable tech stack (e.g., languages, frameworks, libraries, databases, or dependencies). If a tech stack is detected, generate a structured documentation in markdown format with the following sections:
-        Generate CONCISE documentation that fits in a fixed-height scrollable card viewer.
+        Generate documentation that fits in a fixed-height scrollable card viewer.
           FORMATTING RULES:
         - Write naturally in complete sentences and paragraphs
-        - Keep sentences under 15-20 words each
-        - Code examples: MAX 3 lines, 70 characters per line
+        - Keep sentences under 15-20 words each including example
         - **Tech Stack Overview**: Provide a high-level overview of the technologies used, including backend, frontend, databases, and key dependencies.
         - **List of Technologies**: Provide a numbered list of detected technologies (e.g., 1. Python 3.x, 2. Flask framework).
         - **Explanation of Technologies**: For each technology, include:

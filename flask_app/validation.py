@@ -36,11 +36,10 @@ def validation_documentation():
 
          # Prompt for validation documentation
         prompt = f"""Analyze this code and determine if it contains a form (e.g., HTML form elements or form-related validation logic). If it is a form, generate a structured documentation in markdown format with the following sections:
-        Generate CONCISE documentation that fits in a fixed-height scrollable card viewer.
+        Generate documentation that fits in a fixed-height scrollable card viewer.
           FORMATTING RULES:
         - Write naturally in complete sentences and paragraphs
-        - Keep sentences under 15-20 words each
-        - Code examples: MAX 3 lines, 70 characters per line
+        - Keep sentences under 15-20 words each including example
         - **Form Overview**: Describe the purpose of the form and its general validation approach.
         - **Field Validations**: List each field with:
         - **Field Name**: The name or identifier of the field.
@@ -97,11 +96,10 @@ def regenerate_validation():
             continue
 
         prompt = f"""Analyze this code and determine if it contains a form (e.g., HTML form elements or form-related validation logic). If it is a form, generate a structured documentation in markdown format with the following sections:
-        Generate CONCISE documentation that fits in a fixed-height scrollable card viewer.
+        Generate documentation that fits in a fixed-height scrollable card viewer.
           FORMATTING RULES:
         - Write naturally in complete sentences and paragraphs
-        - Keep sentences under 15-20 words each
-        - Code examples: MAX 3 lines, 70 characters per line
+        - Keep sentences under 15-20 words each including example
         - **Form Overview**: Describe the purpose of the form and its general validation approach.
         - **Field Validations**: List each field with:
         - **Field Name**: The name or identifier of the field.

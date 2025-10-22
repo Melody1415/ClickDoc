@@ -35,11 +35,10 @@ def function_documentation():
             continue
 
         prompt = f"""Analyze this code and generate a structured documentation in markdown format with the following sections:
+        Generate documentation that fits in a fixed-height scrollable card viewer.
          FORMATTING RULES:
         - Write naturally in complete sentences and paragraphs
-        - Keep sentences under 15-20 words each
-        - Code examples: MAX 3 lines, 70 characters per line
-        - Total documentation: Keep concise and focused
+        - Keep sentences under 15-20 words each including example 
         - **Code Structure**: Provide a high-level overview of how the code is organized (e.g., functions and their relationships).
         - **Code Overview**: Describe the general purpose of the program and how to use it.
         - **List of Functions**: Provide a numbered list of all functions (e.g., 1. process_data, 2. validate_input).
@@ -91,12 +90,11 @@ def regenerate_doc():
             continue
 
         prompt = f"""Analyze this code and generate a structured documentation in markdown format with the following sections:
-        Generate CONCISE documentation that fits in a fixed-height scrollable card viewer.
+        Generate documentation that fits in a fixed-height scrollable card viewer.
         CRITICAL FORMATTING RULES:
         FORMATTING RULES:
         - Write naturally in complete sentences and paragraphs
-        - Keep sentences under 15-20 words each
-        - Code examples: MAX 3 lines, 70 characters per line
+        - Keep sentences under 15-20 words each including example
         - Total documentation: Keep concise and focused
         - **Code Structure**: Provide a high-level overview of how the code is organized (e.g., functions and their relationships).
         - **Code Overview**: Describe the general purpose of the program and how to use it.

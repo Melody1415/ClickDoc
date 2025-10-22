@@ -36,11 +36,10 @@ def relationship_documentation():
 
         # Prompt for relationship documentation with filename header instruction
         prompt = f"""
-       Generate CONCISE documentation that fits in a fixed-height scrollable card viewer.
+       Generate documentation that fits in a fixed-height scrollable card viewer.
          FORMATTING RULES:
         - Write naturally in complete sentences and paragraphs
-        - Keep sentences under 15-20 words each
-        - Code examples: MAX 3 lines, 70 characters per line
+        - Keep sentences under 15-20 words each including example
         Analyze this code and generate a structured documentation in markdown format with the following sections to detail the relationships within the code:
         - **Code Structure**: Provide a high-level overview of how the code is organized (e.g., classes, modules, or functions and their relationships).
         - **Code Overview**: Describe the general purpose of the program and how its components interact.
@@ -94,7 +93,7 @@ def regenerate_relationship():
 
         # Prompt for relationship documentation with filename header instruction
         prompt = f"""
-        Generate CONCISE documentation that fits in a fixed-height scrollable card viewer.
+        Generate documentation that fits in a fixed-height scrollable card viewer.
           FORMATTING RULES:
         - Write naturally in complete sentences and paragraphs
         - Keep all sentences under 15-20 words each including example 
