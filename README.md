@@ -1,7 +1,7 @@
 # ClickDoc  
 **Your AI-powered coding companion for smarter documentation and analysis**  
 🔗 **Live Demo:** [https://clickdoc.onrender.com](https://clickdoc.onrender.com)  
-📘 **User Guide:** [Click to view the User Guide](#) 
+📘 **User Guide:** [https://UserGuide.pdf](https://github.com/juicemin/ClickDoc/blob/c167311f281001b6d5a2ded54a084767c67b27c3/User%20Guide.pdf) 
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)
 ![Flask](https://img.shields.io/badge/Flask-Framework-green?logo=flask)
