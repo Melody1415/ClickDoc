@@ -119,7 +119,6 @@ def function_documentation():
             failed_files.append(filename)
             continue
 
-<<<<<<< HEAD
         # Generate documentation with retry logic
         doc_result, error = generate_documentation_for_file(filename, content)
         
@@ -131,37 +130,6 @@ def function_documentation():
             current_app.logger.error(f"Failed to generate docs for {filename}: {error}")
             combined_result += f"## {filename}\n\n**{error_message}**\n\nPlease try regenerating or upload a smaller file.\n\n---\n\n"
             failed_files.append(filename)
-=======
-        prompt = f"""Analyze this code and generate a structured documentation in markdown format with the following sections:
-        Generate documentation that fits in a fixed-height scrollable card viewer.
-         FORMATTING RULES:
-        - Write naturally in complete sentences and paragraphs
-        - Keep sentences under 15-20 words each including example 
-        - **Code Structure**: Provide a high-level overview of how the code is organized (e.g., functions and their relationships).
-        - **Code Overview**: Describe the general purpose of the program and how to use it.
-        - **List of Functions**: Provide a numbered list of all functions (e.g., 1. process_data, 2. validate_input).
-        - **Explanation of Functions**: For each function, include:
-          - Purpose: What the function does.
-          - Parameters: List and describe all parameters.
-          - Return Values: Describe what the function returns.
-          - Example: Provide a code example with expected output.
-        Ensure the output is well-organized and follows this exact structure. Include a header with the filename '{filename}' at the start of the documentation. Here is the code to analyze:\n\n{content}"""
-
-        try:
-            chat_completion = client.chat.completions.create(
-                messages=[
-                    {"role": "system", "content": "You are a helpful code documentation assistant."},
-                    {"role": "user", "content": prompt},
-                ],
-                model="llama-3.3-70b-versatile",
-                max_tokens=1000
-            )
-            ai_response = chat_completion.choices[0].message.content
-            combined_result += f"{ai_response}\n\n"
-        except Exception as e:
-            current_app.logger.error(f"Error generating documentation for {filename}: {str(e)}")
-            combined_result += f"## {filename}\nError generating documentation: {str(e)}\n\n"
->>>>>>> 8cb4413885c7b56aea8dd418969d3aa910dfee8d
 
     if not combined_result:
         combined_result = "## No Documentation Generated\n\nNo documentation could be generated for any files. Please try uploading smaller files or fewer files at once."
@@ -203,7 +171,6 @@ def regenerate_doc():
             failed_files.append(filename)
             continue
 
-<<<<<<< HEAD
         # Generate documentation with retry logic
         doc_result, error = generate_documentation_for_file(filename, content)
         
@@ -215,39 +182,6 @@ def regenerate_doc():
             current_app.logger.error(f"Failed to generate docs for {filename}: {error}")
             combined_result += f"## {filename}\n\n**{error_message}**\n\nPlease try regenerating or upload a smaller file.\n\n---\n\n"
             failed_files.append(filename)
-=======
-        prompt = f"""Analyze this code and generate a structured documentation in markdown format with the following sections:
-        Generate documentation that fits in a fixed-height scrollable card viewer.
-        CRITICAL FORMATTING RULES:
-        FORMATTING RULES:
-        - Write naturally in complete sentences and paragraphs
-        - Keep sentences under 15-20 words each including example
-        - Total documentation: Keep concise and focused
-        - **Code Structure**: Provide a high-level overview of how the code is organized (e.g., functions and their relationships).
-        - **Code Overview**: Describe the general purpose of the program and how to use it.
-        - **List of Functions**: Provide a numbered list of all functions (e.g., 1. process_data, 2. validate_input).
-        - **Explanation of Functions**: For each function, include:
-          - Purpose: What the function does.
-          - Parameters: List and describe all parameters.
-          - Return Values: Describe what the function returns.
-          - Example: Provide a code example with expected output.
-        Ensure the output is well-organized and follows this exact structure. Include a header with the filename '{filename}' at the start of the documentation. Here is the code to analyze:\n\n{content}"""
-
-        try:
-            chat_completion = client.chat.completions.create(
-                messages=[
-                    {"role": "system", "content": "You are a helpful code documentation assistant."},
-                    {"role": "user", "content": prompt},
-                ],
-                model="llama-3.3-70b-versatile",
-                max_tokens=1000
-            )
-            ai_response = chat_completion.choices[0].message.content
-            combined_result += f"{ai_response}\n\n"
-        except Exception as e:
-            current_app.logger.error(f"Error generating documentation for {filename}: {str(e)}")
-            combined_result += f"## {filename}\nError generating documentation: {str(e)}\n\n"
->>>>>>> 8cb4413885c7b56aea8dd418969d3aa910dfee8d
 
     if not combined_result:
         return jsonify({"error": "No documentation generated for any files"}), 400

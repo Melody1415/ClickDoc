@@ -51,28 +51,7 @@ def generate_setup_doc_for_file(filename, content, retry_count=3):
     
     Ensure the output is concise, well-organized, and follows this exact structure.
 
-<<<<<<< HEAD
     Here is the code to analyze:
-=======
-        if not content:
-            current_app.logger.warning(f"No content found for file {filename}")
-            combined_result += f"## {filename}\nNo content available for documentation\n\n"
-            continue
-
-        # Prompt for setup documentation
-        prompt = f"""Analyze this code and determine if it requires a setup guide (e.g., dependencies to install, environment configuration, or steps to run). If setup is required, generate a structured setup guide in markdown format with the following sections:
-        Generate documentation that fits in a fixed-height scrollable card viewer.
-          FORMATTING RULES:
-        - Write naturally in complete sentences and paragraphs
-        - Keep sentences under 15-20 words each including example 
-        - **Setup Overview**: Provide a high-level overview of the setup process and requirements.
-        - **Installation Steps**: List detailed steps to install dependencies (e.g., pip install for Python packages).
-        - **Configuration**: Describe any configuration needed (e.g., environment variables, folders to create).
-        - **Running the Code**: Provide step-by-step instructions on how to run the code, including commands.
-        Ensure the output is concise, well-organized, and follows this exact structure.
-
-        Here is the code to analyze:\n\n{content}"""    
->>>>>>> 8cb4413885c7b56aea8dd418969d3aa910dfee8d
 
 {truncated_content}"""
 
@@ -187,7 +166,6 @@ def regenerate_setup():
             failed_files.append(filename)
             continue
 
-<<<<<<< HEAD
         # Generate documentation with retry logic
         doc_result, error = generate_setup_doc_for_file(filename, content)
         
@@ -199,35 +177,6 @@ def regenerate_setup():
             current_app.logger.error(f"Failed to generate setup docs for {filename}: {error}")
             combined_result += f"## {filename}\n\n**{error_message}**\n\nPlease try regenerating or upload a smaller file.\n\n---\n\n"
             failed_files.append(filename)
-=======
-        prompt = f"""Analyze this code and determine if it requires a setup guide (e.g., dependencies to install, environment configuration, or steps to run). If setup is required, generate a structured setup guide in markdown format with the following sections:
-        Generate documentation that fits in a fixed-height scrollable card viewer.
-          FORMATTING RULES:
-        - Write naturally in complete sentences and paragraphs
-        - Keep sentences under 15-20 words each including example 
-        - **Setup Overview**: Provide a high-level overview of the setup process and requirements.
-        - **Installation Steps**: List detailed steps to install dependencies (e.g., pip install for Python packages).
-        - **Configuration**: Describe any configuration needed (e.g., environment variables, folders to create).
-        - **Running the Code**: Provide step-by-step instructions on how to run the code, including commands.
-        Ensure the output is concise, well-organized, and follows this exact structure.
-
-        Here is the code to analyze:\n\n{content}"""
-
-        try:
-            chat_completion = client.chat.completions.create(
-                messages=[
-                    {"role": "system", "content": "You are a helpful code documentation assistant."},
-                    {"role": "user", "content": prompt},
-                ],
-                model="llama-3.3-70b-versatile",
-                max_tokens=1000
-            )
-            ai_response = chat_completion.choices[0].message.content
-            combined_result += f"{ai_response}\n\n"
-        except Exception as e:
-            current_app.logger.error(f"Error generating documentation for {filename}: {str(e)}")
-            combined_result += f"## {filename}\nError generating documentation: {str(e)}\n\n"
->>>>>>> 8cb4413885c7b56aea8dd418969d3aa910dfee8d
 
     if not combined_result:
         return jsonify({"error": "No documentation generated for any files"}), 400

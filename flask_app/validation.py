@@ -59,35 +59,7 @@ def generate_validation_doc_for_file(filename, content, retry_count=3):
     Ensure the output is well-organized and focuses on form validation details.
     Here is the code to analyze:
 
-<<<<<<< HEAD
 {truncated_content}"""
-=======
-        if not content:
-            current_app.logger.warning(f"No content found for file {filename}")
-            combined_result += f"## {filename}\nNo content available for documentation\n\n"
-            continue
-
-         # Prompt for validation documentation
-        prompt = f"""Analyze this code and determine if it contains a form (e.g., HTML form elements or form-related validation logic). If it is a form, generate a structured documentation in markdown format with the following sections:
-        Generate documentation that fits in a fixed-height scrollable card viewer.
-          FORMATTING RULES:
-        - Write naturally in complete sentences and paragraphs
-        - Keep sentences under 15-20 words each including example
-        - **Form Overview**: Describe the purpose of the form and its general validation approach.
-        - **Field Validations**: List each field with:
-        - **Field Name**: The name or identifier of the field.
-        - **Validation Rules**: Specify required rules (e.g., required, min/max length, pattern, data type).
-        - **Error Handling**: Describe how errors are handled or displayed.
-        - **Example**: Provide an example of valid and invalid input with expected outcomes.
-        Ensure the output is well-organized and focuses on form validation details.
-
-        If the code is not a form, check for any general validation logic (e.g., data type checks, range validation). If no validation is detected, return the message: "Since this is not a form file, no validation detected." If validation logic is present, generate a structured documentation with:
-        - **Validation Overview**: Summarize the purpose and scope of the validation.
-        - **Validation Rules**: List detected validation checks (e.g., type, range, conditions) with descriptions.
-        - **Example**: Provide an example of the validation in action with expected outcomes.
-        Ensure the output is well-organized and focuses on form validation details.
-        Here is the code to analyze:\n\n{content}""" 
->>>>>>> 8cb4413885c7b56aea8dd418969d3aa910dfee8d
 
     for attempt in range(retry_count):
         try:
@@ -200,7 +172,6 @@ def regenerate_validation():
             failed_files.append(filename)
             continue
 
-<<<<<<< HEAD
         # Generate documentation with retry logic
         doc_result, error = generate_validation_doc_for_file(filename, content)
         
@@ -212,42 +183,6 @@ def regenerate_validation():
             current_app.logger.error(f"Failed to generate validation docs for {filename}: {error}")
             combined_result += f"## {filename}\n\n**{error_message}**\n\nPlease try regenerating or upload a smaller file.\n\n---\n\n"
             failed_files.append(filename)
-=======
-        prompt = f"""Analyze this code and determine if it contains a form (e.g., HTML form elements or form-related validation logic). If it is a form, generate a structured documentation in markdown format with the following sections:
-        Generate documentation that fits in a fixed-height scrollable card viewer.
-          FORMATTING RULES:
-        - Write naturally in complete sentences and paragraphs
-        - Keep sentences under 15-20 words each including example
-        - **Form Overview**: Describe the purpose of the form and its general validation approach.
-        - **Field Validations**: List each field with:
-        - **Field Name**: The name or identifier of the field.
-        - **Validation Rules**: Specify required rules (e.g., required, min/max length, pattern, data type).
-        - **Error Handling**: Describe how errors are handled or displayed.
-        **Example**: Provide an example of valid and invalid input with expected outcomes.
-        Ensure the output is well-organized and focuses on form validation details.
-
-        If the code is not a form, check for any general validation logic (e.g., data type checks, range validation). If no validation is detected, return the message: "Since this is not a form file, no validation detected." If validation logic is present, generate a structured documentation with:
-        - **Validation Overview**: Summarize the purpose and scope of the validation.
-        - **Validation Rules**: List detected validation checks (e.g., type, range, conditions) with descriptions.
-        - **Example**: Provide an example of the validation in action with expected outcomes.
-        Ensure the output is well-organized and focuses on form validation details.
-        Here is the code to analyze:\n\n{content}"""
-
-        try:
-            chat_completion = client.chat.completions.create(
-                messages=[
-                    {"role": "system", "content": "You are a helpful code documentation assistant."},
-                    {"role": "user", "content": prompt},
-                ],
-                model="llama-3.3-70b-versatile",
-                max_tokens=1000
-            )
-            ai_response = chat_completion.choices[0].message.content
-            combined_result += f"{ai_response}\n\n"
-        except Exception as e:
-            current_app.logger.error(f"Error generating documentation for {filename}: {str(e)}")
-            combined_result += f"## {filename}\nError generating documentation: {str(e)}\n\n"
->>>>>>> 8cb4413885c7b56aea8dd418969d3aa910dfee8d
 
     if not combined_result:
         return jsonify({"error": "No documentation generated for any files"}), 400
