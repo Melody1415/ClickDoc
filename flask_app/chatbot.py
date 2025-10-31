@@ -55,36 +55,6 @@ def index():
         files_json=files_json  # This is needed for JavaScript initialization
     )
 
-@chatbot1.route('/api/set_files', methods=['POST'])
-def set_files():
-    """Receive files from dashboard"""
-    try:
-        data = request.get_json()
-        files = data.get('files', [])
-        
-        print(f"Received {len(files)} files from dashboard")
-        
-        if not files:
-            return jsonify({'error': 'No files provided'}), 400
-        
-        # Store files in session for chatbot access
-        session['uploaded_files'] = files
-        session.permanent = True  # Make session persistent
-        
-        # Log file names for debugging
-        file_names = [f['name'] for f in files]
-        print(f"Stored files: {file_names}")
-        
-        return jsonify({
-            'success': True,
-            'message': f'Successfully received {len(files)} files',
-            'files': file_names
-        })
-        
-    except Exception as e:
-        print(f"Error in set_files endpoint: {e}")
-        return jsonify({'error': str(e)}), 500
-
 @chatbot1.route('/api/get_files', methods=['GET'])
 def get_files():
     """Get current uploaded files from session"""
