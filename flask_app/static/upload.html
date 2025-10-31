@@ -69,32 +69,24 @@
         const processingModal = document.getElementById('processing-modal');
         const progressBar = document.getElementById('progress-bar');
         const processStatus = document.getElementById('process-status');
-        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB per file
-        const MAX_TOTAL_SIZE = 20 * 1024 * 1024; // 20MB total
-        const MAX_FILES = 10; // Maximum 10 files
 
         // Load files from sessionStorage on page load
         function loadFilesFromStorage() {
-    const storedFiles = sessionStorage.getItem('uploadedFiles');
-    if (storedFiles) {
-        try {
-            selectedFiles = JSON.parse(storedFiles).map(file => ({
-                name: file.name,
-                size: file.size,
-                type: file.type,
-                lastModified: file.lastModified,
-                content: file.content,
-                uploadedAt: file.uploadedAt,
-                error: file.error
-            }));
-            displayFiles();
-            updateProcessButton();
-        } catch (e) {
-            console.error('Error loading files from storage:', e);
-            sessionStorage.removeItem('uploadedFiles');
+            const storedFiles = sessionStorage.getItem('uploadedFiles');
+            if (storedFiles) {
+                selectedFiles = JSON.parse(storedFiles).map(file => ({
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    lastModified: file.lastModified,
+                    content: file.content,
+                    uploadedAt: file.uploadedAt,
+                    error: file.error
+                }));
+                displayFiles();
+                updateProcessButton();
+            }
         }
-    }
-}
 
         homeBtn.addEventListener('click', function() {
             window.location.href = '/';
@@ -144,49 +136,18 @@
             const allFiles = Array.from(files);
             const validFiles = [];
             const invalidFiles = [];
-            const oversizedFiles = [];
 
-            // Validate file types
-    allFiles.forEach(file => {
-        if (!isValidFileType(file)) {
-            invalidFiles.push(file.name);
-        } else if (file.size > MAX_FILE_SIZE) {
-            oversizedFiles.push({
-                name: file.name,
-                size: formatFileSize(file.size)
+            allFiles.forEach(file => {
+                if (isValidFileType(file)) {
+                    validFiles.push(file);
+                } else {
+                    invalidFiles.push(file.name);
+                }
             });
-        } else {
-            validFiles.push(file);
-        }
-    });
 
-            // Show warnings for invalid files
-    if (invalidFiles.length > 0) {
-        alert(`❌ The following files are not supported:\n\n${invalidFiles.join('\n')}\n\n✅ Supported: .js, .jsx, .ts, .tsx, .py, .java, .c, .cpp, .cs, .php, .rb, .go, .rs, .swift, .kt, .html, .css, .json, .xml, .yml, .sh, .sql, .r, .scala, .dart, .md`);
-    }
-
-    // Show warnings for oversized files
-    if (oversizedFiles.length > 0) {
-        const fileList = oversizedFiles.map(f => `${f.name} (${f.size})`).join('\n');
-        alert(`❌ The following files exceed the 5MB limit:\n\n${fileList}\n\nPlease upload smaller files.`);
-    }
-
-    if (validFiles.length === 0) return;
-
-    // Check total file count
-    const totalFiles = selectedFiles.length + validFiles.length;
-    if (totalFiles > MAX_FILES) {
-        alert(`❌ Maximum ${MAX_FILES} files allowed. You're trying to upload ${totalFiles} files.`);
-        return;
-    }
-
-    // Check total size
-    const currentTotalSize = selectedFiles.reduce((sum, f) => sum + (f.size || 0), 0);
-    const newFilesSize = validFiles.reduce((sum, f) => sum + f.size, 0);
-    if (currentTotalSize + newFilesSize > MAX_TOTAL_SIZE) {
-        alert(`❌ Total file size exceeds 20MB limit.\n\nCurrent: ${formatFileSize(currentTotalSize)}\nAdding: ${formatFileSize(newFilesSize)}\n\nPlease remove some files.`);
-        return;
-    }
+            if (invalidFiles.length > 0) {
+                alert(`❌ The following files are not supported and will be ignored:\n\n${invalidFiles.join('\n')}\n\n✅ Supported code file types:\nJavaScript/TypeScript: .js, .jsx, .ts, .tsx\nPython: .py\nJava: .java\nC/C++: .c, .cpp, .h\nC#: .cs\nPHP: .php\nRuby: .rb\nGo: .go\nRust: .rs\nSwift: .swift\nKotlin: .kt\nWeb: .html, .css\nConfig: .json, .xml, .yml, .yaml, .properties\nScripts: .sh, .bash, .sql\nOther: .r, .scala, .dart, .md`);
+            }
 
             // Append new valid files to existing selectedFiles
             validFiles.forEach(file => {
