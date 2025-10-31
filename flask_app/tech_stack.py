@@ -54,7 +54,31 @@ def generate_tech_stack_doc_for_file(filename, content, retry_count=3):
     
     Ensure the output is concise, well-organized, and follows this exact structure.
 
+<<<<<<< HEAD
     Here is the code to analyze:
+=======
+        if not content:
+            current_app.logger.warning(f"No content found for file {filename}")
+            combined_result += f"## {filename}\nNo content available for documentation\n\n"
+            continue
+
+            # Prompt for tech stack documentation
+        prompt = f"""Analyze this code and determine if it contains a detectable tech stack (e.g., languages, frameworks, libraries, databases, or dependencies). If a tech stack is detected, generate a structured documentation in markdown format with the following sections:
+        Generate documentation that fits in a fixed-height scrollable card viewer.
+          FORMATTING RULES:
+        - Write naturally in complete sentences and paragraphs
+        - Keep sentences under 15-20 words each including example
+        - **Tech Stack Overview**: Provide a high-level overview of the technologies used, including backend, frontend, databases, and key dependencies.
+        - **List of Technologies**: Provide a numbered list of detected technologies (e.g., 1. Python 3.x, 2. Flask framework).
+        - **Explanation of Technologies**: For each technology, include:
+        - **Purpose**: What role it plays in the code (e.g., backend framework, database).
+        - **Version**: Detected or inferred version if available (e.g., Flask 2.0+).
+        - **Dependencies**: List related dependencies or how it interacts with others.
+        - **Example**: Provide a code snippet showing its usage.
+        Ensure the output is concise, well-organized, and follows this exact structure.
+
+        Here is the code to analyze:\n\n{content}"""   
+>>>>>>> 8cb4413885c7b56aea8dd418969d3aa910dfee8d
 
 {truncated_content}"""
 
@@ -169,6 +193,7 @@ def regenerate_tech_stack():
             failed_files.append(filename)
             continue
 
+<<<<<<< HEAD
         # Generate documentation with retry logic
         doc_result, error = generate_tech_stack_doc_for_file(filename, content)
         
@@ -180,6 +205,38 @@ def regenerate_tech_stack():
             current_app.logger.error(f"Failed to generate tech stack docs for {filename}: {error}")
             combined_result += f"## {filename}\n\n**{error_message}**\n\nPlease try regenerating or upload a smaller file.\n\n---\n\n"
             failed_files.append(filename)
+=======
+        prompt = f"""Analyze this code and determine if it contains a detectable tech stack (e.g., languages, frameworks, libraries, databases, or dependencies). If a tech stack is detected, generate a structured documentation in markdown format with the following sections:
+        Generate documentation that fits in a fixed-height scrollable card viewer.
+          FORMATTING RULES:
+        - Write naturally in complete sentences and paragraphs
+        - Keep sentences under 15-20 words each including example
+        - **Tech Stack Overview**: Provide a high-level overview of the technologies used, including backend, frontend, databases, and key dependencies.
+        - **List of Technologies**: Provide a numbered list of detected technologies (e.g., 1. Python 3.x, 2. Flask framework).
+        - **Explanation of Technologies**: For each technology, include:
+        - **Purpose**: What role it plays in the code (e.g., backend framework, database).
+        - **Version**: Detected or inferred version if available (e.g., Flask 2.0+).
+        - **Dependencies**: List related dependencies or how it interacts with others.
+        - **Example**: Provide a code snippet showing its usage.
+        Ensure the output is concise, well-organized, and follows this exact structure.
+
+        Here is the code to analyze:\n\n{content}"""
+
+        try:
+            chat_completion = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": "You are a helpful code documentation assistant."},
+                    {"role": "user", "content": prompt},
+                ],
+                model="llama-3.3-70b-versatile",
+                max_tokens=1000
+            )
+            ai_response = chat_completion.choices[0].message.content
+            combined_result += f"{ai_response}\n\n"
+        except Exception as e:
+            current_app.logger.error(f"Error generating documentation for {filename}: {str(e)}")
+            combined_result += f"## {filename}\nError generating documentation: {str(e)}\n\n"
+>>>>>>> 8cb4413885c7b56aea8dd418969d3aa910dfee8d
 
     if not combined_result:
         return jsonify({"error": "No documentation generated for any files"}), 400
