@@ -56,6 +56,8 @@
       margin-bottom: 12px;
     }
 
+   
+
     .doc-content ul ul,
     .doc-content ol ul,
     .doc-content ul ol,
@@ -224,7 +226,7 @@
           <!-- Card Header -->
           <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-lg">
             <h2 class="text-xl font-semibold flex items-center gap-2">
-              <i data-lucide="settings" class="w-6 h-6"></i>
+              <i data-lucide="git-branch" class="w-6 h-6"></i>
               Generated Documentation
             </h2>
           </div>
@@ -276,7 +278,6 @@
       </div>
       <select id="download-format" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
         <option value="markdown">Markdown (.md)</option>
-        <option value="pdf">PDF (.pdf)</option>
         <option value="word">Word (.docx)</option>
       </select>
       <button onclick="downloadDoc()" class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors">
