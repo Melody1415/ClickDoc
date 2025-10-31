@@ -37,10 +37,13 @@ function initializeFilesFromServer() {
     if (storedFiles) {
         uploadedFiles = JSON.parse(storedFiles);
         displayUploadedFiles();
-        addFilesToConversation();
         filesAutoLoaded = true;
         console.log(`Loaded ${uploadedFiles.length} files from sessionStorage`);
         syncFilesWithBackend();
+        // IMPORTANT: Show welcome message after files are loaded
+        setTimeout(() => {
+            addFilesToConversation();
+        }, 500);
     } else {
         const filesData = window.serverFiles || [];
         if (filesData && filesData.length > 0) {
@@ -54,10 +57,13 @@ function initializeFilesFromServer() {
             }));
             sessionStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
             displayUploadedFiles();
-            addFilesToConversation();
             filesAutoLoaded = true;
             console.log(`Loaded ${filesData.length} files from server`);
             syncFilesWithBackend();
+            // IMPORTANT: Show welcome message after files are loaded
+            setTimeout(() => {
+                addFilesToConversation();
+            }, 500);
         } else {
             loadUploadedFiles();
         }
@@ -80,8 +86,10 @@ async function loadUploadedFiles() {
             sessionStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
             displayUploadedFiles();
             if (uploadedFiles.length > 0 && !filesAutoLoaded) {
-                addFilesToConversation();
                 filesAutoLoaded = true;
+                setTimeout(() => {
+                    addFilesToConversation();
+                }, 500);
             }
             syncFilesWithBackend();
         }
@@ -101,10 +109,16 @@ async function syncFilesWithBackend() {
         const response = await fetch(`${API_BASE_URL}/api/set_files`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ files: validFiles.map(f => ({ name: f.name, content: btoa(f.content), type: f.type })) })
+            body: JSON.stringify({ 
+                files: validFiles.map(f => ({ 
+                    name: f.name, 
+                    content: f.content, 
+                    type: f.type 
+                })) 
+            })
         });
         if (response.ok) {
-            console.log(`Synced ${validFiles.length} files with backend`);
+            console.log(`✅ Synced ${validFiles.length} files with backend successfully`);
         } else {
             console.error('Failed to sync files with backend:', response.status, response.statusText);
         }
@@ -253,7 +267,7 @@ async function handleFileUpload(files) {
     let processedFiles = 0;
 
     for (const file of validFiles) {
-        if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        if (file.size > 10 * 1024 * 1024) {
             alert(`${file.name} is too large (>10MB). Please upload smaller files.`);
             continue;
         }
@@ -287,7 +301,6 @@ async function handleFileUpload(files) {
     await new Promise(resolve => setTimeout(resolve, 500));
     uploadModal.classList.add('hidden');
     displayUploadedFiles();
-    addFilesToConversation();
     progressBar.style.width = '0%';
     uploadStatus.textContent = 'Preparing files...';
 
@@ -314,12 +327,15 @@ function removeFile(index) {
     uploadedFiles.splice(index, 1);
     sessionStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
     displayUploadedFiles();
-    addFilesToConversation();
     syncFilesWithBackend();
 }
 
 function addFilesToConversation() {
-    if (filesAddedToConversation && uploadedFiles.length > 0) return;
+    // Prevent duplicate welcome messages
+    if (filesAddedToConversation) {
+        console.log('Files already added to conversation, skipping...');
+        return;
+    }
     
     const chatArea = document.getElementById('chat-area');
     const initialState = document.getElementById('initial-state');
@@ -352,35 +368,47 @@ function addFilesToConversation() {
 
     welcomeMessage.innerHTML = `
         <div class="flex gap-2 mb-2">
-            <div class="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
+            <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-md">
                 <span class="text-white text-sm">🤖</span>
             </div>
             <span class="text-gray-800 font-semibold">AI Assistant</span>
         </div>
-        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+        <div class="bg-gradient-to-br from-blue-50 to-purple-50 p-5 rounded-lg border-2 border-blue-200 shadow-sm">
             <div class="flex items-center gap-2 mb-4">
-                <i data-lucide="sparkles" class="w-6 h-6 text-blue-600"></i>
-                <span class="text-lg font-bold text-blue-800">Files Ready for Analysis!</span>
+                <i data-lucide="sparkles" class="w-6 h-6 text-blue-600 animate-pulse"></i>
+                <span class="text-lg font-bold text-blue-800">✅ Files Ready for Analysis!</span>
             </div>
-            <p class="text-gray-800 mb-4">I've successfully loaded ${uploadedFiles.length} file(s):</p>
-            <div class="space-y-2 mb-4">
+            <p class="text-gray-800 mb-4 font-medium">I've successfully loaded <strong>${uploadedFiles.length} file(s)</strong> and they're ready for analysis:</p>
+            <div class="space-y-2 mb-4 bg-white p-3 rounded-lg">
                 ${uploadedFiles.map(file => `
-                    <div class="flex items-center gap-3 p-3 bg-white rounded-lg">
+                    <div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                         <i data-lucide="${getFileIcon(file.name)}" class="w-5 h-5 ${getFileIconColor(file.name)}"></i>
                         <span class="text-sm font-medium text-gray-800 truncate flex-1">${file.name}</span>
-                        <span class="text-xs text-gray-500">${formatFileSize(file.size)}</span>
+                        <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded">${formatFileSize(file.size)}</span>
                     </div>
                 `).join('')}
             </div>
-            <p class="text-gray-800 mb-2">You can ask me to:</p>
+            <p class="text-gray-800 mb-2 font-semibold">🚀 You can ask me to:</p>
             <ul class="space-y-2 mb-4">
-                <li class="p-2 bg-white rounded-lg border-l-4 border-blue-600 cursor-pointer" onclick="sendPresetMessage('Explain what any file does')">Explain what any file does</li>
-                <li class="p-2 bg-white rounded-lg border-l-4 border-blue-600 cursor-pointer" onclick="sendPresetMessage('Analyze the code structure')">Analyze the code structure</li>
-                <li class="p-2 bg-white rounded-lg border-l-4 border-blue-600 cursor-pointer" onclick="sendPresetMessage('Find potential issues or bugs')">Find potential issues or bugs</li>
-                <li class="p-2 bg-white rounded-lg border-l-4 border-blue-600 cursor-pointer" onclick="sendPresetMessage('Suggest improvements')">Suggest improvements</li>
-                <li class="p-2 bg-white rounded-lg border-l-4 border-blue-600 cursor-pointer" onclick="sendPresetMessage('Answer any specific questions about the code')">Answer any specific questions about the code</li>
+                <li class="p-3 bg-white rounded-lg border-l-4 border-blue-600 cursor-pointer hover:bg-blue-50 transition-all hover:shadow-md" onclick="sendPresetMessage('Explain what each file does and how they work together')">
+                    <strong>📖 Explain</strong> what each file does and how they work together
+                </li>
+                <li class="p-3 bg-white rounded-lg border-l-4 border-green-600 cursor-pointer hover:bg-green-50 transition-all hover:shadow-md" onclick="sendPresetMessage('Analyze the code structure and architecture')">
+                    <strong>🏗️ Analyze</strong> the code structure and architecture
+                </li>
+                <li class="p-3 bg-white rounded-lg border-l-4 border-red-600 cursor-pointer hover:bg-red-50 transition-all hover:shadow-md" onclick="sendPresetMessage('Find potential bugs, issues, or security vulnerabilities')">
+                    <strong>🐛 Find bugs</strong>, issues, or security vulnerabilities
+                </li>
+                <li class="p-3 bg-white rounded-lg border-l-4 border-purple-600 cursor-pointer hover:bg-purple-50 transition-all hover:shadow-md" onclick="sendPresetMessage('Suggest improvements and best practices')">
+                    <strong>💡 Suggest</strong> improvements and best practices
+                </li>
+                <li class="p-3 bg-white rounded-lg border-l-4 border-orange-600 cursor-pointer hover:bg-orange-50 transition-all hover:shadow-md" onclick="sendPresetMessage('Answer specific questions about the code')">
+                    <strong>❓ Answer</strong> specific questions about the code
+                </li>
             </ul>
-            <p class="text-gray-800">What would you like to know about your code?</p>
+            <div class="bg-blue-100 border-l-4 border-blue-600 p-3 rounded">
+                <p class="text-gray-800 font-medium">💬 What would you like to know about your code?</p>
+            </div>
         </div>
         <p class="text-xs text-gray-500 mt-2 text-right">${currentTime}</p>
     `;
@@ -389,6 +417,7 @@ function addFilesToConversation() {
     chatArea.scrollTop = chatArea.scrollHeight;
     lucide.createIcons();
     filesAddedToConversation = true;
+    console.log('✅ Welcome message added successfully');
 }
 
 async function sendMessage() {
@@ -416,7 +445,7 @@ async function sendMessage() {
                 message: message,
                 conversation_id: currentConversationId,
                 include_all_files: true,
-                selected_files: validFiles.map(f => f.name) // Send only filenames, backend uses session
+                selected_files: validFiles.map(f => f.name)
             })
         });
 
@@ -435,6 +464,54 @@ async function sendMessage() {
     }
 }
 
+// IMPROVED: Format AI response with better readability
+function formatAIResponse(text) {
+    // Convert markdown-style code blocks to HTML
+    text = text.replace(/```(\w+)?\n([\s\S]*?)```/g, function(match, lang, code) {
+        return `<div class="code-block my-3">
+            <div class="code-header bg-gray-800 text-gray-200 px-3 py-1 rounded-t text-xs font-mono">
+                ${lang || 'code'}
+            </div>
+            <pre class="bg-gray-900 text-gray-100 p-3 rounded-b overflow-x-auto"><code>${escapeHtml(code.trim())}</code></pre>
+        </div>`;
+    });
+
+    // Convert inline code
+    text = text.replace(/`([^`]+)`/g, '<code class="bg-gray-200 text-red-600 px-1 py-0.5 rounded text-sm font-mono">$1</code>');
+
+    // Convert bold text
+    text = text.replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>');
+
+    // Convert numbered lists
+    text = text.replace(/^\d+\.\s+(.+)$/gm, '<li class="ml-4 mb-2">$1</li>');
+    text = text.replace(/(<li class="ml-4 mb-2">.*<\/li>\n?)+/g, '<ol class="list-decimal list-inside space-y-2 my-3 bg-blue-50 p-3 rounded-lg">$&</ol>');
+
+    // Convert bullet points
+    text = text.replace(/^[\-\*]\s+(.+)$/gm, '<li class="ml-4 mb-2">$1</li>');
+    text = text.replace(/(<li class="ml-4 mb-2">.*<\/li>\n?)+/g, '<ul class="list-disc list-inside space-y-2 my-3 bg-green-50 p-3 rounded-lg">$&</ul>');
+
+    // Convert headers
+    text = text.replace(/^### (.+)$/gm, '<h3 class="text-lg font-bold text-gray-900 mt-4 mb-2">$1</h3>');
+    text = text.replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold text-gray-900 mt-4 mb-2">$1</h2>');
+    text = text.replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold text-gray-900 mt-4 mb-2">$1</h1>');
+
+    // Convert line breaks to paragraphs
+    text = text.split('\n\n').map(para => {
+        if (para.trim() && !para.startsWith('<')) {
+            return `<p class="mb-3 leading-relaxed">${para}</p>`;
+        }
+        return para;
+    }).join('');
+
+    return text;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 function addMessageToChat(sender, message) {
     const chatArea = document.getElementById('chat-area');
     if (sender === 'user' && !filesAddedToConversation) {
@@ -449,21 +526,26 @@ function addMessageToChat(sender, message) {
 
     if (sender === 'user') {
         messageDiv.innerHTML = `
-            <div class="bg-blue-600 text-white p-4 rounded-lg max-w-[85%] ml-auto rounded-br-none">
-                ${message}
+            <div class="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-4 rounded-2xl max-w-[85%] ml-auto rounded-br-md shadow-md">
+                ${escapeHtml(message)}
             </div>
             <p class="text-xs text-gray-500 mt-2 text-right">${currentTime}</p>
         `;
     } else {
+        // Format AI response with better structure
+        const formattedMessage = formatAIResponse(message);
+        
         messageDiv.innerHTML = `
             <div class="flex gap-2 mb-2">
-                <div class="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-md">
                     <span class="text-white text-sm">🤖</span>
                 </div>
                 <span class="text-gray-800 font-semibold">AI Assistant</span>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 max-w-[85%] rounded-bl-none">
-                ${message}
+            <div class="bg-white p-4 rounded-2xl border border-gray-200 max-w-[85%] rounded-bl-md shadow-sm hover:shadow-md transition-shadow">
+                <div class="prose prose-sm max-w-none">
+                    ${formattedMessage}
+                </div>
             </div>
             <p class="text-xs text-gray-500 mt-2">${currentTime}</p>
         `;
@@ -481,16 +563,16 @@ function showTypingIndicator() {
     indicator.id = 'typing-indicator';
     indicator.innerHTML = `
         <div class="flex gap-2 mb-2">
-            <div class="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
+            <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-md">
                 <span class="text-white text-sm">🤖</span>
             </div>
             <span class="text-gray-800 font-semibold">AI Assistant</span>
         </div>
-        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 max-w-[85%] rounded-bl-none">
+        <div class="bg-white p-4 rounded-2xl border border-gray-200 max-w-[85%] rounded-bl-md shadow-sm">
             <div class="flex gap-2">
                 <span class="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></span>
-                <span class="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-200"></span>
-                <span class="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-400"></span>
+                <span class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+                <span class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
             </div>
         </div>
     `;

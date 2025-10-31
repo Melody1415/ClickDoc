@@ -485,33 +485,59 @@
                 }
         });
 
-        startChatBtn.addEventListener('click', async function () {
+                startChatBtn.addEventListener('click', async function () {
             if (uploadedFiles.length === 0) {
-                alert('Please upload at least one file before generating documentation.');
+                alert('Please upload at least one file before starting chat.');
                 return;
             }
 
             try {
+                // Prepare files - decode if needed
+                const filesToSend = uploadedFiles.map(file => {
+                    let content = file.content;
+                    
+                    // If content is already base64 encoded, decode it
+                    if (content && typeof content === 'string') {
+                        try {
+                            // Check if it looks like base64
+                            if (/^[A-Za-z0-9+/]*={0,2}$/.test(content)) {
+                                content = atob(content);
+                            }
+                        } catch (e) {
+                            // If decoding fails, use as-is
+                        }
+                    }
+                    
+                    return {
+                        name: file.name,
+                        content: content,
+                        type: file.type,
+                        size: file.size
+                    };
+                });
+
                 const response = await fetch('/api/set_files', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ files: uploadedFiles })
+                    body: JSON.stringify({ files: filesToSend })
                 });
 
-                    const responseData = await response.json();
+                const responseData = await response.json();
 
-                    if (response.ok) {
-                        console.log('Files sent successfully:', responseData);
-                       window.location.href = '/chatbot';
-                    } else {
-                        console.error('Error from server:', responseData);
-                        alert(`Failed to send files to the server: ${responseData.error || 'Unknown error'}`);
-                    }
-                } catch (error) {
-                    console.error('Error sending files:', error);
-                    alert('An error occurred while communicating with the server.');
+                if (response.ok) {
+                    console.log('Files sent successfully:', responseData);
+                    // Navigate to chatbot
+                    window.location.href = '/chatbot';
+                } else {
+                    console.error('Error from server:', responseData);
+                    alert(`Failed to send files to the server: ${responseData.error || 'Unknown error'}`);
                 }
+            } catch (error) {
+                console.error('Error sending files:', error);
+                alert('An error occurred while communicating with the server.');
+            }
         });
+            
     
 
         // Initialize on page load
