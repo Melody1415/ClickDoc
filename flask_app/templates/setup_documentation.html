@@ -8,22 +8,69 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked@4.0.0/marked.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://unpkg.com/docx@7.8.2/build/index.js"></script>
   <style>
-    .doc-content h1, .doc-content h2, .doc-content h3, .doc-content h4 {
+    /* Custom styles for documentation content */
+    .doc-content h1,
+    .doc-content h2,
+    .doc-content h3,
+    .doc-content h4 {
       margin: 24px 0 16px;
       color: #2d3748;
       line-height: 1.3;
     }
-    .doc-content h1 { font-size: 28px; font-weight: 700; }
-    .doc-content h2 { font-size: 24px; font-weight: 600; }
-    .doc-content h3 { font-size: 20px; font-weight: 600; }
-    .doc-content h4 { font-size: 18px; font-weight: 600; }
-    .doc-content p { margin: 12px 0 20px; line-height: 1.8; }
-    .doc-content ul, .doc-content ol { margin: 12px 0 20px; padding-left: 30px; }
-    .doc-content li { margin-bottom: 12px; }
-    .doc-content strong { font-weight: 700; color: #2d3748; }
+
+    .doc-content h1 {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .doc-content h2 {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .doc-content h3 {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .doc-content h4 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .doc-content p {
+      margin: 12px 0 20px;
+      line-height: 1.8;
+    }
+
+    .doc-content ul,
+    .doc-content ol {
+      margin: 12px 0 20px;
+      padding-left: 30px;
+    }
+
+    .doc-content li {
+      margin-bottom: 12px;
+    }
+
+   
+
+    .doc-content ul ul,
+    .doc-content ol ul,
+    .doc-content ul ol,
+    .doc-content ol ol {
+      margin: 8px 0;
+      padding-left: 25px;
+    }
+
+    .doc-content strong {
+      font-weight: 700;
+      color: #2d3748;
+    }
+
     .doc-content code {
       background: #f0fdf4;
       padding: 3px 6px;
@@ -31,6 +78,7 @@
       font-family: 'Courier New', Courier, monospace;
       font-size: 14px;
     }
+
     .doc-content pre {
       background: #f0fdf4;
       padding: 20px;
@@ -42,6 +90,39 @@
       margin: 16px 0 24px;
       line-height: 1.6;
     }
+
+    .doc-content pre code {
+      background: none;
+      padding: 0;
+      font-size: 14px;
+    }
+
+    .doc-content > * {
+      margin-bottom: 20px !important;
+    }
+
+    .doc-content > *:last-child {
+      margin-bottom: 0 !important;
+    }
+
+    .doc-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .doc-content::-webkit-scrollbar-track {
+      background: #edf2f7;
+      border-radius: 4px;
+    }
+
+    .doc-content::-webkit-scrollbar-thumb {
+      background: #667eea;
+      border-radius: 4px;
+    }
+
+    .doc-content::-webkit-scrollbar-thumb:hover {
+      background: #5a67d8;
+    }
+
     .spinner {
       border: 4px solid #f3f3f3;
       border-top: 4px solid #4285f4;
@@ -51,91 +132,120 @@
       animation: spin 1s linear infinite;
       margin: 20px auto;
     }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    @keyframes spin { 
+      100% { transform: rotate(360deg); } 
+    }
   </style>
 </head>
 <body class="min-h-screen bg-gray-50">
+  <!-- Header -->
   <header class="flex justify-between items-center px-8 py-6 bg-white shadow-sm">
     <div class="flex items-center gap-3">
       <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-        <img src="/static/assets/logo.png" alt="ClickDoc Logo" class="w-8 h-8" onerror="this.style.display='none'"/>
+        <img 
+                src="/static/assets/logo.png" 
+                alt="ClickDoc Logo" 
+                class="w-8 h-8"
+                onerror="this.style.display='none'"
+            />
       </div>
-      <div class="text-2xl font-bold text-blue-600">ClickDoc</div>
+      <div class="text-2xl font-bold text-blue-600">
+        ClickDoc
+      </div>
     </div>
     <div class="flex items-center gap-4">
       <button onclick="window.location.href='/dashboard'" class="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2">
-        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>Dashboard
+        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+        Dashboard
       </button>
       <button onclick="window.location.href='/functiondashboard'" class="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2">
-        <i data-lucide="arrow-left" class="w-5 h-5"></i>Back
+        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        Back
       </button>
     </div>
   </header>
 
   <div class="flex min-h-screen">
+    <!-- Left Sidebar - File Uploaded -->
     <div class="w-80 bg-white border-r border-gray-200 border-t border-gray-200 shadow-sm">
       <div class="p-6">
         <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <i data-lucide="folder" class="w-5 h-5 text-blue-600"></i>File Uploaded
+          <i data-lucide="folder" class="w-5 h-5 text-blue-600"></i>
+          File Uploaded
         </h3>
+        
         <div id="uploaded-files" class="space-y-2 max-h-96 overflow-y-auto mb-4">
-          <div class="text-center py-6">
-            <i data-lucide="folder-x" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i>
-            <p class="text-gray-500 text-sm">No files uploaded</p>
-          </div>
+          {% if files %}
+            {% for file in files %}
+              <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg group">
+                <i data-lucide="file" class="w-5 h-5 text-gray-500"></i>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-800 truncate">{{ file.name }}</p>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="text-center py-6">
+              <i data-lucide="folder-x" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i>
+              <p class="text-gray-500 text-sm">No files uploaded</p>
+            </div>
+          {% endif %}
         </div>
+
+        <!-- Hidden file input -->
         <input type="file" id="file-input" multiple accept=".js,.jsx,.ts,.tsx,.py,.java,.c,.cpp,.h,.cs,.php,.rb,.go,.rs,.swift,.kt,.html,.css,.json,.md,.xml,.yml,.yaml,.properties,.sh,.bash,.sql,.r,.scala,.dart" class="hidden">
+        
+        <!-- Upload More Files -->
         <button class="w-full bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm" id="upload-more-btn">
-          <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>Upload More Files
+          <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+          Upload More Files
         </button>
       </div>
     </div>
 
+    <!-- Main Content -->
     <div class="flex-1 border-t border-gray-200 flex flex-col">
       <div class="p-8">
         <h1 class="text-3xl font-bold text-gray-800 mb-2">Setup Documentation</h1>
-        <p class="text-lg text-gray-600 mb-8">Generated Documentation</p>
+        {% if files %}
+          <p class="text-lg text-gray-600 mb-8">
+            Generated for: 
+            {% for file in files %}
+              {{ file.name }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+          </p>
+        {% else %}
+          <p class="text-lg text-gray-600 mb-8">No files uploaded</p>
+        {% endif %}
       </div>
 
+      <!-- Documentation Card -->
       <div class="flex-1 mx-8 mb-8">
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex flex-col">
+          <!-- Card Header -->
           <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-lg">
             <h2 class="text-xl font-semibold flex items-center gap-2">
-              <i data-lucide="settings" class="w-6 h-6"></i>Generated Documentation
+              <i data-lucide="git-branch" class="w-6 h-6"></i>
+              Generated Documentation
             </h2>
           </div>
+
+          <!-- Card Content -->
           <div class="flex-1 p-8 overflow-y-auto doc-content" style="max-height: calc(100vh - 400px);">
-            <div id="markdown-content">## Sample Documentation
-
-This is a sample setup documentation.
-
-### Prerequisites
-- Node.js installed
-- Package manager (npm/yarn)
-
-### Installation Steps
-1. Clone the repository
-2. Install dependencies
-3. Run the application
-
-### Configuration
-Configure your environment variables in `.env` file.
-
-```bash
-npm install
-npm start
-```
-
-### Testing
-Run tests using: `npm test`</div>
+            <div id="markdown-content">{{ result | safe }}</div>
           </div>
+
+          <!-- Actions -->
           <div class="p-6 border-t border-gray-200 bg-gray-50 rounded-b-lg">
             <div class="flex justify-center gap-4">
               <button onclick="regenerate()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
-                <i data-lucide="refresh-cw" class="w-5 h-5"></i>Regenerate
+                <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                Regenerate
               </button>
               <button onclick="showDownloadModal()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
-                <i data-lucide="download" class="w-5 h-5"></i>Download
+                <i data-lucide="download" class="w-5 h-5"></i>
+                Download
               </button>
             </div>
           </div>
@@ -144,8 +254,22 @@ Run tests using: `npm test`</div>
     </div>
   </div>
 
+  <!-- Upload Progress Modal -->
+  <div id="upload-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-6 w-96 max-w-90vw">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Uploading Files...</h3>
+      <div class="space-y-3">
+        <div id="upload-progress" class="w-full bg-gray-200 rounded-full h-2">
+          <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <div id="upload-status" class="text-sm text-gray-600">Preparing files...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Download Modal -->
   <div id="download-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg p-6 w-96">
+    <div class="bg-white rounded-lg p-6 w-96 max-w-90vw">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-semibold text-gray-800">Select Download Format</h3>
         <button onclick="closeDownloadModal()" class="text-gray-400 hover:text-gray-600">
@@ -164,10 +288,257 @@ Run tests using: `npm test`</div>
   </div>
 
   <script>
-    marked.setOptions({ gfm: true, breaks: true });
+    let uploadedFiles = [];
 
+    // DOM Elements
+    const uploadMoreBtn = document.getElementById('upload-more-btn');
+    const fileInput = document.getElementById('file-input');
+    const uploadedFilesContainer = document.getElementById('uploaded-files');
+    const uploadModal = document.getElementById('upload-modal');
+    const progressBar = document.getElementById('progress-bar');
+    const uploadStatus = document.getElementById('upload-status');
+
+    // Markdown setup
+    marked.setOptions({
+      gfm: true,
+      breaks: true
+    });
+
+    // Load uploaded files from sessionStorage
+    function loadUploadedFiles() {
+      const storedFiles = sessionStorage.getItem('uploadedFiles');
+      
+      if (storedFiles) {
+        uploadedFiles = JSON.parse(storedFiles);
+        displayUploadedFiles();
+      } else {
+        // Fallback - show message if no files found in sessionStorage but files exist from template
+        const templateFiles = document.querySelectorAll('#uploaded-files .group');
+        if (templateFiles.length === 0) {
+          uploadedFilesContainer.innerHTML = `
+            <div class="text-center py-6">
+              <i data-lucide="folder-x" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i>
+              <p class="text-gray-500 text-sm">No files uploaded</p>
+              <button onclick="document.getElementById('file-input').click()" class="text-blue-600 hover:text-blue-800 text-sm mt-2">
+                Upload Files
+              </button>
+            </div>
+          `;
+          lucide.createIcons();
+        }
+      }
+    }
+
+    // Display uploaded files
+    function displayUploadedFiles() {
+      uploadedFilesContainer.innerHTML = '';
+      
+      uploadedFiles.forEach((file, index) => {
+        const fileDiv = document.createElement('div');
+        fileDiv.className = 'flex items-center gap-3 p-3 bg-gray-50 rounded-lg group';
+        
+        fileDiv.innerHTML = `
+          <i data-lucide="${getFileIcon(file.name)}" class="w-5 h-5 ${getFileIconColor(file.name)}"></i>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-gray-800 truncate">${file.name}</p>
+            <p class="text-xs text-gray-500">${formatFileSize(file.size)}</p>
+          </div>
+          <button onclick="removeFile(${index})" class="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 transition-opacity">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        `;
+        
+        uploadedFilesContainer.appendChild(fileDiv);
+      });
+      
+      lucide.createIcons();
+    }
+
+    // Remove file function
+    function removeFile(index) {
+      uploadedFiles.splice(index, 1);
+      sessionStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+      displayUploadedFiles();
+    }
+
+    // Validate file type
+    function isValidFileType(file) {
+      const allowedExtensions = [
+        '.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.json', '.md',
+        '.py', '.java', '.c', '.cpp', '.h', '.cs', '.php', '.rb', '.go', '.rs', '.swift', '.kt',
+        '.xml', '.yml', '.yaml', '.properties', '.sh', '.bash', '.sql',
+        '.r', '.scala', '.dart'
+      ];
+      const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+      return allowedExtensions.includes(fileExt);
+    }
+
+    // Handle file upload
+    async function handleFileUpload(files) {
+      if (files.length === 0) return;
+
+      const allFiles = Array.from(files);
+      const validFiles = [];
+      const invalidFiles = [];
+
+      allFiles.forEach(file => {
+        if (isValidFileType(file)) {
+          validFiles.push(file);
+        } else {
+          invalidFiles.push(file.name);
+        }
+      });
+
+      if (invalidFiles.length > 0) {
+        alert(`The following files are not supported and will be ignored:\n\n${invalidFiles.join('\n')}\n\nSupported code file types:\nJavaScript/TypeScript: .js, .jsx, .ts, .tsx\nPython: .py\nJava: .java\nC/C++: .c, .cpp, .h\nC#: .cs\nPHP: .php\nRuby: .rb\nGo: .go\nRust: .rs\nSwift: .swift\nKotlin: .kt\nWeb: .html, .css\nConfig: .json, .xml, .yml, .yaml, .properties\nScripts: .sh, .bash, .sql\nOther: .r, .scala, .dart, .md`);
+      }
+
+      if (validFiles.length === 0) return;
+
+      uploadModal.classList.remove('hidden');
+      
+      const totalFiles = validFiles.length;
+      let processedFiles = 0;
+
+      for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
+        uploadStatus.textContent = `Processing ${file.name}... (${processedFiles + 1}/${totalFiles})`;
+        
+        try {
+          const existingFileIndex = uploadedFiles.findIndex(f => f.name === file.name);
+          const content = await readFileContent(file);
+          
+          const fileData = {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            content: content,
+            lastModified: file.lastModified,
+            uploadedAt: new Date().toISOString()
+          };
+
+          if (existingFileIndex !== -1) {
+            uploadedFiles[existingFileIndex] = fileData;
+          } else {
+            uploadedFiles.push(fileData);
+          }
+        } catch (error) {
+          console.error(`Error processing file ${file.name}:`, error);
+        }
+        
+        processedFiles++;
+        const progress = (processedFiles / totalFiles) * 100;
+        progressBar.style.width = `${progress}%`;
+      }
+
+      sessionStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+      uploadStatus.textContent = 'Upload completed!';
+      await new Promise(resolve => setTimeout(resolve, 500));
+      uploadModal.classList.add('hidden');
+      displayUploadedFiles();
+      progressBar.style.width = '0%';
+      uploadStatus.textContent = 'Preparing files...';
+    }
+
+    // Read file content
+    async function readFileContent(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          resolve(e.target.result);
+        };
+        reader.onerror = function() {
+          reject(new Error(`Failed to read file: ${file.name}`));
+        };
+        if (file.type === 'application/pdf') {
+          reader.readAsArrayBuffer(file);
+        } else {
+          reader.readAsText(file);
+        }
+      });
+    }
+
+    // Get appropriate icon for file type
+    function getFileIcon(filename) {
+      const ext = filename.split('.').pop().toLowerCase();
+      const iconMap = {
+        'js': 'file-code', 'jsx': 'file-code', 'ts': 'file-code', 'tsx': 'file-code',
+        'html': 'file-text', 'css': 'file-text', 'json': 'file-text',
+        'py': 'file-code', 'java': 'file-code', 'c': 'file-code', 'cpp': 'file-code', 'h': 'file-code',
+        'cs': 'file-code', 'php': 'file-code', 'rb': 'file-code', 'go': 'file-code', 'rs': 'file-code',
+        'swift': 'file-code', 'kt': 'file-code',
+        'xml': 'file-text', 'yml': 'file-text', 'yaml': 'file-text', 'properties': 'file-text',
+        'sh': 'terminal', 'bash': 'terminal', 'sql': 'database',
+        'md': 'file-text', 'r': 'file-code', 'scala': 'file-code', 'dart': 'file-code'
+      };
+      return iconMap[ext] || 'file';
+    }
+
+    // Get appropriate color for file type
+    function getFileIconColor(filename) {
+      const ext = filename.split('.').pop().toLowerCase();
+      const colorMap = {
+        'js': 'text-yellow-600', 'jsx': 'text-yellow-600', 'ts': 'text-blue-600', 'tsx': 'text-blue-600',
+        'html': 'text-red-600', 'css': 'text-purple-600', 'json': 'text-gray-600',
+        'py': 'text-green-600', 'java': 'text-orange-600', 'c': 'text-blue-500', 'cpp': 'text-blue-500', 'h': 'text-blue-500',
+        'cs': 'text-purple-500', 'php': 'text-indigo-600', 'rb': 'text-red-500', 'go': 'text-cyan-600', 'rs': 'text-orange-500',
+        'swift': 'text-orange-400', 'kt': 'text-purple-400',
+        'xml': 'text-green-500', 'yml': 'text-purple-500', 'yaml': 'text-purple-500', 'properties': 'text-gray-500',
+        'sh': 'text-green-700', 'bash': 'text-green-700', 'sql': 'text-blue-700',
+        'md': 'text-blue-500', 'r': 'text-blue-400', 'scala': 'text-red-400', 'dart': 'text-blue-400'
+      };
+      return colorMap[ext] || 'text-gray-500';
+    }
+
+    // Format file size
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Event Listeners
+    uploadMoreBtn.addEventListener('click', function() {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function(e) {
+      if (e.target.files.length > 0) {
+        handleFileUpload(Array.from(e.target.files));
+        e.target.value = '';
+      }
+    });
+
+    // Drag and drop functionality
+    const sidebar = document.querySelector('.w-80');
+    
+    sidebar.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      sidebar.classList.add('bg-blue-50', 'border-blue-300');
+    });
+
+    sidebar.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      sidebar.classList.remove('bg-blue-50', 'border-blue-300');
+    });
+
+    sidebar.addEventListener('drop', function(e) {
+      e.preventDefault();
+      sidebar.classList.remove('bg-blue-50', 'border-blue-300');
+      
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length > 0) {
+        handleFileUpload(files);
+      }
+    });
+
+    // Documentation functions
     document.addEventListener('DOMContentLoaded', function () {
       lucide.createIcons();
+      loadUploadedFiles();
+      
       const markdownContent = document.getElementById('markdown-content').textContent.trim();
       const parsedHtml = marked.parse(markdownContent);
       document.getElementById('markdown-content').innerHTML = parsedHtml;
@@ -177,6 +548,7 @@ Run tests using: `npm test`</div>
     async function regenerate() {
       const contentDiv = document.getElementById('markdown-content');
       contentDiv.innerHTML = '<div class="spinner"></div><p style="text-align:center">Regenerating documentation...</p>';
+
       try {
         const response = await fetch("/api/regenerate_setup", { method: "POST" });
         const data = await response.json();
@@ -192,19 +564,21 @@ Run tests using: `npm test`</div>
     }
 
     function showDownloadModal() {
-      document.getElementById('download-modal').classList.remove('hidden');
-      setTimeout(() => lucide.createIcons(), 0);
+      const modal = document.getElementById('download-modal');
+      modal.classList.remove('hidden');
     }
 
     function closeDownloadModal() {
-      document.getElementById('download-modal').classList.add('hidden');
+      const modal = document.getElementById('download-modal');
+      modal.classList.add('hidden');
     }
 
     async function downloadDoc() {
       const format = document.getElementById('download-format').value;
       const contentDiv = document.getElementById('markdown-content');
       const markdownContent = contentDiv.dataset.markdown || contentDiv.textContent.trim();
-      const sanitizedFilename = "setup_documentation";
+      const filename = "{{ filename | safe }}";
+      const sanitizedFilename = filename.replace(/\.[^/.]+$/, "") || "documentation";
 
       closeDownloadModal();
 
@@ -217,237 +591,171 @@ Run tests using: `npm test`</div>
         a.click();
         URL.revokeObjectURL(url);
       } else if (format === 'pdf') {
-        try {
-          const { jsPDF } = window.jspdf;
-          const doc = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-          });
-
-          const pageWidth = doc.internal.pageSize.getWidth();
-          const pageHeight = doc.internal.pageSize.getHeight();
-          const margin = 15;
-          const maxWidth = pageWidth - (margin * 2);
-          let yPos = margin;
-
-          // Title
-          doc.setFontSize(18);
-          doc.setFont('helvetica', 'bold');
-          doc.text('Setup Documentation', margin, yPos);
-          yPos += 12;
-
-          // Process markdown content
-          const lines = markdownContent.split('\n');
-          
-          for (let i = 0; i < lines.length; i++) {
-            let line = lines[i].trim();
-            if (!line) {
-              yPos += 4;
-              continue;
-            }
-
-            // Check for page break
-            if (yPos > pageHeight - 20) {
-              doc.addPage();
-              yPos = margin;
-            }
-
-            // Remove markdown syntax
-            const cleanLine = line
-              .replace(/^#+\s+/, '')
-              .replace(/\*\*(.*?)\*\*/g, '$1')
-              .replace(/`(.*?)`/g, '$1')
-              .replace(/^\d+\.\s+/, '')
-              .replace(/^[-*]\s+/, '• ');
-
-            // Determine style based on original markdown
-            if (line.startsWith('# ')) {
-              doc.setFontSize(16);
-              doc.setFont('helvetica', 'bold');
-              yPos += 6;
-            } else if (line.startsWith('## ')) {
-              doc.setFontSize(14);
-              doc.setFont('helvetica', 'bold');
-              yPos += 5;
-            } else if (line.startsWith('### ')) {
-              doc.setFontSize(12);
-              doc.setFont('helvetica', 'bold');
-              yPos += 4;
-            } else if (line.startsWith('```')) {
-              continue; // Skip code block markers
-            } else if (lines[i-1] && lines[i-1].trim().startsWith('```') && !line.startsWith('```')) {
-              // Code block content
-              doc.setFontSize(9);
-              doc.setFont('courier', 'normal');
-            } else {
-              doc.setFontSize(10);
-              doc.setFont('helvetica', 'normal');
-            }
-
-            // Split text to fit width
-            const splitText = doc.splitTextToSize(cleanLine, maxWidth);
-            
-            // Check if content fits on page
-            const contentHeight = splitText.length * 6;
-            if (yPos + contentHeight > pageHeight - 20) {
-              doc.addPage();
-              yPos = margin;
-            }
-
-            doc.text(splitText, margin, yPos);
-            yPos += splitText.length * 6;
-
-            // Extra spacing after headers
-            if (line.startsWith('#')) {
-              yPos += 3;
-            }
-          }
-
-          doc.save(`${sanitizedFilename}.pdf`);
-        } catch (error) {
-          console.error('PDF Error:', error);
-          alert('PDF generation failed: ' + error.message);
-        }
+        const element = document.querySelector('.doc-content');
+        const opt = {
+          margin: 1,
+          filename: `${sanitizedFilename}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().from(element).set(opt).save();
       } else if (format === 'word') {
-        try {
-          const lines = markdownContent.split('\n');
-          const children = [];
-          let inCodeBlock = false;
+        const lines = markdownContent.split('\n').filter(line => line.trim());
+        const children = [];
+        let inCodeBlock = false;
+        let codeBlockLines = [];
 
-          for (let i = 0; i < lines.length; i++) {
-            let line = lines[i];
-            const trimmedLine = line.trim();
+        function addCodeBlock() {
+          if (codeBlockLines.length) {
+            children.push(new docx.Paragraph({
+              children: [
+                new docx.TextRun({
+                  text: codeBlockLines.join('\n'),
+                  font: 'Courier New',
+                  size: 28,
+                  color: '374151'
+                })
+              ],
+              spacing: { before: 320, after: 480 },
+              border: {
+                left: { style: docx.BorderStyle.SINGLE, size: 12, color: '22c55e' }
+              },
+              shading: { fill: 'f0fdf4' }
+            }));
+            codeBlockLines = [];
+          }
+        }
 
-            // Handle code blocks
-            if (trimmedLine.startsWith('```')) {
-              inCodeBlock = !inCodeBlock;
-              continue;
-            }
-
+        lines.forEach((line, index) => {
+          line = line.trim();
+          if (line.startsWith('```')) {
             if (inCodeBlock) {
-              children.push(new docx.Paragraph({
-                text: line,
-                style: 'code',
-                spacing: { before: 0, after: 0 }
-              }));
-              continue;
-            }
-
-            if (!trimmedLine) {
-              children.push(new docx.Paragraph({ text: '' }));
-              continue;
-            }
-
-            // Clean text
-            const cleanText = trimmedLine
-              .replace(/^#+\s+/, '')
-              .replace(/\*\*(.*?)\*\*/g, '$1')
-              .replace(/`(.*?)`/g, '$1')
-              .replace(/^[-*]\s+/, '')
-              .replace(/^\d+\.\s+/, '');
-
-            // Create paragraph based on markdown syntax
-            if (trimmedLine.startsWith('# ')) {
-              children.push(new docx.Paragraph({
-                text: cleanText,
-                heading: docx.HeadingLevel.HEADING_1,
-                spacing: { before: 240, after: 120 }
-              }));
-            } else if (trimmedLine.startsWith('## ')) {
-              children.push(new docx.Paragraph({
-                text: cleanText,
-                heading: docx.HeadingLevel.HEADING_2,
-                spacing: { before: 240, after: 120 }
-              }));
-            } else if (trimmedLine.startsWith('### ')) {
-              children.push(new docx.Paragraph({
-                text: cleanText,
-                heading: docx.HeadingLevel.HEADING_3,
-                spacing: { before: 200, after: 100 }
-              }));
-            } else if (trimmedLine.startsWith('#### ')) {
-              children.push(new docx.Paragraph({
-                text: cleanText,
-                heading: docx.HeadingLevel.HEADING_4,
-                spacing: { before: 200, after: 100 }
-              }));
-            } else if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
-              children.push(new docx.Paragraph({
-                text: cleanText,
-                bullet: { level: 0 },
-                spacing: { before: 60, after: 60 }
-              }));
-            } else if (trimmedLine.match(/^\d+\.\s/)) {
-              children.push(new docx.Paragraph({
-                text: cleanText,
-                numbering: { reference: 'numbering', level: 0 },
-                spacing: { before: 60, after: 60 }
-              }));
+              addCodeBlock();
+              inCodeBlock = false;
             } else {
-              children.push(new docx.Paragraph({
-                text: cleanText,
-                spacing: { before: 100, after: 100 }
-              }));
+              inCodeBlock = true;
+            }
+            return;
+          }
+          if (inCodeBlock) {
+            codeBlockLines.push(line);
+            return;
+          }
+
+          const textRuns = [];
+          let currentText = line;
+          while (currentText.length) {
+            const boldMatch = currentText.match(/\*\*(.*?)\*\*/);
+            const codeMatch = currentText.match(/`(.*?)`/);
+            if (boldMatch && (!codeMatch || boldMatch.index < codeMatch.index)) {
+              if (boldMatch.index > 0) {
+                textRuns.push(new docx.TextRun({ text: currentText.slice(0, boldMatch.index), font: 'Arial', size: 30 }));
+              }
+              textRuns.push(new docx.TextRun({ text: boldMatch[1], font: 'Arial', size: 30, bold: true }));
+              currentText = currentText.slice(boldMatch.index + boldMatch[0].length);
+            } else if (codeMatch) {
+              if (codeMatch.index > 0) {
+                textRuns.push(new docx.TextRun({ text: currentText.slice(0, codeMatch.index), font: 'Arial', size: 30 }));
+              }
+              textRuns.push(new docx.TextRun({ text: codeMatch[1], font: 'Courier New', size: 28 }));
+              currentText = currentText.slice(codeMatch.index + codeMatch[0].length);
+            } else {
+              textRuns.push(new docx.TextRun({ text: currentText, font: 'Arial', size: 30 }));
+              currentText = '';
             }
           }
 
-          // Create document with proper configuration
-          const doc = new docx.Document({
-            numbering: {
-              config: [{
-                reference: 'numbering',
-                levels: [{
-                  level: 0,
-                  format: docx.LevelFormat.DECIMAL,
-                  text: '%1.',
-                  alignment: docx.AlignmentType.START,
-                  style: {
-                    paragraph: {
-                      indent: { left: 720, hanging: 260 }
-                    }
-                  }
-                }]
-              }]
-            },
-            styles: {
-              paragraphStyles: [{
-                id: 'code',
-                name: 'Code',
-                basedOn: 'Normal',
-                run: {
-                  font: 'Courier New',
-                  size: 20
-                },
-                paragraph: {
-                  spacing: { line: 240 }
-                }
-              }]
-            },
-            sections: [{
-              properties: {},
-              children: children
-            }]
-          });
+          if (line.startsWith('# ')) {
+            children.push(new docx.Paragraph({
+              children: textRuns,
+              heading: docx.HeadingLevel.HEADING_1,
+              spacing: { before: 480, after: 320 }
+            }));
+          } else if (line.startsWith('## ')) {
+            children.push(new docx.Paragraph({
+              children: textRuns.map(tr => new docx.TextRun({ ...tr, size: 48 })),
+              heading: docx.HeadingLevel.HEADING_2,
+              spacing: { before: 480, after: 320 }
+            }));
+          } else if (line.startsWith('### ')) {
+            children.push(new docx.Paragraph({
+              children: textRuns.map(tr => new docx.TextRun({ ...tr, size: 40 })),
+              heading: docx.HeadingLevel.HEADING_3,
+              spacing: { before: 480, after: 320 }
+            }));
+          } else if (line.startsWith('#### ')) {
+            children.push(new docx.Paragraph({
+              children: textRuns.map(tr => new docx.TextRun({ ...tr, size: 36 })),
+              heading: docx.HeadingLevel.HEADING_4,
+              spacing: { before: 480, after: 320 }
+            }));
+          } else if (line.startsWith('- ')) {
+            children.push(new docx.Paragraph({
+              children: textRuns,
+              bullet: { level: 0 },
+              spacing: { before: 240, after: 240 }
+            }));
+          } else if (line.startsWith('○ ') || line.startsWith('+ ')) {
+            children.push(new docx.Paragraph({
+              children: textRuns,
+              bullet: { level: 1 },
+              spacing: { before: 240, after: 240 }
+            }));
+          } else if (line.match(/^\d+\.\s/)) {
+            children.push(new docx.Paragraph({
+              children: textRuns,
+              numbering: { reference: 'default-numbering', level: 0 },
+              spacing: { before: 240, after: 240 }
+            }));
+          } else if (line) {
+            children.push(new docx.Paragraph({
+              children: textRuns,
+              spacing: { before: 240, after: 400 }
+            }));
+          }
+        });
 
-          // Generate and download
-          docx.Packer.toBlob(doc).then(blob => {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${sanitizedFilename}.docx`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-          }).catch(err => {
-            console.error('Word generation error:', err);
-            alert('Failed to generate Word document: ' + err.message);
-          });
-        } catch (error) {
-          console.error('Word Error:', error);
-          alert('Word generation failed: ' + error.message);
-        }
+        addCodeBlock();
+
+        const doc = new docx.Document({
+          numbering: {
+            config: [{
+              reference: 'default-numbering',
+              levels: [{
+                level: 0,
+                format: docx.NumberFormat.DECIMAL,
+                text: '%1.',
+                alignment: docx.AlignmentType.LEFT,
+                style: { paragraph: { indent: { left: 720 } } }
+              }]
+            }]
+          },
+          styles: {
+            default: {
+              heading1: { run: { font: 'Arial', size: 56, bold: true, color: '2d3748' } },
+              heading2: { run: { font: 'Arial', size: 48, bold: true, color: '2d3748' } },
+              heading3: { run: { font: 'Arial', size: 40, bold: true, color: '2d3748' } },
+              heading4: { run: { font: 'Arial', size: 36, bold: true, color: '2d3748' } }
+            }
+          },
+          sections: [{
+            properties: { page: { margin: { top: 720, bottom: 720, left: 720, right: 720 } } },
+            children: children
+          }]
+        });
+
+        docx.Packer.toBlob(doc).then(blob => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${sanitizedFilename}.docx`;
+          a.click();
+          URL.revokeObjectURL(url);
+        }).catch(err => {
+          console.error('Error generating Word document:', err);
+          alert('Failed to generate Word document. Please try again.');
+        });
       }
     }
   </script>
